@@ -17,11 +17,11 @@ from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 
 
-# __author__ = ["Tomas Mendez Echenagucia"]
-# __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
-# __license__ = "MIT License"
-# __email__ = "tmendeze@uw.edu"
-# __version__ = "0.1.0"
+__author__ = ["Tomas Mendez Echenagucia"]
+__copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
+__license__ = "MIT License"
+__email__ = "tmendeze@uw.edu"
+__version__ = "0.1.0"
 
 
 for i in range(60):
@@ -29,26 +29,25 @@ for i in range(60):
 
 path = compas_vibro.TEMP
 name = 'vibro_test'
-# mesh = Mesh.from_json(compas_vibro.get('mesh_flat_10x10.json'))
-path = ''
+mesh = Mesh.from_json(compas_vibro.get('mesh_flat_10x10.json'))
 s = Structure(path, name)
-print(s)
-# s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
+s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
-# d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
-# s.add(d)
+d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
+s.add(d)
 
-# load = PointLoad(name='pload', nodes=[10, 15], x=0, y=0, z=1, xx=0, yy=0, zz=0)
-# s.add(load)
+load = PointLoad(name='pload', nodes=[10, 15], x=0, y=0, z=1, xx=0, yy=0, zz=0)
+s.add(load)
 
-# section = ShellSection('shell_sec', t=.1)
-# s.add(section)
+section = ShellSection('shell_sec', t=.1)
+s.add(section)
 
-# material = ElasticIsotropic('concrete', E=30*9, v=.2, p=2400)
-# s.add(material)
+material = ElasticIsotropic('concrete', E=30*9, v=.2, p=2400)
+s.add(material)
 
-# el_prop = ElementProperties('concrete_shell',
-#                             material='concrete',
-#                             section='shell_sec',
-#                             elset='shell')
-# s.add(el_prop)
+el_prop = ElementProperties('concrete_shell',
+                            material='concrete',
+                            section='shell_sec',
+                            elset='shell')
+s.add(el_prop)
+

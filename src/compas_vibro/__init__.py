@@ -54,3 +54,8 @@ except Exception:
     pass
 
 __all__ = ["HOME", "DATA", "DOCS", "TEMP"]
+
+
+def get(filename):
+    filename = filename.strip('/')
+    return os.path.abspath(os.path.join(DATA, filename))
