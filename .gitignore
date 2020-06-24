@@ -107,6 +107,8 @@ ENV/
 *.3dmbak
 *.rhl
 *.rui_bak
+.vscode/*
+*.pyc
 
 temp/**
 !temp/PLACEHOLDER

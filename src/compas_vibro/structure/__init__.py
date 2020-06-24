@@ -14,3 +14,6 @@ from .section import *
 from .element_properties import *
 from .material import *
 from .set import *
+from .step import *
+
+__all__ = [name for name in dir() if not name.startswith('_')]

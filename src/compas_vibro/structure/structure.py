@@ -6,6 +6,8 @@ from compas_vibro.structure._mixins.nodemixins import NodeMixins
 from compas_vibro.structure._mixins.elementmixins import ElementMixins
 from compas_vibro.structure._mixins.objectmixins import ObjectMixins
 
+from compas_vibro.fea.ansys.ansys import modal_from_structure
+
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
 __license__    = 'MIT License'
@@ -45,7 +47,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         # self.results               = {}
         self.sections              = {}
         self.sets                  = {}
-        # self.steps                 = {}
+        self.steps                 = {}
         self.tol                   = '3'
 
     def __str__(self):
@@ -82,6 +84,11 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             self.add_set(name=elset, type='element', selection=ekeys)
 
         return ekeys
+
+    def analyze(self, type='Modal', backend='Ansys'):
+        if type == 'Modal' and backend == 'Ansys':
+            modal_from_structure(self)
+
 
 
 if __name__ == '__main__':

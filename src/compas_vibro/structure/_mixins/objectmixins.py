@@ -9,6 +9,7 @@ from compas_vibro.structure.load import Load
 from compas_vibro.structure.element_properties import ElementProperties
 from compas_vibro.structure.material import Material
 from compas_vibro.structure.set import Set
+from compas_vibro.structure.step import Step
 
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
@@ -57,8 +58,8 @@ class ObjectMixins(object):
             elif isinstance(i, ElementProperties):
                 self.add_element_properties(i)
 
-            # elif issubclass(cl, Step):
-            #     self.add_step(i)
+            elif issubclass(cl, Step):
+                self.add_step(i)
 
             elif issubclass(cl, Set):
                 self.add_set(i)
@@ -205,6 +206,23 @@ class ObjectMixins(object):
 
         self.sets[name] = Set(name=name, type=type, selection=selection, index=len(self.sets))
 
+    def add_step(self, step):
+
+        """ Adds a Step object to structure.steps.
+
+        Parameters
+        ----------
+        step : obj
+            The Step object.
+
+        Returns
+        -------
+        None
+
+        """
+
+        step.index = len(self.steps)
+        self.steps[step.name] = step
 
 if __name__ == "__main__":
     pass
