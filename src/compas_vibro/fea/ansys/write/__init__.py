@@ -6,4 +6,9 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
-from .write import *
+
+# from .ansys_process import *
+# from .ansys_static import *
+from .ansys_modal import *
+# from .ansys_harmonic import *
+# from .ansys_acoustic import *

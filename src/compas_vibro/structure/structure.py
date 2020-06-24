@@ -47,7 +47,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         # self.results               = {}
         self.sections              = {}
         self.sets                  = {}
-        self.steps                 = {}
+        self.step                  = None
         self.tol                   = '3'
 
     def __str__(self):
@@ -85,9 +85,9 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         return ekeys
 
-    def analyze(self, type='Modal', backend='Ansys'):
-        if type == 'Modal' and backend == 'Ansys':
-            modal_from_structure(self)
+    def analyze_modal(self, backend='Ansys', num_modes=10):
+        if backend == 'Ansys':
+            modal_from_structure(self, num_modes=num_modes)
 
 
 

@@ -1,19 +1,7 @@
-import os
 
-# from compas_vibro.structure import FixedDisplacement
-# from compas_vibro.structure import PinnedDisplacement
-# from compas_vibro.structure import ElasticIsotropic
-# from compas_vibro.structure import ShellSection
-# from compas_vibro.structure import ElementProperties
-# from compas_vibro.structure import HarmonicStep
-# from compas_vibro.structure import AcousticStep
 from compas_vibro.structure.step import ModalStep
-# from compas_vibro.structure import PointLoad
-# from compas_vibro.structure import HarmonicPressureLoad
-# from compas_vibro.structure import AcousticDiffuseFieldLoad
-# from compas_vibro.structure import SpringSection
 
-# from compas_vibro.fea.ansys import load_to_results
+from compas_vibro.fea.ansys.write import write_command_file_modal
 
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
@@ -26,22 +14,39 @@ __all__ = ['modal_from_structure',
            'harmonic_from_structure']
 
 
+def write_input_file(structure):
+    """ Generates Ansys input file.
 
+    Parameters:
+        structure (obj): Structure object.
 
-def modal_from_structure(s, num_modes=5):
+    Returns:
+        None
+    """
+    name = structure.name
+    path = structure.path
+    stype = structure.step.type 
+
+    if stype == 'modal':
+        write_command_file_modal(structure, path, name)
+    # elif stype == 'harmonic':
+    #     make_command_file_harmonic(structure, path, name)
+    else:
+        raise ValueError('This analysis type has not yet been implemented')
+
+def modal_from_structure(structure, num_modes):
 
     # add modal step -----------------------------------------------------------
-    step = ModalStep(name=s.name + '_modal', 
-                     displacements=[list(s.displacements.keys())[0]],
+    step = ModalStep(name=structure.name + '_modal', 
+                     displacements=[list(structure.displacements.keys())[0]],
                      modes=num_modes)
-    s.add(step)
+    structure.add(step)
 
     # analyse ------------------------------------------------------------------
-    s.write_input_file(software='ansys', fields='u')
-    s.analyse(software='ansys', cpus=4, delete=True)
-    s.extract_data(software='ansys', fields='u', steps='last')
-    return s
-
+    write_input_file(structure)
+    # structure.analyse(software='ansys', cpus=4, delete=True)
+    # structure.extract_data(software='ansys', fields='u', steps='last')
+    # return structure
 
 def harmonic_from_structure(s, name, freq_list, lpts=None, diffuse_pressure=None, diffuse_mesh=None, damping=0.05, fields='all', sets=None):
 
@@ -78,7 +83,6 @@ def harmonic_from_structure(s, name, freq_list, lpts=None, diffuse_pressure=None
     s.analyse(software='ansys', cpus=4, delete=True)
     s.extract_data(software='ansys', fields=fields, steps='last', sets=sets)
     return s
-
 
 
 if __name__ == '__main__':

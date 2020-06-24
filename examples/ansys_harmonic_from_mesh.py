@@ -55,4 +55,4 @@ el_prop = ElementProperties('concrete_shell',
                             elset='shell')
 s.add(el_prop)
 
-s.analyze()
+s.analyze_modal()

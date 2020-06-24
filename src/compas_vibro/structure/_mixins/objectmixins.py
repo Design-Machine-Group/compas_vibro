@@ -221,8 +221,8 @@ class ObjectMixins(object):
 
         """
 
-        step.index = len(self.steps)
-        self.steps[step.name] = step
+        step.index = 0
+        self.step = step
 
 if __name__ == "__main__":
     pass
