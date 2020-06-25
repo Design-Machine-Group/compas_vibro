@@ -1,3 +1,6 @@
+import os
+import shutil
+import subprocess
 
 from compas_vibro.structure.step import ModalStep
 
@@ -14,26 +17,6 @@ __all__ = ['modal_from_structure',
            'harmonic_from_structure']
 
 
-def write_input_file(structure):
-    """ Generates Ansys input file.
-
-    Parameters:
-        structure (obj): Structure object.
-
-    Returns:
-        None
-    """
-    name = structure.name
-    path = structure.path
-    stype = structure.step.type 
-
-    if stype == 'modal':
-        write_command_file_modal(structure, path, name)
-    # elif stype == 'harmonic':
-    #     make_command_file_harmonic(structure, path, name)
-    else:
-        raise ValueError('This analysis type has not yet been implemented')
-
 def modal_from_structure(structure, num_modes):
 
     # add modal step -----------------------------------------------------------
@@ -43,10 +26,11 @@ def modal_from_structure(structure, num_modes):
     structure.add(step)
 
     # analyse ------------------------------------------------------------------
-    write_input_file(structure)
-    # structure.analyse(software='ansys', cpus=4, delete=True)
+    write_command_file_modal(structure)
+    ansys_launch_process(structure, cpus=4, license='teaching', delete=True)
     # structure.extract_data(software='ansys', fields='u', steps='last')
     # return structure
+
 
 def harmonic_from_structure(s, name, freq_list, lpts=None, diffuse_pressure=None, diffuse_mesh=None, damping=0.05, fields='all', sets=None):
 
@@ -84,6 +68,65 @@ def harmonic_from_structure(s, name, freq_list, lpts=None, diffuse_pressure=None
     s.extract_data(software='ansys', fields=fields, steps='last', sets=sets)
     return s
 
+
+def ansys_launch_process(structure, cpus=2, license='teaching', delete=True):
+    """ Launches an analysis using Ansys.
+
+    Parameters:
+        path (str): Path to the Ansys input file.
+        name (str): Name of the structure.
+        cpus (int): Number of CPU cores to use.
+        license (str): Type of Ansys license.
+        delete (Bool): Path to the Ansys input file.
+
+    Returns:
+        None
+    """
+    path = structure.path
+    name = structure.name
+
+    if not os.path.exists(os.path.join(path, name + '_output')):
+        os.makedirs(os.path.join(path, name + '_output'))
+    elif delete:
+        delete_result_files(path, name)
+
+    ansys_path = 'MAPDL.exe'
+    inp_path = os.path.join(path, name + '.txt')
+    work_dir = os.path.join(path, name + '_output')
+
+    if not os.path.exists(work_dir):
+        os.makedirs(work_dir)
+    out_path = os.path.join(work_dir, name + '.out')
+
+    if license == 'research':
+        lic_str = 'aa_r'
+    elif license == 'teaching':
+        lic_str = 'aa_t_a'
+    elif license == 'introductory':
+        lic_str = 'aa_t_i'
+    else:
+        lic_str = 'aa_t_a'  # temporary default.
+
+    launch_string = '\"' + ansys_path + '\" -p ' + lic_str + ' -np ' + str(cpus)
+    launch_string += ' -dir \"' + work_dir
+    launch_string += '\" -j \"' + name + '\" -s read -l en-us -b -i \"'
+    launch_string += inp_path + ' \" -o \"' + out_path + '\"'
+    # print(launch_string)
+    subprocess.call(launch_string)
+
+
+def delete_result_files(path, name):
+    """ Deletes Ansys result files.
+
+    Parameters:
+        path (str): Path to the Ansys input file.
+        name (str): Name of the structure.
+
+    Returns:
+        None
+    """
+    out_path = os.path.join(path, name + '_output')
+    shutil.rmtree(out_path)
 
 if __name__ == '__main__':
     pass

@@ -1,31 +1,35 @@
 import os
+
 from .ansys_nodes import write_request_node_displacements
-from .ansys_nodes import write_constraint_nodes
+from .ansys_nodes import write_constraints
 from .ansys_nodes import write_nodes
 
 from .ansys_elements import write_elements
-from .ansys_materials import write_all_materials
 
-from .ansys_process import ansys_open_pre_process
+from .ansys_materials import write_materials
+
+from .ansys_process import write_preprocess
+
+from .ansys_steps import write_loadstep
+from .ansys_steps import write_solve_step
 
 # Author(s): Tomas Mendez Echenagucia (github.com/tmsmendez)
 
 __all__ = ['write_command_file_modal']
 
 
-def write_command_file_modal(structure, path, name):
-
-    filename = name + '.txt'
-    ansys_open_pre_process(path, filename)
-    write_all_materials(structure, path, filename)
+def write_command_file_modal(structure):
+    path = structure.path
+    filename = structure.name + '.txt'
+    
+    write_preprocess(path, filename)
+    write_materials(structure, path, filename)
     write_nodes(structure, path, filename)
     write_elements(structure, path, filename)
-
-    displacements = structure.step.displacements
     write_modal_solve(structure, path, filename)
-    write_constraint_nodes(structure, path, filename, displacements)
-    write_request_load_step_file(structure, path, filename)
-    write_request_solve_steps(structure, path, filename)
+    write_constraints(structure, path, filename)
+    write_loadstep(structure, path, filename)
+    write_solve_step(structure, path, filename)
 
 
 def write_modal_solve(structure, path, filename):

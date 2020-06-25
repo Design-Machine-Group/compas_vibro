@@ -4,7 +4,7 @@ import os
 # Author(s): Tomas Mendez Echenagucia (github.com/tmsmendez)
 
 
-def write_all_materials(structure, output_path, filename):
+def write_materials(structure, output_path, filename):
     materials = structure.materials
     for index, key in enumerate(materials):
         material = materials[key]
