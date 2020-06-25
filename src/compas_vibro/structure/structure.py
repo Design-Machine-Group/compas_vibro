@@ -85,9 +85,9 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         return ekeys
 
-    def analyze_modal(self, backend='Ansys', num_modes=10):
+    def analyze_modal(self, fields, backend='Ansys', num_modes=10):
         if backend == 'Ansys':
-            modal_from_structure(self, num_modes=num_modes)
+            modal_from_structure(self, fields, num_modes=num_modes)
 
 
 

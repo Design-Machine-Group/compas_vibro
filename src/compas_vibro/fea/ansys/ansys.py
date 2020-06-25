@@ -17,7 +17,7 @@ __all__ = ['modal_from_structure',
            'harmonic_from_structure']
 
 
-def modal_from_structure(structure, num_modes, license='introductory'):
+def modal_from_structure(structure, fields, num_modes, license='introductory'):
 
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
@@ -26,7 +26,7 @@ def modal_from_structure(structure, num_modes, license='introductory'):
     structure.add(step)
 
     # analyse ------------------------------------------------------------------
-    write_command_file_modal(structure)
+    write_command_file_modal(structure, fields)
     ansys_launch_process(structure, cpus=4, license=license, delete=True)
     # structure.extract_data(software='ansys', fields='u', steps='last')
     # return structure

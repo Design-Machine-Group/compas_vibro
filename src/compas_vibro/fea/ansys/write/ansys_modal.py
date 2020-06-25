@@ -18,7 +18,7 @@ from .ansys_steps import write_solve_step
 __all__ = ['write_command_file_modal']
 
 
-def write_command_file_modal(structure):
+def write_command_file_modal(structure, fields):
     path = structure.path
     filename = structure.name + '.txt'
     
@@ -30,7 +30,8 @@ def write_command_file_modal(structure):
     write_constraints(structure, path, filename)
     write_loadstep(structure, path, filename)
     write_solve_step(structure, path, filename)
-    write_modal_postprocess(path, filename)
+    write_modal_results(structure, fields, path, filename)
+
 
 
 def write_modal_solve(structure, path, filename):
@@ -59,18 +60,11 @@ def write_modal_solve(structure, path, filename):
     cFile.close()
 
 
-def write_modal_postprocess(path, filename):
-    cFile = open(os.path.join(path, filename), 'a')
-    cFile.write('/POST1 \n')
-    cFile.write('SET, 1\n')
-    cFile.write('!\n')
-    cFile.write('!\n')
-    cFile.close()
-
-
-def write_request_modal_freq(path, name, skey, num_modes, step_index):
+def write_modal_freq(structure, path, filename):
+    path = structure.path
+    name = structure.name
+    num_modes = structure.step.modes
     out_path = os.path.join(path, name + '_output')
-    filename = structure.name + '.txt'
 
     cFile = open(os.path.join(path, filename), 'a')
     cFile.write('!\n')
@@ -79,14 +73,14 @@ def write_request_modal_freq(path, name, skey, num_modes, step_index):
     cFile.write('*dim,n_freq,array,' + str(num_modes) + ', \n')
 
     for i in range(num_modes):
-        cFile.write('SET,' + str(step_index + 1) + ',' + str(i + 1) + '\n')
+        cFile.write('SET, 1,' + str(i + 1) + '\n')
         cFile.write('*GET,n_freq(' + str(i + 1) + '),ACTIVE, 0, SET, FREQ \n')
 
     cFile.write('/SOL \n')
     cFile.write('!\n')
     cFile.write('*dim,nds,,' + str(num_modes) + ',1 \n')
     cFile.write('*vfill,nds(1),ramp,1,1 \n')
-    cFile.write('*cfopen,' + os.path.join(out_path, 'modal_out', 'modal_freq') + ',txt \n')
+    cFile.write('*cfopen,' + os.path.join(out_path, 'modal_freq') + ',txt \n')
     cFile.write('*vwrite, nds(1) , \',\'  , n_freq(1) \n')
     cFile.write('(F8.0, A, ES) \n')
     cFile.write('*cfclose \n')
@@ -110,17 +104,16 @@ def write_request_modal_shapes(path, name, step_name, num_modes, step_index):
         write_request_node_displacements(path, name, step_name, mode=i + 1)
 
 
-def write_modal_results_from_ansys_rst(name, path, fields, num_modes, step_index=0, step_name='step'):
+def write_modal_results(structure, fields, path, filename):
+    # name = structure.name
+    # if not os.path.exists(os.path.join(path, name + '_output', 'modal_out')):
+    #     os.makedirs(os.path.join(path, name + '_output', 'modal_out'))
 
-    if not os.path.exists(os.path.join(path, name + '_output', 'modal_out')):
-        os.makedirs(os.path.join(path, name + '_output', 'modal_out'))
-
-    # write_modal_post_process(path, name, step_index)
     if type(fields) == str:
         fields = [fields]
-    if 'u' in fields or 'all' in fields:
-        write_request_modal_shapes(path, name, step_name, num_modes, step_index)
+    # if 'u' in fields or 'all' in fields:
+    #     write_request_modal_shapes(path, name, step_name, num_modes, step_index)
     if 'f' in fields or 'all' in fields:
-        write_request_modal_freq(path, name, step_name, num_modes, step_index)
-    if 'geo' in fields:
-        write_request_element_nodes(path, name)
+        write_modal_freq(structure, path, filename)
+    # if 'geo' in fields:
+    #     write_request_element_nodes(path, name)
