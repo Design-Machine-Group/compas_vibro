@@ -17,7 +17,7 @@ __all__ = ['modal_from_structure',
            'harmonic_from_structure']
 
 
-def modal_from_structure(structure, num_modes):
+def modal_from_structure(structure, num_modes, license='introductory'):
 
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
@@ -27,7 +27,7 @@ def modal_from_structure(structure, num_modes):
 
     # analyse ------------------------------------------------------------------
     write_command_file_modal(structure)
-    ansys_launch_process(structure, cpus=4, license='teaching', delete=True)
+    ansys_launch_process(structure, cpus=4, license=license, delete=True)
     # structure.extract_data(software='ansys', fields='u', steps='last')
     # return structure
 
@@ -69,7 +69,7 @@ def harmonic_from_structure(s, name, freq_list, lpts=None, diffuse_pressure=None
     return s
 
 
-def ansys_launch_process(structure, cpus=2, license='teaching', delete=True):
+def ansys_launch_process(structure, cpus=2, license='introductory', delete=True):
     """ Launches an analysis using Ansys.
 
     Parameters:
@@ -105,9 +105,9 @@ def ansys_launch_process(structure, cpus=2, license='teaching', delete=True):
     elif license == 'introductory':
         lic_str = 'aa_t_i'
     else:
-        lic_str = 'aa_t_a'  # temporary default.
+        lic_str = 'aa_t_i'  # temporary default.
 
-    launch_string = '\"' + ansys_path + '\" -p ' + lic_str + ' -np ' + str(cpus)
+    launch_string = '\"' + ansys_path + '\" -g -p ' + lic_str + ' -np ' + str(cpus)
     launch_string += ' -dir \"' + work_dir
     launch_string += '\" -j \"' + name + '\" -s read -l en-us -b -i \"'
     launch_string += inp_path + ' \" -o \"' + out_path + '\"'

@@ -30,6 +30,7 @@ def write_command_file_modal(structure):
     write_constraints(structure, path, filename)
     write_loadstep(structure, path, filename)
     write_solve_step(structure, path, filename)
+    write_modal_postprocess(path, filename)
 
 
 def write_modal_solve(structure, path, filename):
@@ -58,11 +59,10 @@ def write_modal_solve(structure, path, filename):
     cFile.close()
 
 
-def write_modal_post_process(path, name, step_index):
-    filename = name + '_extract.txt'
+def write_modal_postprocess(path, filename):
     cFile = open(os.path.join(path, filename), 'a')
     cFile.write('/POST1 \n')
-    cFile.write('SET,' + str(step_index + 1) + '\n')
+    cFile.write('SET, 1\n')
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
@@ -70,7 +70,7 @@ def write_modal_post_process(path, name, step_index):
 
 def write_request_modal_freq(path, name, skey, num_modes, step_index):
     out_path = os.path.join(path, name + '_output')
-    filename = name + '_extract.txt'
+    filename = structure.name + '.txt'
 
     cFile = open(os.path.join(path, filename), 'a')
     cFile.write('!\n')
