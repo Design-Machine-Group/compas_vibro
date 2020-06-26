@@ -1,3 +1,7 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import os
 
 from .ansys_nodes import write_constraints
@@ -141,15 +145,12 @@ def write_modal_displacements(structure, mode, filename):
     cFile.close()
 
 def write_modal_results(structure, fields, path, filename):
-    # name = structure.name
-    # if not os.path.exists(os.path.join(path, name + '_output', 'modal_out')):
-    #     os.makedirs(os.path.join(path, name + '_output', 'modal_out'))
 
     if type(fields) == str:
         fields = [fields]
     if 'u' in fields or 'all' in fields:
         write_modal_shapes(structure, path, filename)
-    if 'f' in fields or 'all' in fields:
+    if 'f' in fields or 'u' in fields or 'all' in fields:
         write_modal_freq(structure, path, filename)
     # if 'geo' in fields:
     #     write_request_element_nodes(path, name)
