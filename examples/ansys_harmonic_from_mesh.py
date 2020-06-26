@@ -2,10 +2,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-for i in range(60):
-    print()
-
-
 import os
 
 from compas.datastructures import Mesh
@@ -56,3 +52,11 @@ el_prop = ElementProperties('concrete_shell',
 s.add(el_prop)
 
 s.analyze_modal(fields=['f', 'u'])
+
+rkeys = s.results['modal'].keys()
+
+for rk in rkeys:
+    print(s.results['modal'][rk].frequency)
+    print(s.results['modal'][rk].type)
+    print(s.results['modal'][rk].displacements)
+    print()

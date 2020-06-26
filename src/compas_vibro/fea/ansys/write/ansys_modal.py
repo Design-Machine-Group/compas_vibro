@@ -148,9 +148,8 @@ def write_modal_results(structure, fields, path, filename):
 
     if type(fields) == str:
         fields = [fields]
+    write_modal_freq(structure, path, filename)
     if 'u' in fields or 'all' in fields:
         write_modal_shapes(structure, path, filename)
-    if 'f' in fields or 'u' in fields or 'all' in fields:
-        write_modal_freq(structure, path, filename)
     # if 'geo' in fields:
     #     write_request_element_nodes(path, name)

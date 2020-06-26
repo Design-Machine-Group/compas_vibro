@@ -42,39 +42,23 @@ def get_harmonic_data_from_result_files(structure, path, step):
     return harmonic_disp, structure.steps[step].freq_list
 
 
-def get_modal_shapes_from_result_files(out_path):
-    try:
-        filenames = [f in os.listdir(out_path) if f.startswith('modal_shape_')]
-    except(Exception):
-        print ('Result files not found')
-        return None, None
-        
-    modal_files = []
-    for i in range(len(filenames)):
-        f = 'modal_shape_' + str(i + 1) + '.txt'
-        modal_files.append(open(os.path.join(out_path, f), 'r'))
+def read_modal_displacements(out_path, mode):
+    disp_dict = {'ux': {}, 'uy': {}, 'uz': {}}
 
-    modes_dict = {}
-    for i, f in enumerate(modal_files):
-        modes_dict['ux' + str(i)] = {}
-        modes_dict['uy' + str(i)] = {}
-        modes_dict['uz' + str(i)] = {}
-        modes_dict['um' + str(i)] = {}
-        mode = f.readlines()
-        for j in range(len(mode)):
-            string = mode[j].split(',')
-            a = map(float, string[1:])
-            nkey = int(a[0]) - 1
-            modes_dict['ux' + str(i)][nkey] = a[1]
-            modes_dict['uy' + str(i)][nkey] = a[2]
-            modes_dict['uz' + str(i)][nkey] = a[3]
-            modes_dict['um' + str(i)][nkey] = a[4]
-        f.close()
-
-    return modes_dict
+    fh = open(os.path.join(out_path, 'modal_shape_{}.txt'.format(str(mode))), 'r')
+    mode = fh.readlines()
+    fh.close()
+    for j in range(len(mode)):
+        string = mode[j].split(',')
+        a = list(map(float, string))
+        nkey = int(a[0]) - 1
+        disp_dict['ux'][nkey] = a[0]
+        disp_dict['uy'][nkey] = a[1]
+        disp_dict['uz'][nkey] = a[2]
+    return disp_dict
 
 
-def get_modal_freq_from_result_files(out_path):
+def read_modal_freq(out_path):
     modal_freq_file = open(os.path.join(out_path, 'modal_freq.txt'), 'r')
     if modal_freq_file:
         modal_freqs = {}

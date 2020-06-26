@@ -6,10 +6,14 @@ import os
 import shutil
 import subprocess
 
+from compas_vibro.structure.result import Result
+
 from compas_vibro.structure.step import ModalStep
 
 from compas_vibro.fea.ansys.write import write_command_file_modal
 
+from compas_vibro.fea.ansys.read import read_modal_freq
+from compas_vibro.fea.ansys.read import read_modal_displacements
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -29,11 +33,28 @@ def modal_from_structure(structure, fields, num_modes, license='introductory'):
                      modes=num_modes)
     structure.add(step)
 
-    # analyse ------------------------------------------------------------------
+    # analyse and extraxt results ----------------------------------------------
     write_command_file_modal(structure, fields)
     ansys_launch_process(structure, cpus=4, license=license, delete=True)
-    # structure.extract_data(software='ansys', fields='u', steps='last')
-    # return structure
+    extract_data(structure, fields, 'modal')
+    return structure
+
+
+def extract_data(structure, fields, results_type):
+    path = structure.path
+    name = structure.name
+    out_path = os.path.join(path, name + '_output')
+
+    if results_type == 'modal':
+        mfreq = read_modal_freq(out_path)
+        rdict = {fk: Result(mfreq[fk], name='VibroResult_{}'.format(fk), type='modal') for fk in mfreq}
+        structure.results = {'modal':rdict}
+
+        if 'u' in fields or 'all' in fields:
+            for fk in mfreq:
+                structure.results['modal'][fk].displacements = read_modal_displacements(out_path, fk)
+    return structure
+
 
 
 def harmonic_from_structure(s, name, freq_list, lpts=None, diffuse_pressure=None, diffuse_mesh=None, damping=0.05, fields='all', sets=None):

@@ -37,14 +37,13 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.elements              = {}
         self.element_index         = {}
         self.element_properties    = {}
-        # self.frequencies           = {}
         self.loads                 = {}
         self.materials             = {}
         self.name                  = name
         self.nodes                 = {}
         self.node_index            = {}
         self.path                  = path
-        # self.results               = {}
+        self.results               = {}
         self.sections              = {}
         self.sets                  = {}
         self.step                  = None
@@ -88,7 +87,6 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
     def analyze_modal(self, fields, backend='Ansys', num_modes=10):
         if backend == 'Ansys':
             modal_from_structure(self, fields, num_modes=num_modes)
-
 
 
 if __name__ == '__main__':
