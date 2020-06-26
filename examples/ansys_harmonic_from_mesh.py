@@ -29,6 +29,8 @@ for i in range(60):
 
 path = compas_vibro.TEMP
 name = 'vibro_test'
+
+
 mesh = Mesh.from_json(compas_vibro.get('mesh_flat_10x10.json'))
 s = Structure(path, name)
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
@@ -51,12 +53,6 @@ el_prop = ElementProperties('concrete_shell',
                             elset='shell')
 s.add(el_prop)
 
+
 s.analyze_modal(fields=['f', 'u'])
-
-rkeys = s.results['modal'].keys()
-
-for rk in rkeys:
-    print(s.results['modal'][rk].frequency)
-    print(s.results['modal'][rk].type)
-    print(s.results['modal'][rk].displacements)
-    print()
+s.to_obj()

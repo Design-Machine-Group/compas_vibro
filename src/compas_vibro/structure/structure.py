@@ -2,6 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+import pickle
+
 from compas_vibro.structure._mixins.nodemixins import NodeMixins
 from compas_vibro.structure._mixins.elementmixins import ElementMixins
 from compas_vibro.structure._mixins.objectmixins import ObjectMixins
@@ -87,6 +90,56 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
     def analyze_modal(self, fields, backend='Ansys', num_modes=10):
         if backend == 'Ansys':
             modal_from_structure(self, fields, num_modes=num_modes)
+
+    def to_obj(self, output=True):
+
+        """ Exports the Structure object to an .obj file through Pickle.
+
+        Parameters
+        ----------
+        output : bool
+            Print terminal output.
+
+        Returns
+        -------
+        None
+
+        """
+
+        filename = os.path.join(self.path, self.name + '.obj')
+
+        with open(filename, 'wb') as f:
+            pickle.dump(self, f)
+
+        if output:
+            print('***** Structure saved to: {0} *****\n'.format(filename))
+
+    @staticmethod
+    def from_obj(filename, output=True):
+
+        """ Imports a Structure object from an .obj file through Pickle.
+
+        Parameters
+        ----------
+        filename : str
+            Path to load the Structure .obj from.
+        output : bool
+            Print terminal output.
+
+        Returns
+        -------
+        obj
+            Imported Structure object.
+
+        """
+
+        with open(filename, 'rb') as f:
+            structure = pickle.load(f)
+
+        if output:
+            print('***** Structure loaded from: {0} *****'.format(filename))
+
+        return structure
 
 
 if __name__ == '__main__':
