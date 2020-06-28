@@ -52,9 +52,9 @@ def read_modal_displacements(out_path, mode):
         string = mode[j].split(',')
         a = list(map(float, string))
         nkey = int(a[0]) - 1
-        disp_dict['ux'][nkey] = a[0]
-        disp_dict['uy'][nkey] = a[1]
-        disp_dict['uz'][nkey] = a[2]
+        disp_dict['ux'][nkey] = a[1]
+        disp_dict['uy'][nkey] = a[2]
+        disp_dict['uz'][nkey] = a[3]
     return disp_dict
 
 
