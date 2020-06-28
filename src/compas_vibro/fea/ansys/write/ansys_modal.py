@@ -16,7 +16,11 @@ from .ansys_process import write_preprocess
 from .ansys_steps import write_loadstep
 from .ansys_steps import write_solve_step
 
-# Author(s): Tomas Mendez Echenagucia (github.com/tmsmendez)
+__author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
+__copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
+__license__    = 'MIT License'
+__email__      = 'tmendeze@uw.edu'
+
 
 __all__ = ['write_command_file_modal']
 

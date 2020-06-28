@@ -9,8 +9,10 @@ import subprocess
 from compas_vibro.structure.result import Result
 
 from compas_vibro.structure.step import ModalStep
+from compas_vibro.structure.step import HarmonicStep
 
 from compas_vibro.fea.ansys.write import write_command_file_modal
+from compas_vibro.fea.ansys.write import write_command_file_harmonic
 
 from compas_vibro.fea.ansys.read import read_modal_freq
 from compas_vibro.fea.ansys.read import read_modal_displacements
@@ -56,42 +58,23 @@ def extract_data(structure, fields, results_type):
     return structure
 
 
-
-def harmonic_from_structure(s, name, freq_list, lpts=None, diffuse_pressure=None, diffuse_mesh=None, damping=0.05, fields='all', sets=None):
-
-    # add loads ----------------------------------------------------------------
-    loads = []
-    if lpts:
-        nodes = [s.check_node_exists(pt) for pt in lpts]
-        s.add_set(name='load_nodes', type='NODE', selection=nodes)
-        load = PointLoad(name='hload', nodes='load_nodes', x=0, y=0, z=1, xx=0, yy=0, zz=0)
-        s.add_load(load)
-        loads.append('hload')
-
-    if diffuse_pressure:
-        for fkey in list(diffuse_mesh.faces()):
-            face = [s.check_node_exists(diffuse_mesh.vertex_coordinates(i)) for i in diffuse_mesh.face[fkey]]
-            s.add_virtual_element(nodes=face, type='FaceElement')
-
-        for i in range(len(diffuse_pressure)):
-            load = HarmonicPressureLoad(name='diffuse' + str(i),
-                                        elements=s.element_count() + i,
-                                        pressure=diffuse_pressure[i].real,
-                                        phase=diffuse_pressure[i].imag)
-            s.add_load(load)
-            loads.append('diffuse' + str(i))
+def harmonic_from_structure(structure, freq_list, fields='all', damping=0.05):
 
     # add harmonic step --------------------------------------------------------
-    step = HarmonicStep(name=name + '_harmonic', displacements=[s.displacements.keys()[0]], loads=loads,
-                        freq_list=freq_list, damping=damping)
-    s.add_step(step)
-    s.steps_order = [name + '_harmonic']
+    loads = [structure.loads[lk].name for lk in structure.loads]
+    step = HarmonicStep(name=structure.name + '_harmonic',
+                        displacements=[list(structure.displacements.keys())[0]],
+                        loads=loads,
+                        freq_list=freq_list,
+                        damping=damping)
+    structure.add(step)
+    structure.steps_order = [structure.name + '_harmonic']
 
-    # calculate ----------------------------------------------------------------
-    s.write_input_file(software='ansys', fields=fields)
-    s.analyse(software='ansys', cpus=4, delete=True)
-    s.extract_data(software='ansys', fields=fields, steps='last', sets=sets)
-    return s
+    # analyse and extraxt results ----------------------------------------------
+    write_command_file_harmonic(structure, fields)
+    ansys_launch_process(structure, cpus=4, license=license, delete=True)
+
+    return structure
 
 
 def ansys_launch_process(structure, cpus=2, license='introductory', delete=True):

@@ -10,6 +10,7 @@ from compas_vibro.structure._mixins.elementmixins import ElementMixins
 from compas_vibro.structure._mixins.objectmixins import ObjectMixins
 
 from compas_vibro.fea.ansys.ansys import modal_from_structure
+from compas_vibro.fea.ansys.ansys import harmonic_from_structure
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -90,6 +91,10 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
     def analyze_modal(self, fields, backend='Ansys', num_modes=10):
         if backend == 'Ansys':
             modal_from_structure(self, fields, num_modes=num_modes)
+
+    def analyze_harmonic(self, freq_list, fields, damping=.05, backend='Ansys'):
+        if backend == 'Ansys':
+            harmonic_from_structure(self, freq_list, fields, damping=damping)
 
     def to_obj(self, output=True):
 

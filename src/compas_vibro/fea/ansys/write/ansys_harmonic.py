@@ -1,45 +1,56 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import os
-from .ansys_nodes_elements import write_constraint_nodes
-from .ansys_nodes_elements import write_nodes
-from .ansys_nodes_elements import write_elements
-from .ansys_materials import write_all_materials
-from .ansys_loads import write_loads
-from compas_fea.fea.ansys.writing.ansys_process import *
-from compas_fea.fea.ansys.writing.ansys_steps import *
-from compas_fea.fea.ansys.writing.ansys_nodes_elements import *
+
+from .ansys_nodes import write_constraints
+from .ansys_nodes import write_nodes
+
+from .ansys_elements import write_elements
+
+from .ansys_materials import write_materials
+
+from .ansys_process import write_preprocess
+
+from .ansys_steps import write_loadstep
+from .ansys_steps import write_solve_step
 
 
-# Author(s): Tomas Mendez Echenagucia (github.com/tmsmendez)
+__author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
+__copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
+__license__    = 'MIT License'
+__email__      = 'tmendeze@uw.edu'
+
+__all__ = ['write_command_file_harmonic']
 
 
-def write_harmonic_analysis_request(structure, path, name, skey):
-
-    filename = name + '.txt'
-    ansys_open_pre_process(path, filename)
-    write_all_materials(structure, path, filename)
+def write_command_file_harmonic(structure, fields):
+    path = structure.path
+    filename = structure.name + '.txt'
+    
+    write_preprocess(path, filename)
+    write_materials(structure, path, filename)
     write_nodes(structure, path, filename)
     write_elements(structure, path, filename)
-    for skey in structure.steps_order:
-        if structure.steps[skey].type == 'harmonic':
-            displacements = structure.steps[skey].displacements
-            factor = structure.steps[skey].factor
-            loads = structure.steps[skey].loads
-            write_harmonic_solve(structure, path, filename, skey)
-            write_loads(structure, path, filename, loads, factor)
-            write_constraint_nodes(structure, path, filename, displacements)
-            write_request_load_step_file(structure, path, filename)
-    write_request_solve_steps(structure, path, filename)
+    write_harmonic_solve(structure, path, filename)
+    write_constraints(structure, path, filename)
+    write_loadstep(structure, path, filename)
+    write_solve_step(structure, path, filename)
+    # write_harmonic_results(structure, fields, path, filename)
 
 
-def write_harmonic_solve(structure, output_path, filename, skey):
-    freq_list = structure.steps[skey].freq_list
-    harmonic_damping = structure.steps[skey].damping
-    sind = structure.steps_order.index(skey)
+def write_harmonic_solve(structure, path, filename):
+
+    freq_list = structure.step.freq_list
+    damping = structure.step.damping
+    # out_path = os.path.join(path, structure.name + '_output')
+    sind = 0
 
     n = 10
     freq_list_ = [freq_list[i:i + n] for i in range(0, len(freq_list), n)]
 
-    cFile = open(os.path.join(output_path, filename), 'a')
+    cFile = open(os.path.join(path, filename), 'a')
     cFile.write('/SOL \n')
     cFile.write('!\n')
     cFile.write('FINISH \n')
@@ -51,10 +62,10 @@ def write_harmonic_solve(structure, output_path, filename, skey):
     cFile.write('HARFRQ, , , , , %freq_list{0}%, , ! Frequency range / list \n'.format(sind))
     cFile.write('KBC,1                ! Stepped loads \n')
 
-    if harmonic_damping:
-        # cFile.write('ALPHAD,'+ str(harmonic_damping)+'   ! mass matrix multiplier for damping \n')
-        # cFile.write('BETAD,' + str(harmonic_damping) + '   ! stiffness matrix multiplier for damping \n')
-        cFile.write('DMPRAT,' + str(harmonic_damping) + '   ! constant modal damping ratio \n')
+    if damping:
+        # cFile.write('ALPHAD,'+ str(damping)+'   ! mass matrix multiplier for damping \n')
+        # cFile.write('BETAD,' + str(damping) + '   ! stiffness matrix multiplier for damping \n')
+        cFile.write('DMPRAT,' + str(damping) + '   ! constant modal damping ratio \n')
 
     cFile.write('!\n')
     cFile.write('!\n')
