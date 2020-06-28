@@ -56,3 +56,6 @@ class Node(object):
     def __repr__(self):
 
         return '{0}({1})'.format(self.__name__, self.key)
+
+    def xyz(self):
+        return [self.x, self.y, self.z]
