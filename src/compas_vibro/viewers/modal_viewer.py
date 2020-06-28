@@ -12,14 +12,24 @@ import plotly.graph_objects as go
 
 from compas.datastructures import Mesh
 
+import plotly.io as pio
+pio.renderers.default = "firefox"
+
+
 class ModalViewer(object):
-    def __init__(self, structure):
+    """Plotly based viewer for modal analysis.
+    """
+    def __init__(self, structure, mode):
         self.structure  = structure
         self.data       = []
+        self.mode       = mode
+
         self.make_layout()
 
     def make_layout(self):
-        layout = go.Layout(title='Modal Plot',
+        f = round(self.structure.results['modal'][mode].frequency, 4)
+        title = 'Modal Analysis - mode {0} - {1}Hz'.format(self.mode, f)
+        layout = go.Layout(title=title,
                            scene=dict(xaxis=dict(
                                       gridcolor='rgb(255, 255, 255)',
                                       zerolinecolor='rgb(255, 255, 255)',
@@ -42,8 +52,9 @@ class ModalViewer(object):
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()
 
-    def plot_modal_shape(self, mode):
-        s = 1e2
+    def plot_modal_shape(self):
+        mode = self.mode
+        s = 1
         vertices = []
         nodes = sorted(self.structure.nodes.keys(), key=int)
         for vk in nodes:
@@ -61,7 +72,23 @@ class ModalViewer(object):
         lines = []
         for u, v in edges:
             lines.append(go.Scatter3d(x=(u[0], v[0]), y=(u[1], v[1]), z=(u[2], v[2]), mode='lines', line=line_marker))
+        
+        triangles = []
+        for face in faces:
+            triangles.append(face[:3])
+            triangles.append([face[2], face[3], face[0]])
+        
+        i = [v[0] for v in triangles]
+        j = [v[1] for v in triangles]
+        k = [v[2] for v in triangles]
+
+        x = [v[0] for v in vertices]
+        y = [v[1] for v in vertices]
+        z = [v[2] for v in vertices]
+
+        faces = [go.Mesh3d(x=x, y=y, z=z, i=i, j=j, k=k, alphahull=1, opacity=0.4,color='cyan')]
         self.data.extend(lines)
+        self.data.extend(faces)
 
     def plot_supports(self):
         dots = []
@@ -82,10 +109,12 @@ if __name__ == "__main__":
 
     for i in range(60): print()
 
-    filepath = os.path.join(compas_vibro.DATA, 'vibro_test.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'mesh_flat_20x20_modal.obj')
     s = Structure.from_obj(filepath)
-    v = ModalViewer(s)
-    v.plot_modal_shape(5)
+    mode = 1
+
+    v = ModalViewer(s, mode)
+    v.plot_modal_shape()
     v.plot_supports()
     v.show()
 
