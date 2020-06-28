@@ -43,8 +43,7 @@ class ModalViewer(object):
         fig.show()
 
     def plot_modal_shape(self, mode):
-
-        s = 1.
+        s = 1e2
         vertices = []
         nodes = sorted(self.structure.nodes.keys(), key=int)
         for vk in nodes:
@@ -52,11 +51,8 @@ class ModalViewer(object):
             dx = self.structure.results['modal'][mode].displacements['ux'][vk]
             dy = self.structure.results['modal'][mode].displacements['uy'][vk]
             dz = self.structure.results['modal'][mode].displacements['uz'][vk]
-            print(dx, dy, dz)
             xyz = [x + dx * s, y + dy * s, z + dz * s]
-            xyz = [x * s, y * s, z * s]
             vertices.append(xyz)
-            # vertices.append([x, y, z])
 
         faces = [self.structure.elements[ek].nodes for ek in self.structure.elements]
         mesh = Mesh.from_vertices_and_faces(vertices, faces)
@@ -89,7 +85,7 @@ if __name__ == "__main__":
     filepath = os.path.join(compas_vibro.DATA, 'vibro_test.obj')
     s = Structure.from_obj(filepath)
     v = ModalViewer(s)
-    v.plot_modal_shape(0)
+    v.plot_modal_shape(5)
     v.plot_supports()
     v.show()
 
