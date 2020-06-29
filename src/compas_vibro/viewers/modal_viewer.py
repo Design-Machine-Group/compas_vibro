@@ -23,27 +23,31 @@ class ModalViewer(object):
         self.structure  = structure
         self.data       = []
         self.mode       = mode
-
+        self.layout     = None
+        self.scale      = 20
         self.make_layout()
 
     def make_layout(self):
         f = round(self.structure.results['modal'][mode].frequency, 4)
         title = 'Modal Analysis - mode {0} - {1}Hz'.format(self.mode, f)
         layout = go.Layout(title=title,
-                           scene=dict(xaxis=dict(
-                                      gridcolor='rgb(255, 255, 255)',
-                                      zerolinecolor='rgb(255, 255, 255)',
-                                      showbackground=True,
-                                      backgroundcolor='rgb(230, 230,230)'),
-                          yaxis=dict(gridcolor='rgb(255, 255, 255)',
-                                     zerolinecolor='rgb(255, 255, 255)',
-                                     showbackground=True,
-                                     backgroundcolor='rgb(230, 230,230)'),
-                          zaxis=dict(gridcolor='rgb(255, 255, 255)',
-                                     zerolinecolor='rgb(255, 255, 255)',
-                                     showbackground=True,
-                                     backgroundcolor='rgb(230, 230,230)')
-                            ),
+                          scene=dict(aspectmode='data',
+                                    xaxis=dict(
+                                               gridcolor='rgb(255, 255, 255)',
+                                               zerolinecolor='rgb(255, 255, 255)',
+                                               showbackground=True,
+                                               backgroundcolor='rgb(230, 230,230)'),
+                                    yaxis=dict(
+                                               gridcolor='rgb(255, 255, 255)',
+                                               zerolinecolor='rgb(255, 255, 255)',
+                                               showbackground=True,
+                                               backgroundcolor='rgb(230, 230,230)'),
+                                    zaxis=dict(
+                                               gridcolor='rgb(255, 255, 255)',
+                                               zerolinecolor='rgb(255, 255, 255)',
+                                               showbackground=True,
+                                               backgroundcolor='rgb(230, 230,230)')
+                                    ),
                           showlegend=False,
                             )
         self.layout = layout
@@ -54,7 +58,7 @@ class ModalViewer(object):
 
     def plot_modal_shape(self):
         mode = self.mode
-        s = 1
+        s = self.scale
         vertices = []
         nodes = sorted(self.structure.nodes.keys(), key=int)
         for vk in nodes:
@@ -111,7 +115,7 @@ if __name__ == "__main__":
 
     filepath = os.path.join(compas_vibro.DATA, 'mesh_flat_20x20_modal.obj')
     s = Structure.from_obj(filepath)
-    mode = 1
+    mode = 4
 
     v = ModalViewer(s, mode)
     v.plot_modal_shape()
