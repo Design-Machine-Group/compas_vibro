@@ -58,3 +58,4 @@ freq_list = range(100, 500, 2)
 
 s.analyze_harmonic(freq_list, fields=['u'])
 s.to_obj()
+print(s)
