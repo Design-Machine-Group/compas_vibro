@@ -1,7 +1,10 @@
 import os
 
 
-# Author(s): Tomas Mendez Echenagucia (github.com/tmsmendez)
+__author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
+__copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
+__license__    = 'MIT License'
+__email__      = 'tmendeze@uw.edu'
 
 
 def add_load_to_ploads(structure, pload, load, factor):
@@ -26,28 +29,31 @@ def add_load_to_ploads(structure, pload, load, factor):
     return pload
 
 
-def write_loads(structure, output_path, filename, loads, factor):
-    # TODO: Implement all load types
+def write_loads(structure, output_path, filename):
+    
+    loads = structure.step.loads
+    factor = 1
+
     pload = {}
     if loads:
         if type(loads) != list:
             loads = [loads]
 
-        for index, lkey in enumerate(loads):
+        for lkey in loads:
             load = structure.loads[lkey]
-            if load.__name__ == 'GravityLoad':
-                gravity = load.g
-                write_gravity_loading(structure, output_path, filename, gravity, factor)
-            elif load.__name__ == 'PointLoad' or load.__name__ == 'HarmonicPointLoad':
+            if load.__name__ == 'PointLoad' or load.__name__ == 'HarmonicPointLoad':
                 # write_apply_nodal_load(structure, output_path, filename, lkey, factor)
                 pload = add_load_to_ploads(structure, pload, load, factor)
-            elif load.__name__ == 'TributaryLoad':
-                # write_appply_tributary_load(structure, output_path, filename, lkey, factor)
-                pload = add_load_to_ploads(structure, pload, load, factor)
-            elif load.__name__ == 'HarmonicPressureLoad':
-                write_apply_harmonic_pressure_load(structure, output_path, filename, lkey, factor, index)
-            elif load.__name__ == 'AcousticDiffuseFieldLoad':
-                write_apply_acoustic_diffuse_field_load(structure, output_path, filename, lkey, index)
+            # elif load.__name__ == 'GravityLoad':
+            #     gravity = load.g
+            #     write_gravity_loading(structure, output_path, filename, gravity, factor)
+            # elif load.__name__ == 'TributaryLoad':
+            #     # write_appply_tributary_load(structure, output_path, filename, lkey, factor)
+            #     pload = add_load_to_ploads(structure, pload, load, factor)
+            # elif load.__name__ == 'HarmonicPressureLoad':
+            #     write_apply_harmonic_pressure_load(structure, output_path, filename, lkey, factor, index)
+            # elif load.__name__ == 'AcousticDiffuseFieldLoad':
+            #     write_apply_acoustic_diffuse_field_load(structure, output_path, filename, lkey, index)
             else:
                 raise ValueError(load.__name__ + ' Type of load is not yet implemented for Ansys')
         write_combined_point_loads(pload, output_path, filename)

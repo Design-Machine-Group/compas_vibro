@@ -91,11 +91,15 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
     def analyze_modal(self, fields, backend='Ansys', num_modes=10):
         if backend == 'Ansys':
             modal_from_structure(self, fields, num_modes=num_modes)
+        else:
+            raise NameError('This backend is not implemented')
 
     def analyze_harmonic(self, freq_list, fields, damping=.05, backend='Ansys'):
         if backend == 'Ansys':
             harmonic_from_structure(self, freq_list, fields, damping=damping)
-
+        else:
+            raise NameError('This backend is not implemented')
+        
     def to_obj(self, output=True):
 
         """ Exports the Structure object to an .obj file through Pickle.

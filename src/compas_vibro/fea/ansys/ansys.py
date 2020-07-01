@@ -41,23 +41,6 @@ def modal_from_structure(structure, fields, num_modes, license='introductory'):
     extract_data(structure, fields, 'modal')
     return structure
 
-
-def extract_data(structure, fields, results_type):
-    path = structure.path
-    name = structure.name
-    out_path = os.path.join(path, name + '_output')
-
-    if results_type == 'modal':
-        mfreq = read_modal_freq(out_path)
-        rdict = {fk: Result(mfreq[fk], name='VibroResult_{}'.format(fk), type='modal') for fk in mfreq}
-        structure.results = {'modal':rdict}
-
-        if 'u' in fields or 'all' in fields:
-            for fk in mfreq:
-                structure.results['modal'][fk].displacements = read_modal_displacements(out_path, fk)
-    return structure
-
-
 def harmonic_from_structure(structure, freq_list, fields='all', damping=0.05):
 
     # add harmonic step --------------------------------------------------------
@@ -73,6 +56,26 @@ def harmonic_from_structure(structure, freq_list, fields='all', damping=0.05):
     # analyse and extraxt results ----------------------------------------------
     write_command_file_harmonic(structure, fields)
     ansys_launch_process(structure, cpus=4, license=license, delete=True)
+    extract_data(structure, fields, 'harmonic')
+    return structure
+
+
+def extract_data(structure, fields, results_type):
+    path = structure.path
+    name = structure.name
+    out_path = os.path.join(path, name + '_output')
+
+    if results_type == 'modal':
+        mfreq = read_modal_freq(out_path)
+        rdict = {fk: Result(mfreq[fk], name='VibroResult_{}'.format(fk), type='modal') for fk in mfreq}
+        structure.results = {'modal':rdict}
+
+        if 'u' in fields or 'all' in fields:
+            for fk in mfreq:
+                structure.results['modal'][fk].displacements = read_modal_displacements(out_path, fk)
+    elif results_type == 'harmonic':
+        if 'u' in fields or 'all' in fields:
+            pass
 
     return structure
 

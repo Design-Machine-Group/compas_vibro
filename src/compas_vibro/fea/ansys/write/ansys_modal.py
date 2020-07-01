@@ -40,7 +40,6 @@ def write_command_file_modal(structure, fields):
     write_modal_results(structure, fields, path, filename)
 
 
-
 def write_modal_solve(structure, path, filename):
     num_modes = structure.step.modes
     cFile = open(os.path.join(path, filename), 'a')
@@ -147,6 +146,7 @@ def write_modal_displacements(structure, mode, filename):
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
+
 
 def write_modal_results(structure, fields, path, filename):
 
