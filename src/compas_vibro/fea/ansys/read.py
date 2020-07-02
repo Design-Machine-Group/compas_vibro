@@ -7,39 +7,43 @@ import re
 from compas.geometry import length_vector
 
 
-# Author(s): Tomas Mendez Echenagucia (github.com/tmsmendez)
+__author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
+__copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
+__license__    = 'MIT License'
+__email__      = 'tmendeze@uw.edu'
 
+__all__ = ['read_harmonic_displacements',
+           'read_modal_displacements',
+           'read_modal_freq']
 
+def read_harmonic_displacements(structure, path):
 
-def get_harmonic_data_from_result_files(structure, path, step):
+    for nkey in structure.nodes:
+        filename  = 'node_real_{0}.txt'.format(nkey + 1)
+        filename_ = 'node_imag_{0}.txt'.format(nkey + 1)
 
-    freq = structure.steps[step].freq_list[0]
-    harmonic_path = os.path.join(path, 'harmonic_out')
-    filename  = 'harmonic_disp_real_{0}_Hz.txt'.format(freq)
-    filename_ = 'harmonic_disp_imag_{0}_Hz.txt'.format(freq)
+        fh = open(os.path.join(path, filename), 'r')
+        dreal = fh.readlines()
+        fh.close()
 
-    fh = open(os.path.join(harmonic_path, filename), 'r')
-    dreal = fh.readlines()
-    fh.close()
+        fh = open(os.path.join(path, filename_), 'r')
+        dimag = fh.readlines()
+        fh.close()
 
-    fh = open(os.path.join(harmonic_path, filename_), 'r')
-    dimag = fh.readlines()
-    fh.close()
+        harmonic_disp = {}
+        for j in range(len(dreal)):
+            real_string = dreal[j].split(',')
+            imag_string = dimag[j].split(',')
+            fkey = int(float(real_string[0]))
+            del real_string[0]
+            del imag_string[0]
+            harmonic_disp[fkey] = {}
+            real = list(map(float, real_string))
+            imag = list(map(float, imag_string))
+            harmonic_disp[fkey][nkey] = {'real': {'x': real[0], 'y': real[1], 'z': real[2]},
+                                        'imag': {'x': imag[0], 'y': imag[1], 'z': imag[2]}}
 
-    harmonic_disp = {}
-    for j in range(len(dreal)):
-        real_string = dreal[j].split(',')
-        imag_string = dimag[j].split(',')
-        nkey = int(float(real_string[0]) - 1)
-        del real_string[0]
-        del imag_string[0]
-        harmonic_disp[nkey] = {}
-        real = map(float, real_string)
-        imag = map(float, imag_string)
-        harmonic_disp[nkey][freq] = {'real': {'x': real[0], 'y': real[1], 'z': real[2]},
-                                     'imag': {'x': imag[0], 'y': imag[1], 'z': imag[2]}}
-
-    return harmonic_disp, structure.steps[step].freq_list
+    return harmonic_disp
 
 
 def read_modal_displacements(out_path, mode):

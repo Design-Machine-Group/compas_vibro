@@ -16,6 +16,7 @@ from compas_vibro.fea.ansys.write import write_command_file_harmonic
 
 from compas_vibro.fea.ansys.read import read_modal_freq
 from compas_vibro.fea.ansys.read import read_modal_displacements
+from compas_vibro.fea.ansys.read import read_harmonic_displacements
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -41,9 +42,10 @@ def modal_from_structure(structure, fields, num_modes, license='introductory'):
     extract_data(structure, fields, 'modal')
     return structure
 
+
 def harmonic_from_structure(structure, freq_list, fields='all', damping=0.05):
 
-    # add harmonic step --------------------------------------------------------
+    # # add harmonic step --------------------------------------------------------
     loads = [structure.loads[lk].name for lk in structure.loads]
     step = HarmonicStep(name=structure.name + '_harmonic',
                         displacements=[list(structure.displacements.keys())[0]],
@@ -53,9 +55,9 @@ def harmonic_from_structure(structure, freq_list, fields='all', damping=0.05):
     structure.add(step)
     structure.steps_order = [structure.name + '_harmonic']
 
-    # analyse and extraxt results ----------------------------------------------
-    write_command_file_harmonic(structure, fields)
-    ansys_launch_process(structure, cpus=4, license=license, delete=True)
+    # # analyse and extraxt results ----------------------------------------------
+    # write_command_file_harmonic(structure, fields)
+    # ansys_launch_process(structure, cpus=4, license=license, delete=True)
     extract_data(structure, fields, 'harmonic')
     return structure
 
@@ -74,8 +76,9 @@ def extract_data(structure, fields, results_type):
             for fk in mfreq:
                 structure.results['modal'][fk].displacements = read_modal_displacements(out_path, fk)
     elif results_type == 'harmonic':
+        # TODO: This must also be done in a per frequency loop somehow!!!
         if 'u' in fields or 'all' in fields:
-            pass
+            structure.tomas = read_harmonic_displacements(structure, out_path)
 
     return structure
 
@@ -138,6 +141,7 @@ def delete_result_files(path, name):
     """
     out_path = os.path.join(path, name + '_output')
     shutil.rmtree(out_path)
+
 
 if __name__ == '__main__':
     pass

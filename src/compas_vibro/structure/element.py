@@ -70,5 +70,5 @@ class ShellElement(Element):
 
 
 if __name__ == "__main__":
-    for i in range(60):
-        print()
+    el = ShellElement()
+    print(el)

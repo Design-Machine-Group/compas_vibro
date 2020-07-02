@@ -32,29 +32,41 @@ geometry = 'mesh_flat_10x10'
 name = '{0}_harmonic'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
-s = Structure(path, name)
+
+# make an instance of the stucture object - - - - - - - - - - - - - - - - - - - 
+s = Structure(path, name) 
+
+# add nodes and elements from mesh - - - - - - - - - - - - - - - - - - - - - - - 
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
+# add displacements - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
 s.add(d)
 
+# add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 load = PointLoad(name='pload', nodes=[10, 15], x=0, y=0, z=1, xx=0, yy=0, zz=0)
 s.add(load)
 
+# add sections - - - - - - - - - - - - 
 section = ShellSection('shell_sec', t=.1)
 s.add(section)
 
+# add material - - - - - - 
 material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
 
 s.add(material)
-
+# add element properties - - - - - - - - -
 el_prop = ElementProperties('concrete_shell',
                             material='concrete',
                             section='shell_sec',
                             elset='shell')
 s.add(el_prop)
 
+# add analysis frequencies - - - - - - - -
 freq_list = range(100, 500, 2)
 
+# analyze - - - - 
 s.analyze_harmonic(freq_list, fields=['u'])
-# s.to_obj()
+
+# save results - - - - - - 
+s.to_obj()
