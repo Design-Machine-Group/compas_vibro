@@ -7,14 +7,17 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
-
+from compas_vibro.fea.opensees.write.process import write_heading
+from compas_vibro.fea.opensees.write.nodes import write_nodes
 
 
 def write_command_file_modal(structure, path):
     path = structure.path
-    filename = structure.name + '.txt'
+    filename = structure.name + '.tcl'
     
-    # write_preprocess(path, filename)
+    write_heading(path, filename)
+    write_nodes(structure, path, filename)
+
     # write_materials(structure, path, filename)
     # write_nodes(structure, path, filename)
     # write_elements(structure, path, filename)

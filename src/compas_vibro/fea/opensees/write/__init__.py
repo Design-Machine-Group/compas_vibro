@@ -8,3 +8,4 @@ __email__      = 'tmendeze@uw.edu'
 
 from .nodes import *
 from .modal import *
+from .process import *

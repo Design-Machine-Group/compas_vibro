@@ -8,3 +8,4 @@ __email__      = 'tmendeze@uw.edu'
 
 
 from .ansys import *
+from .opensees import *
