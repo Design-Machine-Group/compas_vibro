@@ -10,6 +10,7 @@ __email__      = 'tmendeze@uw.edu'
 from compas_vibro.fea.opensees.write.process import write_heading
 from compas_vibro.fea.opensees.write.nodes import write_nodes
 from compas_vibro.fea.opensees.write.nodes import write_displacements
+from compas_vibro.fea.opensees.write.materials import write_materials
 
 
 def write_command_file_modal(structure, path):
@@ -19,8 +20,8 @@ def write_command_file_modal(structure, path):
     write_heading(path, filename)
     write_nodes(structure, path, filename)
     write_displacements(structure, path, filename)
+    write_materials(structure, path, filename)
 
-    # write_materials(structure, path, filename)
     # write_nodes(structure, path, filename)
     # write_elements(structure, path, filename)
     # write_modal_solve(structure, path, filename)

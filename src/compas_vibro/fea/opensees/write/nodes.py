@@ -23,7 +23,7 @@ def write_nodes(structure, path, filename):
 
    for nk in structure.nodes:
       x, y, z = structure.node_xyz(nk)
-      fh.write('node {0} {1} {2} {3}\n'.format(nk, x, y, z))
+      fh.write('node {0} {1} {2} {3}\n'.format(nk + 1, x, y, z))
    fh.write('#\n')
    fh.close()
 
@@ -43,6 +43,6 @@ def write_displacements(structure, path, filename):
       elif d.__name__ == 'PinnedDisplacement':
          string = 'fix {} 1 1 1 0 0 0\n'
       for nk in d.nodes:
-         fh.write(string.format(nk))
+         fh.write(string.format(nk + 1))
    fh.write('#\n')
    fh.close()

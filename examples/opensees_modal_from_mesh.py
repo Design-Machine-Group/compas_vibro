@@ -47,6 +47,7 @@ s.add(section)
 material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
 s.add(material)
 
+
 el_prop = ElementProperties('concrete_shell',
                             material='concrete',
                             section='shell_sec',
