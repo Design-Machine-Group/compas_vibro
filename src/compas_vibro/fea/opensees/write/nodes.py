@@ -9,9 +9,12 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
+__all__ = ['write_nodes',
+           'write_displacements']
+
 def write_nodes(structure, path, filename):
    
-   fh = open(os.path.join(path, filename), 'w')
+   fh = open(os.path.join(path, filename), 'a')
    fh.write('#\n')
    fh.write('#-{} \n'.format('-'*80))
    fh.write('# Nodes\n')
@@ -21,5 +24,25 @@ def write_nodes(structure, path, filename):
    for nk in structure.nodes:
       x, y, z = structure.node_xyz(nk)
       fh.write('node {0} {1} {2} {3}\n'.format(nk, x, y, z))
+   fh.write('#\n')
+   fh.close()
+
+def write_displacements(structure, path, filename):
+   
+   fh = open(os.path.join(path, filename), 'a')
+   fh.write('#\n')
+   fh.write('#-{} \n'.format('-'*80))
+   fh.write('# Displacements\n')
+   fh.write('#-{} \n'.format('-'*80))
+   fh.write('#\n')
+
+   for dk in structure.displacements:
+      d = structure.displacements[dk]
+      if d.__name__== 'FixedDisplacement':
+         string = 'fix {} 1 1 1 1 1 1\n'
+      elif d.__name__ == 'PinnedDisplacement':
+         string = 'fix {} 1 1 1 0 0 0\n'
+      for nk in d.nodes:
+         fh.write(string.format(nk))
    fh.write('#\n')
    fh.close()
