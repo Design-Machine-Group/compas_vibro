@@ -17,7 +17,8 @@ __all__ = ['read_harmonic_displacements',
            'read_modal_freq']
 
 def read_harmonic_displacements(structure, path):
-
+    harmonic_disp = {}
+    hd = {i:{} for i in range(len(structure.step.freq_list))}
     for nkey in structure.nodes:
         filename  = 'node_real_{0}.txt'.format(nkey + 1)
         filename_ = 'node_imag_{0}.txt'.format(nkey + 1)
@@ -30,20 +31,21 @@ def read_harmonic_displacements(structure, path):
         dimag = fh.readlines()
         fh.close()
 
-        harmonic_disp = {}
+        harmonic_disp[nkey] = {} 
         for j in range(len(dreal)):
+            
             real_string = dreal[j].split(',')
             imag_string = dimag[j].split(',')
-            fkey = int(float(real_string[0]))
-            del real_string[0]
-            del imag_string[0]
-            harmonic_disp[fkey] = {}
+            # frequency = float(real_string[0])
             real = list(map(float, real_string))
             imag = list(map(float, imag_string))
-            harmonic_disp[fkey][nkey] = {'real': {'x': real[0], 'y': real[1], 'z': real[2]},
-                                        'imag': {'x': imag[0], 'y': imag[1], 'z': imag[2]}}
+            nd = {'real': {'x': real[1], 'y': real[2], 'z': real[3]},
+                  'imag': {'x': imag[1], 'y': imag[2], 'z': imag[3]}}
+            harmonic_disp[nkey][j] = nd
+            # hd[j].update({'frequency':frequency})
+            hd[j].update({nkey:nd})
 
-    return harmonic_disp
+    return hd
 
 
 def read_modal_displacements(out_path, mode):

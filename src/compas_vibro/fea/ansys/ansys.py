@@ -70,15 +70,24 @@ def extract_data(structure, fields, results_type):
     if results_type == 'modal':
         mfreq = read_modal_freq(out_path)
         rdict = {fk: Result(mfreq[fk], name='VibroResult_{}'.format(fk), type='modal') for fk in mfreq}
-        structure.results = {'modal':rdict}
+        structure.results.update({'modal':rdict})
 
         if 'u' in fields or 'all' in fields:
             for fk in mfreq:
-                structure.results['modal'][fk].displacements = read_modal_displacements(out_path, fk)
+                d = read_modal_displacements(out_path, fk)
+                structure.results['modal'][fk].displacements = d
     elif results_type == 'harmonic':
-        # TODO: This must also be done in a per frequency loop somehow!!!
+        freq_list = structure.step.freq_list
+        fdict = {i:freq_list[i] for i in range(len(freq_list))}
+        rdict = {fk: Result(fdict[fk], name='VibroResult_{}'.format(fk), type='harmonic') for fk in fdict}
+        structure.results.update({'harmonic':rdict})
+
         if 'u' in fields or 'all' in fields:
-            structure.tomas = read_harmonic_displacements(structure, out_path)
+            # this is still not great, frequencies are from structure, not files...
+            hd = read_harmonic_displacements(structure, out_path)
+            structure.tomas = hd
+            for fkey in hd:
+                structure.results['harmonic'][fkey].displacements = hd[fkey]
 
     return structure
 

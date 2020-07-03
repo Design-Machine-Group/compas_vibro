@@ -70,3 +70,4 @@ s.analyze_harmonic(freq_list, fields=['u'])
 
 # save results - - - - - - 
 s.to_obj()
+print(s.results['harmonic'][0].displacements[0])
