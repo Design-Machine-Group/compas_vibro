@@ -55,9 +55,9 @@ def harmonic_from_structure(structure, freq_list, fields='all', damping=0.05):
     structure.add(step)
     structure.steps_order = [structure.name + '_harmonic']
 
-    # # analyse and extraxt results ----------------------------------------------
-    # write_command_file_harmonic(structure, fields)
-    # ansys_launch_process(structure, cpus=4, license=license, delete=True)
+    # analyse and extraxt results ----------------------------------------------
+    write_command_file_harmonic(structure, fields)
+    ansys_launch_process(structure, cpus=4, license=license, delete=True)
     extract_data(structure, fields, 'harmonic')
     return structure
 
