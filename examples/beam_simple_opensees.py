@@ -68,4 +68,4 @@ exe = '/Applications/OpenSees3.2.1/OpenSees'
 mdl.analyse_and_extract(software='opensees', exe=exe, fields=['u'])
 
 
-print(mdl.results)
+print(mdl.results['step_load']['nodal']['um'][0])

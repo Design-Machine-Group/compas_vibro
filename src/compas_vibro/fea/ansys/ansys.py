@@ -24,11 +24,11 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
-__all__ = ['modal_from_structure',
-           'harmonic_from_structure']
+__all__ = ['ansys_modal',
+           'ansys_harmonic']
 
 
-def modal_from_structure(structure, fields, num_modes, license='introductory'):
+def ansys_modal(structure, fields, num_modes, license='introductory'):
 
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
@@ -43,7 +43,7 @@ def modal_from_structure(structure, fields, num_modes, license='introductory'):
     return structure
 
 
-def harmonic_from_structure(structure, freq_list, fields='all', damping=0.05):
+def ansys_harmonic(structure, freq_list, fields='all', damping=0.05):
 
     # # add harmonic step --------------------------------------------------------
     loads = [structure.loads[lk].name for lk in structure.loads]

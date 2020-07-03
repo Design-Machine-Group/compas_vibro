@@ -9,8 +9,11 @@ from compas_vibro.structure._mixins.nodemixins import NodeMixins
 from compas_vibro.structure._mixins.elementmixins import ElementMixins
 from compas_vibro.structure._mixins.objectmixins import ObjectMixins
 
-from compas_vibro.fea.ansys.ansys import modal_from_structure
-from compas_vibro.fea.ansys.ansys import harmonic_from_structure
+from compas_vibro.fea.ansys.ansys import ansys_modal
+from compas_vibro.fea.ansys.ansys import ansys_harmonic
+
+from compas_vibro.fea.opensees.opensees import opensees_modal
+from compas_vibro.fea.opensees.opensees import opensees_harmonic
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -88,15 +91,19 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         return ekeys
 
-    def analyze_modal(self, fields, backend='Ansys', num_modes=10):
-        if backend == 'Ansys':
-            modal_from_structure(self, fields, num_modes=num_modes)
+    def analyze_modal(self, fields, backend='ansys', num_modes=10):
+        if backend == 'ansys':
+            ansys_modal(self, fields, num_modes=num_modes)
+        if backend == 'opensees':
+            opensees_modal(self, fields, num_modes=num_modes)
         else:
             raise NameError('This backend is not implemented')
 
-    def analyze_harmonic(self, freq_list, fields, damping=.05, backend='Ansys'):
-        if backend == 'Ansys':
-            harmonic_from_structure(self, freq_list, fields, damping=damping)
+    def analyze_harmonic(self, freq_list, fields, damping=.05, backend='ansys'):
+        if backend == 'ansys':
+            ansys_harmonic(self, freq_list, fields, damping=damping)
+        if backend == 'opensees':
+            raise NameError('Coming soon')
         else:
             raise NameError('This backend is not implemented')
         
