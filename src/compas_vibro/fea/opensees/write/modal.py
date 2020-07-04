@@ -11,7 +11,7 @@ from compas_vibro.fea.opensees.write.process import write_heading
 from compas_vibro.fea.opensees.write.nodes import write_nodes
 from compas_vibro.fea.opensees.write.nodes import write_displacements
 from compas_vibro.fea.opensees.write.materials import write_materials
-
+from compas_vibro.fea.opensees.write.elements import write_elements
 
 def write_command_file_modal(structure, path):
     path = structure.path
@@ -21,9 +21,8 @@ def write_command_file_modal(structure, path):
     write_nodes(structure, path, filename)
     write_displacements(structure, path, filename)
     write_materials(structure, path, filename)
+    write_elements(structure, path, filename)
 
-    # write_nodes(structure, path, filename)
-    # write_elements(structure, path, filename)
     # write_modal_solve(structure, path, filename)
     # write_constraints(structure, path, filename)
     # write_loadstep(structure, path, filename)
