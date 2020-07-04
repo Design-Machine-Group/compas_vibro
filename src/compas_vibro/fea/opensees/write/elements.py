@@ -51,6 +51,7 @@ def write_elements(structure, path, filename):
         if etype == 'ShellElement':
             write_shells(structure, path, filename, ekeys, section, material)
 
+
 def write_shells(structure, path, filename, ekeys, section, material):
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
@@ -59,11 +60,12 @@ def write_shells(structure, path, filename, ekeys, section, material):
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
     # TODO: understand which opensees element type works best
-    # string = 'element ShellMITC4 {0} {1} {2} {3} {4} $secTag \n' # not finished!
-    string = 'element quad  {0} {1} {2} {3} {4} {5} "PlaneStrain" {6}\n'
+    string = 'element ShellMITC4 {0} {1} {2} {3} {4} {5} \n' # not finished!
+    # string = 'element quad  {0} {1} {2} {3} {4} {5} "PlaneStrain" {6}\n'
     for ek in ekeys:
         i, j, k, l = structure.elements[ek].nodes
-        t = structure.sections[section].geometry['t']
-        m = structure.materials[material].index + 1
-        fh.write(string.format(ek, i + 1, j + 1, k + 1, l + 1, t, m))
+        # t = structure.sections[section].geometry['t']
+        # mat = structure.materials[material].index + 1
+        sec = structure.sections[section].index + 1
+        fh.write(string.format(ek + 1, i + 1, j + 1, k + 1, l + 1, sec))
     fh.close()

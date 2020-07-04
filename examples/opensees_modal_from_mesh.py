@@ -56,4 +56,4 @@ s.add(el_prop)
 
 
 s.analyze_modal(backend='opensees', fields=['f', 'u'])
-s.to_obj()
+# s.to_obj()

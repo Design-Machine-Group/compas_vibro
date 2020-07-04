@@ -5,6 +5,11 @@ from __future__ import print_function
 import os
 import shutil
 
+from time import time
+
+from subprocess import Popen
+from subprocess import PIPE
+
 from compas_vibro.structure.step import ModalStep
 from compas_vibro.structure.step import HarmonicStep
 
@@ -32,6 +37,7 @@ def opensees_modal(structure, fields, num_modes, license='introductory'):
 
     # analyse and extraxt results ----------------------------------------------
     write_command_file_modal(structure, fields)
+    opensess_launch_process(structure)
     return structure
 
 
@@ -56,7 +62,7 @@ def extract_data(structure, fields, results_type):
 
 
 # def opensees_launch_process(structure, cpus=2, license='introductory', delete=True):
-def opensess_launch_process(structure, exe, output):
+def opensess_launch_process(structure, exe=None, output=True):
 
     """ Runs the analysis through OpenSees.
 
@@ -75,50 +81,50 @@ def opensess_launch_process(structure, exe, output):
 
     """
 
+    # try:
+
+    name = structure.name
+    path = structure.path
+    temp = '{0}/{1}/'.format(path, name)
+
     try:
+        os.stat(temp)
+    except:
+        os.mkdir(temp)
 
-        name = structure.name
-        path = structure.path
-        temp = '{0}{1}/'.format(path, name)
+    tic = time()
 
-        try:
-            os.stat(temp)
-        except:
-            os.mkdir(temp)
+    if not exe:
+        exe = '/Applications/OpenSees3.2.1/OpenSees'
 
-        tic = time()
+    command = '{0} {1}/{2}.tcl'.format(exe, path, name)
+    p = Popen(command, stdout=PIPE, stderr=PIPE, cwd=temp, shell=True)
 
-        if not exe:
-            exe = 'C:/OpenSees.exe'
+    print('Executing command ', command)
 
-        command = '{0} {1}{2}.tcl'.format(exe, path, name)
-        p = Popen(command, stdout=PIPE, stderr=PIPE, cwd=temp, shell=True)
+    while True:
 
-        print('Executing command ', command)
-
-        while True:
-
-            line = p.stdout.readline()
-            if not line:
-                break
-            line = str(line.strip())
-
-            if output:
-                print(line)
-
-        stdout, stderr = p.communicate()
+        line = p.stdout.readline()
+        if not line:
+            break
+        line = str(line.strip())
 
         if output:
-            print(stdout)
-            print(stderr)
+            print(line)
 
-        toc = time() - tic
+    stdout, stderr = p.communicate()
 
-        print('\n***** OpenSees analysis time : {0} s *****'.format(toc))
+    if output:
+        print(stdout)
+        print(stderr)
 
-    except:
+    toc = time() - tic
 
-        print('\n***** OpenSees analysis failed')
+    print('\n***** OpenSees analysis time : {0} s *****'.format(toc))
+
+    # except:
+
+    #     print('\n***** OpenSees analysis failed')
 
 
 def delete_result_files(path, name):
