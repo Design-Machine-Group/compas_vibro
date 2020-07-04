@@ -64,6 +64,6 @@ def write_shells(structure, path, filename, ekeys, section, material):
     for ek in ekeys:
         i, j, k, l = structure.elements[ek].nodes
         t = structure.sections[section].geometry['t']
-        m = 1  # structure.materials[material].__name__
+        m = structure.materials[material].index + 1
         fh.write(string.format(ek, i + 1, j + 1, k + 1, l + 1, t, m))
     fh.close()

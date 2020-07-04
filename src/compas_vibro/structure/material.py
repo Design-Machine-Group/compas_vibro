@@ -83,6 +83,7 @@ class ElasticIsotropic(Material):
         Material.__init__(self, name=name)
 
         self.__name__    = 'ElasticIsotropic'
+        self.index       = None
         self.name        = name
         self.E           = {'E': E}
         self.v           = {'v': v}
