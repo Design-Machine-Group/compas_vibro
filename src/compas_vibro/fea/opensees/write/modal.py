@@ -38,7 +38,28 @@ load 15 0.0 0.0 -100.0 0.0 0.0 0.0
 # Output
 #-------
 #
-}    
+}  
+#
+#  
+recorder Node -file /Users/tmendeze/Documents/UW/04_code/compas_vibro/temp/beam_simple/step_load_u.out -time -nodeRange 1 117 -dof 1 2 3 disp
+#
+#
+# Element recorders
+#------------------
+#
+#
+# Solver
+#-------
+#
+#
+constraints Transformation
+numberer RCM
+system ProfileSPD
+test NormUnbalance 0.01 100 5
+algorithm NewtonLineSearch
+integrator LoadControl 0.01
+analysis Static
+analyze 100
 """
 
 def write_command_file_modal(structure, path):

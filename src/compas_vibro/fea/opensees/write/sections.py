@@ -37,5 +37,5 @@ def write_shell_sections(structure, path, filename, key):
     string = 'section ElasticMembranePlateSection {0} {1} {2} {3} {4}\n'
     fh.write(string.format(i + 1,  e, v, t, p))
     fh.write('#\n')
-    fh.write('set EleType ShellMITC4\n')
+    # fh.write('set EleType ShellMITC4\n')  # Is this required?
     fh.close()

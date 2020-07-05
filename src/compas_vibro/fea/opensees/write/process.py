@@ -20,4 +20,7 @@ def write_heading(path, filename):
     fh.write('wipe\n')
     fh.write('model basic -ndm 3 -ndf 6\n')
     fh.write('#\n')
+    fh.write('logFile error.txt\n')
+    fh.write('#\n')
+    fh.write('#\n')
     fh.close()

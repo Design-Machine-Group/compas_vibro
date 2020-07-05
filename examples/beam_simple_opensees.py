@@ -71,4 +71,4 @@ mdl.analyse('opensees', exe=exe, cpus=4, license='research')
 # mdl.analyse_and_extract(software='opensees', exe=exe, fields=['u'])
 
 
-print(mdl.results['step_load']['nodal']['um'][0])
+# print(mdl.results['step_load']['nodal']['um'][0])
