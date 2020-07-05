@@ -41,7 +41,7 @@ load 15 0.0 0.0 -100.0 0.0 0.0 0.0
 }  
 #
 #  
-recorder Node -file /Users/tmendeze/Documents/UW/04_code/compas_vibro/temp/beam_simple/step_load_u.out -time -nodeRange 1 117 -dof 1 2 3 disp
+recorder Node -file /Users/tmendeze/Documents/UW/04_code/compas_vibro/temp/step_load_u.out -time -nodeRange 1 117 -dof 1 2 3 disp
 #
 #
 # Element recorders
