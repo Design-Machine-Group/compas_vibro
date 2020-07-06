@@ -94,7 +94,7 @@ def extract_data(structure, fields, results_type):
     return structure
 
 
-def opensess_launch_process(structure, exe=None, output=True, delete=True):
+def opensess_launch_process(structure, exe=None, output=True, delete=False):
 
     """ Runs the analysis through OpenSees.
 

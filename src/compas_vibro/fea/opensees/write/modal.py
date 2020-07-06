@@ -28,10 +28,19 @@ def write_command_file_modal(structure, fields):
     write_materials(structure, path, filename)
     write_sections(structure, path, filename)
     write_elements(structure, path, filename)
+    write_modal_solve(structure, path, filename)
     if 'u' or 'all' in fields:
         write_modal_shape(structure, path, filename)
-    write_modal_solve(structure, path, filename)
+    if 'f' or 'all' in fields:
+        write_modal_frequency(structure, path, filename)
+    write_modal_record(structure, path, filename)    
 
+def write_modal_record(structure, path, filename):
+    fh = open(os.path.join(path, filename), 'a')
+    fh.write('#\n')
+    fh.write('record\n')
+    fh.write('#\n')
+    fh.close()
 
 def write_modal_solve(structure, path, filename):
     modes = structure.step.modes
@@ -42,8 +51,8 @@ def write_modal_solve(structure, path, filename):
     fh.write('# Eigen Analysis\n')
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
-    fh.write('eigen  {}\n'.format(modes))
-    # fh.write('set lambda [eigen  ${}]\n'.format(modes))
+    # fh.write('eigen  {}\n'.format(modes))
+    fh.write('set lambda [eigen  {}]\n'.format(modes))
     fh.write('#\n')
     fh.write('record\n')
     fh.write('#\n')
@@ -67,4 +76,31 @@ def write_modal_shape(structure, path, filename):
     fh.write('#\n')
     fh.close()
 
-    
+def write_modal_frequency(structure, path, filename):
+    # modes = structure.step.modes
+    # num_nodes = len(structure.nodes)
+    outpath = os.path.join(path, '{}_output'.format(structure.name))
+
+    fh = open(os.path.join(path, filename), 'a')
+    fh.write('#\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('# Modal frequency out\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('#\n')
+
+    fh.write('set F {}\n')
+    fh.write('set pi 3.141593\n')
+    fh.write('#\n')
+    fh.write('foreach lam $lambda {\n')
+    fh.write('    lappend F [expr sqrt($lam)/(2*$pi)]\n')
+    fh.write('}\n')
+    fh.write('#\n')
+    fh.write('puts "frequencies are $F"\n')
+    fh.write('#\n')
+    fh.write('set freq "{}/frequencies.txt"\n'.format(outpath))
+    fh.write('set Freq [open $freq "w"]\n')
+    fh.write('foreach f $F {\n')
+    fh.write('    puts $Freq " $f"\n')
+    fh.write('}\n')
+    fh.write('close $Freq\n')
+    fh.close()
