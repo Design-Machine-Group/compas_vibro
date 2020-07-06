@@ -28,7 +28,7 @@ class ModalViewer(object):
         self.make_layout()
 
     def make_layout(self):
-        f = round(self.structure.results['modal'][mode].frequency, 4)
+        f = round(self.structure.results['modal'][self.mode].frequency, 4)
         title = 'Modal Analysis - mode {0} - {1}Hz'.format(self.mode, f)
         layout = go.Layout(title=title,
                           scene=dict(aspectmode='data',

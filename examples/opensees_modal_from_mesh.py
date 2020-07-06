@@ -16,6 +16,7 @@ from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 
+from compas_vibro.viewers import ModalViewer
 
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
@@ -38,9 +39,6 @@ s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
 s.add(d)
 
-# load = PointLoad(name='pload', nodes=[10, 15], x=0, y=0, z=1, xx=0, yy=0, zz=0)
-# s.add(load)
-
 section = ShellSection('shell_sec', t=.1)
 s.add(section)
 
@@ -55,5 +53,12 @@ el_prop = ElementProperties('concrete_shell',
 s.add(el_prop)
 
 
-s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=20)
-s.to_obj()
+s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=2)
+# s.to_obj()
+
+mode = 0
+
+v = ModalViewer(s, mode)
+v.plot_modal_shape()
+v.plot_supports()
+v.show()

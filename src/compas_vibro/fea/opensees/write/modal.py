@@ -43,6 +43,7 @@ def write_modal_solve(structure, path, filename):
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
     fh.write('eigen  {}\n'.format(modes))
+    # fh.write('set lambda [eigen  ${}]\n'.format(modes))
     fh.write('#\n')
     fh.write('record\n')
     fh.write('#\n')
