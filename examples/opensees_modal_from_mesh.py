@@ -28,7 +28,7 @@ for i in range(60):
     print()
 
 path = compas_vibro.TEMP
-geometry = 'mesh_flat_10x10'
+geometry = 'mesh_flat_100x100'
 name = '{0}_modal'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
@@ -55,5 +55,5 @@ el_prop = ElementProperties('concrete_shell',
 s.add(el_prop)
 
 
-s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=2)
-# s.to_obj()
+s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=20)
+s.to_obj()

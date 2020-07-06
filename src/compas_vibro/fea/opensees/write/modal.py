@@ -32,11 +32,6 @@ def write_command_file_modal(structure, fields):
         write_modal_shape(structure, path, filename)
     write_modal_solve(structure, path, filename)
 
-    # write_constraints(structure, path, filename)
-    # write_loadstep(structure, path, filename)
-    # write_solve_step(structure, path, filename)
-    # write_modal_results(structure, fields, path, filename)
-
 
 def write_modal_solve(structure, path, filename):
     modes = structure.step.modes
@@ -64,7 +59,7 @@ def write_modal_shape(structure, path, filename):
     fh.write('# Modal shape recorders\n')
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
-    string = 'recorder Node -file \"{0}/mode{1}.out\" -nodeRange 1 {2} -dof 1 2 3 4 5 6  "eigen {1}"\n'
+    string = 'recorder Node -file \"{0}/mode{1}.out\" -nodeRange 1 {2} -dof 1 2 3 "eigen {1}"\n'
     for i in range(modes):
         fh.write(string.format(outpath, i + 1, num_nodes))
     fh.write('#\n')

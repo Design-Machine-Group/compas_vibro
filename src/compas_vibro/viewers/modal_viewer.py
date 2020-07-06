@@ -113,9 +113,9 @@ if __name__ == "__main__":
 
     for i in range(60): print()
 
-    filepath = os.path.join(compas_vibro.DATA, 'mesh_flat_20x20_modal.obj')
+    filepath = os.path.join(compas_vibro.TEMP, 'mesh_flat_100x100_modal.obj')
     s = Structure.from_obj(filepath)
-    mode = 4
+    mode = 19
 
     v = ModalViewer(s, mode)
     v.plot_modal_shape()

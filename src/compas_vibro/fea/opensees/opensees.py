@@ -15,6 +15,11 @@ from compas_vibro.structure.step import HarmonicStep
 
 from compas_vibro.fea.opensees import write_command_file_modal
 
+from compas_vibro.fea.opensees.read import read_modal_displacements
+
+
+from compas_vibro.structure.result import Result
+
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -38,6 +43,7 @@ def opensees_modal(structure, fields, num_modes, license='introductory'):
     # analyse and extraxt results ----------------------------------------------
     write_command_file_modal(structure, fields)
     opensess_launch_process(structure)
+    extract_data(structure, fields, 'modal')
     return structure
 
 
@@ -58,10 +64,37 @@ def opensees_harmonic(structure, freq_list, fields='all', damping=0.05):
 
 
 def extract_data(structure, fields, results_type):
-    pass
+    path = structure.path
+    name = structure.name
+    out_path = os.path.join(path, name + '_output')
+
+    if results_type == 'modal':
+        # mfreq = read_modal_freq(out_path)
+        mfreq = {fk:fk for fk in range(structure.step.modes)}
+        rdict = {fk: Result(mfreq[fk], name='VibroResult_{}'.format(fk), type='modal') for fk in mfreq}
+        structure.results.update({'modal':rdict})
+
+        if 'u' in fields or 'all' in fields:
+            for fk in mfreq:
+                d = read_modal_displacements(out_path, fk)
+                structure.results['modal'][fk].displacements = d
+    # elif results_type == 'harmonic':
+    #     freq_list = structure.step.freq_list
+    #     fdict = {i:freq_list[i] for i in range(len(freq_list))}
+    #     rdict = {fk: Result(fdict[fk], name='VibroResult_{}'.format(fk), type='harmonic') for fk in fdict}
+    #     structure.results.update({'harmonic':rdict})
+
+    #     if 'u' in fields or 'all' in fields:
+    #         # this is still not great, frequencies are from structure, not files...
+    #         hd = read_harmonic_displacements(structure, out_path)
+    #         structure.tomas = hd
+    #         for fkey in hd:
+    #             structure.results['harmonic'][fkey].displacements = hd[fkey]
+
+    return structure
 
 
-def opensess_launch_process(structure, exe=None, output=True, delete=True):
+def opensess_launch_process(structure, exe=None, output=True, delete=False):
 
     """ Runs the analysis through OpenSees.
 
