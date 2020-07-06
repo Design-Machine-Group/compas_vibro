@@ -76,6 +76,7 @@ def extract_data(structure, fields, results_type):
             for fk in mfreq:
                 d = read_modal_displacements(out_path, fk)
                 structure.results['modal'][fk].displacements = d
+    
     elif results_type == 'harmonic':
         freq_list = structure.step.freq_list
         fdict = {i:freq_list[i] for i in range(len(freq_list))}

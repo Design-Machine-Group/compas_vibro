@@ -16,6 +16,7 @@ from compas_vibro.structure.step import HarmonicStep
 from compas_vibro.fea.opensees import write_command_file_modal
 
 from compas_vibro.fea.opensees.read import read_modal_displacements
+from compas_vibro.fea.opensees.read import read_modal_frequencies
 
 
 from compas_vibro.structure.result import Result
@@ -43,8 +44,8 @@ def opensees_modal(structure, fields, num_modes, license='introductory'):
     # analyse and extraxt results ----------------------------------------------
     write_command_file_modal(structure, fields)
     opensess_launch_process(structure)
-    # extract_data(structure, fields, 'modal')
-    # return structure
+    extract_data(structure, fields, 'modal')
+    return structure
 
 
 def opensees_harmonic(structure, freq_list, fields='all', damping=0.05):
@@ -69,8 +70,7 @@ def extract_data(structure, fields, results_type):
     out_path = os.path.join(path, name + '_output')
 
     if results_type == 'modal':
-        # mfreq = read_modal_freq(out_path)
-        mfreq = {fk:fk for fk in range(structure.step.modes)}
+        mfreq = read_modal_frequencies(out_path)
         rdict = {fk: Result(mfreq[fk], name='VibroResult_{}'.format(fk), type='modal') for fk in mfreq}
         structure.results.update({'modal':rdict})
 
@@ -78,6 +78,7 @@ def extract_data(structure, fields, results_type):
             for fk in mfreq:
                 d = read_modal_displacements(out_path, fk)
                 structure.results['modal'][fk].displacements = d
+
     # elif results_type == 'harmonic':
     #     freq_list = structure.step.freq_list
     #     fdict = {i:freq_list[i] for i in range(len(freq_list))}

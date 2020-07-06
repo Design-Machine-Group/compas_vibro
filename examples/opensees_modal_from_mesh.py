@@ -56,8 +56,8 @@ s.add(el_prop)
 s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=20)
 # s.to_obj()
 
-# mode = 0
-# v = ModalViewer(s, mode)
-# v.plot_modal_shape()
-# v.plot_supports()
-# v.show()
+mode = 0
+v = ModalViewer(s, mode)
+v.plot_modal_shape()
+v.plot_supports()
+v.show()

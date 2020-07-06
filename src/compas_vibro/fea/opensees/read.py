@@ -30,5 +30,15 @@ def read_modal_displacements(outpath, mode):
         nkey += 1
     return disp_dict
 
+def read_modal_frequencies(outpath):
+    filepath = os.path.join(outpath, 'modal_frequencies.out')
+    fh = open(filepath, 'r')
+    lines = fh.readlines()
+    fh.close()
+    f = {i: float(line) for i, line in enumerate(lines)}
+    print(f)
+    return f
+    
+
 if __name__ == "__main__":
     pass
