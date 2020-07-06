@@ -43,8 +43,8 @@ def opensees_modal(structure, fields, num_modes, license='introductory'):
     # analyse and extraxt results ----------------------------------------------
     write_command_file_modal(structure, fields)
     opensess_launch_process(structure)
-    extract_data(structure, fields, 'modal')
-    return structure
+    # extract_data(structure, fields, 'modal')
+    # return structure
 
 
 def opensees_harmonic(structure, freq_list, fields='all', damping=0.05):
@@ -94,7 +94,7 @@ def extract_data(structure, fields, results_type):
     return structure
 
 
-def opensess_launch_process(structure, exe=None, output=True, delete=False):
+def opensess_launch_process(structure, exe=None, output=True, delete=True):
 
     """ Runs the analysis through OpenSees.
 
@@ -119,15 +119,16 @@ def opensess_launch_process(structure, exe=None, output=True, delete=False):
     path = structure.path
     temp = '{0}/{1}_output/'.format(path, name)
     
-
+    if delete:
+        try:
+            delete_result_files(path, name)
+        except:
+            pass
     try:
         os.stat(temp)
-        if delete:
-            delete_result_files(path, name)
+
     except:
         os.mkdir(temp)
-
-
 
     tic = time()
 
