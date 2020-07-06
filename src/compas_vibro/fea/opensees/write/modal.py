@@ -16,55 +16,11 @@ from compas_vibro.fea.opensees.write.materials import write_materials
 from compas_vibro.fea.opensees.write.sections import write_sections
 from compas_vibro.fea.opensees.write.elements import write_elements
 
-s = """
-#------------------------------------------------------------------
-# Steps
-#------------------------------------------------------------------
-#
-# step_load
-#----------
-#
-timeSeries Constant 1 -factor 1.0
-pattern Plain 1 1 -fact 1 {
-#
-# load_weights
-#-------------
-#
-load 16 0.0 0.0 -100.0 0.0 0.0 0.0
-load 15 0.0 0.0 -100.0 0.0 0.0 0.0
-#
-#
-#
-# Output
-#-------
-#
-}  
-#
-#  
-recorder Node -file /Users/tmendeze/Documents/UW/04_code/compas_vibro/temp/step_load_u.out -time -nodeRange 1 117 -dof 1 2 3 disp
-#
-#
-# Element recorders
-#------------------
-#
-#
-# Solver
-#-------
-#
-#
-constraints Transformation
-numberer RCM
-system ProfileSPD
-test NormUnbalance 0.01 100 5
-algorithm NewtonLineSearch
-integrator LoadControl 0.01
-analysis Static
-analyze 100
-"""
 
-def write_command_file_modal(structure, path):
+def write_command_file_modal(structure, fields):
     path = structure.path
     filename = structure.name + '.tcl'
+
     
     write_heading(path, filename)
     write_nodes(structure, path, filename)
@@ -72,16 +28,47 @@ def write_command_file_modal(structure, path):
     write_materials(structure, path, filename)
     write_sections(structure, path, filename)
     write_elements(structure, path, filename)
-
-
+    if 'u' or 'all' in fields:
+        write_modal_shape(structure, path, filename)
     write_modal_solve(structure, path, filename)
+
     # write_constraints(structure, path, filename)
     # write_loadstep(structure, path, filename)
     # write_solve_step(structure, path, filename)
     # write_modal_results(structure, fields, path, filename)
 
+
 def write_modal_solve(structure, path, filename):
-    # num_modes = structure.step.modes
+    modes = structure.step.modes
+
     fh = open(os.path.join(path, filename), 'a')
-    fh.write(s)
+    fh.write('#\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('# Eigen Analysis\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('#\n')
+    fh.write('eigen  {}\n'.format(modes))
+    fh.write('#\n')
+    fh.write('record\n')
+    fh.write('#\n')
     fh.close()
+
+def write_modal_shape(structure, path, filename):
+    modes = structure.step.modes
+    num_nodes = len(structure.nodes)
+    outpath = os.path.join(path, '{}_output'.format(structure.name))
+
+    fh = open(os.path.join(path, filename), 'a')
+    fh.write('#\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('# Modal shape recorders\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('#\n')
+    string = 'recorder Node -file \"{0}/mode{1}.out\" -nodeRange 1 {2} -dof 1 2 3 4 5 6  "eigen {1}"\n'
+    for i in range(modes):
+        fh.write(string.format(outpath, i + 1, num_nodes))
+    fh.write('#\n')
+    fh.write('#\n')
+    fh.close()
+
+    

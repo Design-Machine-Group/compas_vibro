@@ -61,8 +61,7 @@ def extract_data(structure, fields, results_type):
     pass
 
 
-# def opensees_launch_process(structure, cpus=2, license='introductory', delete=True):
-def opensess_launch_process(structure, exe=None, output=True):
+def opensess_launch_process(structure, exe=None, output=True, delete=True):
 
     """ Runs the analysis through OpenSees.
 
@@ -85,12 +84,16 @@ def opensess_launch_process(structure, exe=None, output=True):
 
     name = structure.name
     path = structure.path
-    temp = '{0}/{1}/'.format(path, name)
-
+    temp = '{0}/{1}_output/'.format(path, name)
+    
+    if delete:
+        delete_result_files(path, name)
     try:
         os.stat(temp)
     except:
         os.mkdir(temp)
+
+
 
     tic = time()
 

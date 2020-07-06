@@ -55,5 +55,5 @@ el_prop = ElementProperties('concrete_shell',
 s.add(el_prop)
 
 
-s.analyze_modal(backend='opensees', fields=['f', 'u'])
+s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=2)
 # s.to_obj()
