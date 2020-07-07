@@ -35,9 +35,7 @@ def read_modal_frequencies(outpath):
     fh = open(filepath, 'r')
     lines = fh.readlines()
     fh.close()
-    f = {i: float(line) for i, line in enumerate(lines)}
-    print(f)
-    return f
+    return  {i: float(line) for i, line in enumerate(lines)}
     
 
 if __name__ == "__main__":
