@@ -54,6 +54,9 @@ class ModalViewer(object):
 
     def show(self):
         fig = go.Figure(data=self.data, layout=self.layout)
+
+        # fig.data[-2].visible = False
+
         fig.show()
 
     def plot_modal_shape(self):
@@ -72,11 +75,14 @@ class ModalViewer(object):
         faces = [self.structure.elements[ek].nodes for ek in self.structure.elements]
         mesh = Mesh.from_vertices_and_faces(vertices, faces)
         edges = [[mesh.vertex_coordinates(u), mesh.vertex_coordinates(v)] for u,v in mesh.edges()]
-        line_marker = dict(color='#0066FF', width=2)
+        line_marker = dict(color='rgb(0,0,200)', width=1)
         lines = []
+        x, y, z = [], [],  []
         for u, v in edges:
-            lines.append(go.Scatter3d(x=(u[0], v[0]), y=(u[1], v[1]), z=(u[2], v[2]), mode='lines', line=line_marker))
-        
+            x.extend([u[0], v[0], [None]])
+            y.extend([u[1], v[1], [None]])
+            z.extend([u[2], v[2], [None]])
+        lines = [go.Scatter3d(x=x, y=y, z=z, mode='lines', line=line_marker)]
         triangles = []
         for face in faces:
             triangles.append(face[:3])
@@ -90,9 +96,18 @@ class ModalViewer(object):
         y = [v[1] for v in vertices]
         z = [v[2] for v in vertices]
 
-        faces = [go.Mesh3d(x=x, y=y, z=z, i=i, j=j, k=k, alphahull=1, opacity=0.4,color='cyan')]
+        faces = [go.Mesh3d(x=x,
+                           y=y,
+                           z=z,
+                           i=i,
+                           j=j,
+                           k=k,
+                           alphahull=1,
+                           opacity=0.4,
+                           color='cyan')]
         self.data.extend(lines)
         self.data.extend(faces)
+
 
     def plot_supports(self):
         dots = []

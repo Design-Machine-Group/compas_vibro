@@ -57,7 +57,7 @@ s.add(el_prop)
 # s.to_obj()
 
 s = Structure.from_obj(os.path.join(path, name + '.obj'))
-mode = 3
+mode = 1
 v = ModalViewer(s, mode)
 v.plot_modal_shape()
 v.plot_supports()
