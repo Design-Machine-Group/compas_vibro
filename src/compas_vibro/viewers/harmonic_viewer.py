@@ -64,9 +64,9 @@ class HarmonicViewer(object):
         nodes = sorted(self.structure.nodes.keys(), key=int)
         for vk in nodes:
             x, y, z = self.structure.nodes[vk].xyz()
-            dx = self.structure.results['harmonic'][frequency].displacements[vk]['real']['x']
-            dy = self.structure.results['harmonic'][frequency].displacements[vk]['real']['y']
-            dz = self.structure.results['harmonic'][frequency].displacements[vk]['real']['z']
+            dx = self.structure.results['modal'][mode].displacements['ux'][vk]
+            dy = self.structure.results['modal'][mode].displacements['uy'][vk]
+            dz = self.structure.results['modal'][mode].displacements['uz'][vk]
             xyz = [x + dx * s, y + dy * s, z + dz * s]
             vertices.append(xyz)
 
