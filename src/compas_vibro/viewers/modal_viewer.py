@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 from compas.datastructures import Mesh
 
 import plotly.io as pio
-pio.renderers.default = "firefox"
+# pio.renderers.default = "firefox"
 
 
 class ModalViewer(object):
@@ -29,7 +29,8 @@ class ModalViewer(object):
 
     def make_layout(self):
         f = round(self.structure.results['modal'][0].frequency, 4)
-        title = 'Modal Analysis - mode {0} - {1}Hz'.format(0, f)
+        name = self.structure.name
+        title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name,0, f)
         layout = go.Layout(title=title,
                           scene=dict(aspectmode='data',
                                     xaxis=dict(
@@ -62,7 +63,8 @@ class ModalViewer(object):
         steps = []
         for i in range(modes):
             f = round(self.structure.results['modal'][i].frequency, 4)
-            title = 'Modal Analysis - mode {0} - {1}Hz'.format(i, f)
+            name = self.structure.name
+            title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name, i, f)
             step = dict(
                 method="update",
                 args=[{"visible": [False] * len(fig.data)},
@@ -152,7 +154,7 @@ if __name__ == "__main__":
 
     for i in range(60): print()
 
-    filepath = os.path.join(compas_vibro.TEMP, 'mesh_flat_20x20_modal.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'ansys_mesh_flat_100x100_modal.obj')
     s = Structure.from_obj(filepath)
 
     v = ModalViewer(s)
