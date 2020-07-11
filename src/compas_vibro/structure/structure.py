@@ -94,7 +94,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
     def analyze_modal(self, fields, backend='ansys', num_modes=10):
         if backend == 'ansys':
             ansys_modal(self, fields, num_modes=num_modes)
-        if backend == 'opensees':
+        elif backend == 'opensees':
             opensees_modal(self, fields, num_modes=num_modes)
         else:
             raise NameError('This backend is not implemented')
