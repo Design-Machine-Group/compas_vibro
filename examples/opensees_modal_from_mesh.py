@@ -28,9 +28,9 @@ __version__ = "0.1.0"
 for i in range(60):
     print()
 
-path = compas_vibro.TEMP
-geometry = 'mesh_flat_20x20'
-name = '{0}_modal'.format(geometry)
+path = compas_vibro.DATA
+geometry = 'mesh_flat_10x10'
+name = 'opensees_{0}_modal'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
 s = Structure(path, name)
@@ -52,13 +52,12 @@ el_prop = ElementProperties('concrete_shell',
                             elset='shell')
 s.add(el_prop)
 
-
-# s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=20)
-# s.to_obj()
+s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=20)
+s.to_obj()
 
 s = Structure.from_obj(os.path.join(path, name + '.obj'))
-mode = 1
-v = ModalViewer(s, mode)
+
+v = ModalViewer(s)
 v.plot_modal_shape()
 v.plot_supports()
 v.show()
