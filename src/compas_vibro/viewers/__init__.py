@@ -8,4 +8,5 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
+from .plotlyviewer import *
 from .modal_viewer import *

@@ -15,7 +15,7 @@ from compas.datastructures import Mesh
 import plotly.io as pio
 pio.renderers.default = "firefox"
 
-#TODO: Both plotters should inherit some basics from a BasePLotter
+#TODO: Both viewers should inherit some basics from a PlotlyViewer
 
 class HarmonicViewer(object):
     """Plotly based viewer for modal analysis.
