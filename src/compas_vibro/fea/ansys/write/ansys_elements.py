@@ -11,7 +11,7 @@ def write_elements(structure, output_path, filename):
 
     structure.et_dict = {}
 
-    # combine elementa and virtual elements ------------------------------------
+    # combine elements and virtual elements ------------------------------------
     elements = {}
     elements.update(structure.elements)
     # elements.update(structure.virtual_elements)

@@ -12,8 +12,8 @@ __email__      = 'tmendeze@uw.edu'
 from compas_vibro.fea.opensees.write.process import write_heading
 from compas_vibro.fea.opensees.write.nodes import write_nodes
 from compas_vibro.fea.opensees.write.nodes import write_displacements
-from compas_vibro.fea.opensees.write.materials import write_materials
-from compas_vibro.fea.opensees.write.sections import write_sections
+from compas_vibro.fea.opensees.write.materials import write_material
+from compas_vibro.fea.opensees.write.sections import write_section
 from compas_vibro.fea.opensees.write.elements import write_elements
 
 
@@ -21,14 +21,21 @@ def write_command_file_modal(structure, fields):
     path = structure.path
     filename = structure.name + '.tcl'
 
-    
     write_heading(path, filename)
     write_nodes(structure, path, filename)
     write_displacements(structure, path, filename)
-    write_materials(structure, path, filename)
-    write_sections(structure, path, filename)
+
+    eps = structure.element_properties
+    for ep in eps:
+        material = structure.materials[eps[ep].material]
+        section = structure.sections[eps[ep].section]
+
+        write_material(structure, path, filename, material)
+        write_section(structure, path, filename, section, ep)
+    
     write_elements(structure, path, filename)
     write_modal_solve(structure, path, filename)
+    
     if 'u' or 'all' in fields:
         write_modal_shape(structure, path, filename)
     if 'f' or 'all' in fields:

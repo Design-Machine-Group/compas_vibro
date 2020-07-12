@@ -9,16 +9,14 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
-__all__ = ['write_materials']
+__all__ = ['write_material']
 
-def write_materials(structure, path, filename):
-    materials = structure.materials
-    for key in materials:
-        material = materials[key]
-        if material.__name__ == 'ElasticIsotropic':
-            write_elastic_isotropic(structure, path, filename, key)
+def write_material(structure, path, filename, material):
 
-def write_elastic_isotropic(structure, path, filename, key):
+    if material.__name__ == 'ElasticIsotropic':
+        write_elastic_isotropic(structure, path, filename, material)
+
+def write_elastic_isotropic(structure, path, filename, material):
 
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
@@ -27,10 +25,10 @@ def write_elastic_isotropic(structure, path, filename, key):
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
 
-    i = structure.materials[key].index
-    e = structure.materials[key].E['E']
-    v = structure.materials[key].v['v']
-    p = structure.materials[key].p
+    i = material.index
+    e = material.E['E']
+    v = material.v['v']
+    p = material.p
 
     # TODO: Are both lines needed? Why the uniaxial instead of just elastic isotropic?
     # fh.write('uniaxialMaterial Elastic {0} {1}\n'.format(i + 1, e))

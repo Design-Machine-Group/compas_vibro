@@ -10,30 +10,29 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
-__all__ = ['write_sections']
+__all__ = ['write_section']
 
 
-def write_sections(structure, path, filename):
-    for sk in structure.sections:
-        sec_type = structure.sections[sk].__name__
-        if  sec_type == 'ShellSection':
-            write_shell_sections(structure, path, filename, sk)
-        else:
-            raise NameError('The \'{}\' section type is not yet implmenented'.format(sec_type))
+def write_section(structure, path, filename, section, ep_key):
+    sec_type = section.__name__
+    if  sec_type == 'ShellSection':
+        write_shell_section(structure, path, filename, section, ep_key)
+    else:
+        raise NameError('The \'{}\' section type is not yet implmenented'.format(sec_type))
 
 
-def write_shell_sections(structure, path, filename, key):
+def write_shell_section(structure, path, filename, section, ep_key):
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
     fh.write('#-{} \n'.format('-'*80))
     fh.write('# Shell sections\n')
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
-    i = structure.sections[key].index
-    t = structure.sections[key].geometry['t']
-    e = 30e9
-    v = .2
-    p = 2400
+    i = section.index
+    t = section.geometry['t']
+    e = structure.materials[structure.element_properties[ep_key].material].E['E']
+    v = structure.materials[structure.element_properties[ep_key].material].v['v']
+    p = structure.materials[structure.element_properties[ep_key].material].p
     string = 'section ElasticMembranePlateSection {0} {1} {2} {3} {4}\n'
     fh.write(string.format(i + 1,  e, v, t, p))
     fh.write('#\n')

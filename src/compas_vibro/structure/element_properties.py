@@ -45,8 +45,6 @@ class ElementProperties(object):
         Element set name.
     elements : list
         Element keys assignment.
-    rebar : dict
-        Reinforcement layer data.
 
     Notes
     -----
@@ -72,7 +70,7 @@ class ElementProperties(object):
         print('compas_fea {0} object'.format(self.__name__))
         print('-' * (len(self.__name__) + 18))
 
-        for attr in ['name', 'material', 'section', 'elset', 'elements', 'rebar']:
+        for attr in ['name', 'material', 'section', 'elset', 'elements']:
             print('{0:<13} : {1}'.format(attr, getattr(self, attr)))
 
         return ''

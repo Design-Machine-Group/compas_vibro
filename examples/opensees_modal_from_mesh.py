@@ -39,7 +39,7 @@ s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
 s.add(d)
 
-section = ShellSection('shell_sec', t=.1)
+section = ShellSection('shell_sec', t=.2)
 s.add(section)
 
 material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
@@ -58,6 +58,4 @@ s.to_obj()
 s = Structure.from_obj(os.path.join(path, name + '.obj'))
 
 v = ModalViewer(s)
-v.plot_modal_shape()
-v.plot_supports()
 v.show()
