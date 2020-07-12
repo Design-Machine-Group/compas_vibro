@@ -9,7 +9,7 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 import plotly.graph_objects as go
-
+from compas.utilities import i_to_rgb
 from compas.datastructures import Mesh
 
 import plotly.io as pio
@@ -101,6 +101,7 @@ class ModalViewer(object):
                 vertices.append(xyz)
 
             faces = [self.structure.elements[ek].nodes for ek in self.structure.elements]
+            
             mesh = Mesh.from_vertices_and_faces(vertices, faces)
             edges = [[mesh.vertex_coordinates(u), mesh.vertex_coordinates(v)] for u,v in mesh.edges()]
             line_marker = dict(color='rgb(0,0,200)', width=1)
@@ -124,15 +125,22 @@ class ModalViewer(object):
             y = [v[1] for v in vertices]
             z = [v[2] for v in vertices]
 
+            vcolor = []
+            minh, maxh = min(z), max(z)
+            for h in z:
+                r, g, b = i_to_rgb((h-minh)/(maxh-minh))
+                vcolor.append('rgb({0},{1},{2})'.format(r, g, b))
+
             faces = [go.Mesh3d(x=x,
                             y=y,
                             z=z,
                             i=i,
                             j=j,
                             k=k,
-                            alphahull=1,
-                            opacity=0.4,
-                            color='cyan')]
+                            opacity=0.8,
+                            # contour={'show':True},
+                            vertexcolor=vcolor
+                    )]
             self.data.extend(lines)
             self.data.extend(faces)
 
@@ -154,7 +162,7 @@ if __name__ == "__main__":
 
     for i in range(60): print()
 
-    filepath = os.path.join(compas_vibro.DATA, 'ansys_mesh_flat_100x100_modal.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'ansys_mesh_flat_20x20_modal.obj')
     s = Structure.from_obj(filepath)
 
     v = ModalViewer(s)

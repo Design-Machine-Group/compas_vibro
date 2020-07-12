@@ -31,7 +31,7 @@ def write_shell_sections(structure, path, filename, key):
     fh.write('#\n')
     i = structure.sections[key].index
     t = structure.sections[key].geometry['t']
-    e = 20e9
+    e = 30e9
     v = .2
     p = 2400
     string = 'section ElasticMembranePlateSection {0} {1} {2} {3} {4}\n'
