@@ -104,7 +104,7 @@ class ModalViewer(object):
             
             mesh = Mesh.from_vertices_and_faces(vertices, faces)
             edges = [[mesh.vertex_coordinates(u), mesh.vertex_coordinates(v)] for u,v in mesh.edges()]
-            line_marker = dict(color='rgb(0,0,200)', width=1)
+            line_marker = dict(color='rgb(0,0,0)', width=1.5)
             lines = []
             x, y, z = [], [],  []
             for u, v in edges:
@@ -128,7 +128,7 @@ class ModalViewer(object):
             vcolor = []
             minh, maxh = min(z), max(z)
             for h in z:
-                r, g, b = i_to_rgb((h-minh)/(maxh-minh))
+                r, g, b = i_to_rgb((h - minh)/(maxh - minh))
                 vcolor.append('rgb({0},{1},{2})'.format(r, g, b))
 
             faces = [go.Mesh3d(x=x,
@@ -137,9 +137,9 @@ class ModalViewer(object):
                             i=i,
                             j=j,
                             k=k,
-                            opacity=0.8,
+                            opacity=1.,
                             # contour={'show':True},
-                            vertexcolor=vcolor
+                            vertexcolor=vcolor,
                     )]
             self.data.extend(lines)
             self.data.extend(faces)
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
     for i in range(60): print()
 
-    filepath = os.path.join(compas_vibro.DATA, 'ansys_mesh_flat_20x20_modal.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'ansys_mesh_flat_100x100_modal.obj')
     s = Structure.from_obj(filepath)
 
     v = ModalViewer(s)
