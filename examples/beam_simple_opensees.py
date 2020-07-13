@@ -67,8 +67,8 @@ mdl.steps_order = ['step_bc', 'step_load']
 exe = '/Applications/OpenSees3.2.1/OpenSees'
 mdl.write_input_file('opensees', fields='u')
 mdl.analyse('opensees', exe=exe, cpus=4, license='research')
-# mdl.extract_data('opensees', fields='u', steps='all', exe=exe)
-# mdl.analyse_and_extract(software='opensees', exe=exe, fields=['u'])
+mdl.extract_data('opensees', fields='u', steps='all', exe=exe)
+mdl.analyse_and_extract(software='opensees', exe=exe, fields=['u'])
 
 
 # print(mdl.results['step_load']['nodal']['um'][0])

@@ -14,6 +14,7 @@ from compas_vibro.structure.step import ModalStep
 from compas_vibro.structure.step import HarmonicStep
 
 from compas_vibro.fea.opensees import write_command_file_modal
+from compas_vibro.fea.opensees import write_command_file_harmonic
 
 from compas_vibro.fea.opensees.read import read_modal_displacements
 from compas_vibro.fea.opensees.read import read_modal_frequencies
@@ -61,6 +62,9 @@ def opensees_harmonic(structure, freq_list, fields='all', damping=0.05):
     structure.steps_order = [structure.name + '_harmonic']
 
     # analyse and extraxt results ----------------------------------------------
+    write_command_file_harmonic(structure, fields)
+    opensess_launch_process(structure)
+    # extract_data(structure, fields, 'harmonic')
     return structure
 
 

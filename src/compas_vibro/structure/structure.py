@@ -103,7 +103,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         if backend == 'ansys':
             ansys_harmonic(self, freq_list, fields, damping=damping)
         if backend == 'opensees':
-            raise NameError('Coming soon')
+            opensees_harmonic(self, freq_list, fields=fields, damping=damping)
         else:
             raise NameError('This backend is not implemented')
         
