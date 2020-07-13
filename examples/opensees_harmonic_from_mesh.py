@@ -8,7 +8,6 @@ from compas.datastructures import Mesh
 
 import compas_vibro
 
-
 from compas_vibro.structure import Structure
 from compas_vibro.structure import FixedDisplacement
 from compas_vibro.structure import PointLoad
@@ -16,6 +15,7 @@ from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 
+from compas_vibro.viewers import HarmonicViewer
 
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
@@ -70,3 +70,6 @@ s.analyze_harmonic(freq_list, fields=['u'], backend='opensees')
 
 # save results - - - - - - 
 s.to_obj()
+
+v = HarmonicViewer(s)
+v.show()

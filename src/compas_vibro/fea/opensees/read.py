@@ -45,16 +45,16 @@ def read_harmonic_displacements(outpath):
     lines = fh.readlines()
     fh.close()
     hd = {}
-    for line in lines:
+    for j, line in enumerate(lines):
         line = line.split(' ')
         time = line.pop(0)
         nkey = 0
-        hd[time] = {'ux':{}, 'uy': {}, 'uz': {}}
+        hd[j] = {'ux':{}, 'uy': {}, 'uz': {}}
         for i in range(0, len(line), 3):
-            a = list(map(float, line[i:i+3]))
-            hd[time]['ux'][nkey] = a[0]
-            hd[time]['uy'][nkey] = a[1]
-            hd[time]['uz'][nkey] = a[2]
+            a = list(map(float, line[i: i + 3]))
+            hd[j]['ux'][nkey] = a[0]
+            hd[j]['uy'][nkey] = a[1]
+            hd[j]['uz'][nkey] = a[2]
             nkey += 1
     return hd
 

@@ -33,7 +33,7 @@ class PlotlyViewer(object):
         if plot_type == 'modal':
             title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name,0, f)
         else:
-            title = '{0} - Analysis - {2}Hz'.format(name, f)
+            title = '{0} - Analysis - {1}Hz'.format(name, f)
         layout = go.Layout(title=title,
                           scene=dict(aspectmode='data',
                                     xaxis=dict(
@@ -58,7 +58,8 @@ class PlotlyViewer(object):
 
     def _show(self, plot_type):
         fig = go.Figure(data=self.data, layout=self.layout)
-        modes = self.structure.step.modes
+        # modes = self.structure.step.modes
+        modes = len(self.structure.results[plot_type])
         for i in range(2, modes * 2):
             fig.data[i].visible = False
 
@@ -70,7 +71,7 @@ class PlotlyViewer(object):
             if plot_type == 'modal':
                 title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name,0, f)
             else:
-                title = '{0} - Analysis - {2}Hz'.format(name, f)
+                title = '{0} - Analysis - {1}Hz'.format(name, f)
             step = dict(
                 method="update",
                 args=[{"visible": [False] * len(fig.data)},
@@ -91,8 +92,13 @@ class PlotlyViewer(object):
 
         fig.show()
 
-    def plot_modal_shape(self):
-        modes = self.structure.step.modes
+    def plot_shape(self, plot_type):
+        if plot_type == 'harmonic':
+            modes = len(self.structure.results[plot_type])
+        elif plot_type == 'modal':
+            modes = self.structure.step.modes
+        else:
+            raise NameError('Plot type {} has not yet been implemented'.format(plot_type))
         for i in range(modes):
             mode = i
             s = self.scale
@@ -100,9 +106,9 @@ class PlotlyViewer(object):
             nodes = sorted(self.structure.nodes.keys(), key=int)
             for vk in nodes:
                 x, y, z = self.structure.nodes[vk].xyz()
-                dx = self.structure.results['modal'][mode].displacements['ux'][vk]
-                dy = self.structure.results['modal'][mode].displacements['uy'][vk]
-                dz = self.structure.results['modal'][mode].displacements['uz'][vk]
+                dx = self.structure.results[plot_type][mode].displacements['ux'][vk]
+                dy = self.structure.results[plot_type][mode].displacements['uy'][vk]
+                dz = self.structure.results[plot_type][mode].displacements['uz'][vk]
                 xyz = [x + dx * s, y + dy * s, z + dz * s]
                 vertices.append(xyz)
 

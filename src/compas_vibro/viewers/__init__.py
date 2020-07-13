@@ -10,3 +10,4 @@ __email__      = 'tmendeze@uw.edu'
 
 from .plotlyviewer import *
 from .modal_viewer import *
+from .harmonic_viewer import *

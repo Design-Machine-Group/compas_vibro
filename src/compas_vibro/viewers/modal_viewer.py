@@ -18,7 +18,7 @@ class ModalViewer(PlotlyViewer):
         super().__init__(structure)
         self.scale = 20
         self.make_layout('modal')
-        self.plot_modal_shape()
+        self.plot_shape('modal')
     
     def show(self):
         self._show('modal')
