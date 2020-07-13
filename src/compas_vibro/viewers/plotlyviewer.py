@@ -139,9 +139,12 @@ class PlotlyViewer(object):
 
             vcolor = []
             minh, maxh = min(z), max(z)
-            for h in z:
-                r, g, b = i_to_rgb((h - minh)/(maxh - minh))
-                vcolor.append('rgb({0},{1},{2})'.format(r, g, b))
+            if minh == maxh:
+                vcolor = ['rgb(0,0,255)' for i in range(len(z))]
+            else:
+                for h in z:
+                    r, g, b = i_to_rgb((h - minh)/(maxh - minh))
+                    vcolor.append('rgb({0},{1},{2})'.format(r, g, b))
 
             faces = [go.Mesh3d(x=x,
                             y=y,
