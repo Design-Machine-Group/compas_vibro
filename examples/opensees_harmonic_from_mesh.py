@@ -69,4 +69,4 @@ freq_list = range(100, 500, 2)
 s.analyze_harmonic(freq_list, fields=['u'], backend='opensees')
 
 # save results - - - - - - 
-# s.to_obj()
+s.to_obj()

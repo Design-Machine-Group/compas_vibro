@@ -18,6 +18,7 @@ from compas_vibro.fea.opensees import write_command_file_harmonic
 
 from compas_vibro.fea.opensees.read import read_modal_displacements
 from compas_vibro.fea.opensees.read import read_modal_frequencies
+from compas_vibro.fea.opensees.read import read_harmonic_displacements
 
 
 from compas_vibro.structure.result import Result
@@ -64,7 +65,7 @@ def opensees_harmonic(structure, freq_list, fields='all', damping=0.05):
     # analyse and extraxt results ----------------------------------------------
     write_command_file_harmonic(structure, fields)
     opensess_launch_process(structure)
-    # extract_data(structure, fields, 'harmonic')
+    extract_data(structure, fields, 'harmonic')
     return structure
 
 
@@ -83,18 +84,19 @@ def extract_data(structure, fields, results_type):
                 d = read_modal_displacements(out_path, fk)
                 structure.results['modal'][fk].displacements = d
 
-    # elif results_type == 'harmonic':
-    #     freq_list = structure.step.freq_list
-    #     fdict = {i:freq_list[i] for i in range(len(freq_list))}
-    #     rdict = {fk: Result(fdict[fk], name='VibroResult_{}'.format(fk), type='harmonic') for fk in fdict}
-    #     structure.results.update({'harmonic':rdict})
+    elif results_type == 'harmonic':
+        # freq_list = structure.step.freq_list
+        # fdict = {i:freq_list[i] for i in range(len(freq_list))}
+        # rdict = {fk: Result(fdict[fk], name='VibroResult_{}'.format(fk), type='harmonic') for fk in fdict}
+        # structure.results.update({'harmonic':rdict})
 
-    #     if 'u' in fields or 'all' in fields:
-    #         # this is still not great, frequencies are from structure, not files...
-    #         hd = read_harmonic_displacements(structure, out_path)
-    #         structure.tomas = hd
-    #         for fkey in hd:
-    #             structure.results['harmonic'][fkey].displacements = hd[fkey]
+        if 'u' in fields or 'all' in fields:
+            # this is still not great, frequencies are from structure, not files...
+            hd = read_harmonic_displacements(out_path)
+            rdict = {fk: Result(fk, name='VibroResult_{}'.format(fk), type='harmonic') for fk in hd}
+            structure.results.update({'harmonic':rdict})
+            for fkey in hd:
+                structure.results['harmonic'][fkey].displacements = hd[fkey]
 
     return structure
 

@@ -12,7 +12,9 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
-__all__ = ['read_modal_displacements']
+__all__ = ['read_modal_displacements',
+           'read_modal_frequencies',
+           'read_harmonic_displacements']
 
 
 def read_modal_displacements(outpath, mode):
@@ -36,7 +38,25 @@ def read_modal_frequencies(outpath):
     lines = fh.readlines()
     fh.close()
     return  {i: float(line) for i, line in enumerate(lines)}
-    
+
+def read_harmonic_displacements(outpath):
+    filepath = os.path.join(outpath, 'harmonic_disp.out')
+    fh = open(filepath, 'r')
+    lines = fh.readlines()
+    fh.close()
+    hd = {}
+    for line in lines:
+        line = line.split(' ')
+        time = line.pop(0)
+        nkey = 0
+        hd[time] = {'ux':{}, 'uy': {}, 'uz': {}}
+        for i in range(0, len(line), 3):
+            a = list(map(float, line[i:i+3]))
+            hd[time]['ux'][nkey] = a[0]
+            hd[time]['uy'][nkey] = a[1]
+            hd[time]['uz'][nkey] = a[2]
+            nkey += 1
+    return hd
 
 if __name__ == "__main__":
     pass

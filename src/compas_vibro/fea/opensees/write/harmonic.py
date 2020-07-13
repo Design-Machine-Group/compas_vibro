@@ -38,7 +38,6 @@ def write_command_file_harmonic(structure, fields):
     write_elements(structure, path, filename)
     write_harmonic_step(structure, path, filename)
 
-    
     # write_harmonic_solve(structure, path, filename)
 
 
@@ -63,8 +62,8 @@ def write_harmonic_step(structure, path, filename):
     fh.write('#\n')
     fh.write('#\n')
 
-    fh.write('load 16 0.0 0.0 -100.0 0.0 0.0 0.0\n')
-    fh.write('load 15 0.0 0.0 -100.0 0.0 0.0 0.0\n')
+    fh.write('load 100 0.0 0.0 -100.0 0.0 0.0 0.0\n')
+    fh.write('load 200 0.0 0.0 -100.0 0.0 0.0 0.0\n')
     fh.write('}\n')
     fh.write('#\n')
     fh.write('#\n')
@@ -78,6 +77,6 @@ def write_harmonic_step(structure, path, filename):
     fh.write('algorithm NewtonLineSearch\n')
     fh.write('integrator LoadControl 0.01\n')
     fh.write('analysis Static\n')
-    fh.write('analyze 100\n')
+    fh.write('analyze 10\n')
 
     fh.close()
