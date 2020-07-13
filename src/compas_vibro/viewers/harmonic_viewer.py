@@ -20,10 +20,11 @@ class HarmonicViewer(PlotlyViewer):
     def __init__(self, structure):
         super().__init__(structure)
         self.scale      = 1e7
-        self.make_layout('harmonic')
-        self.plot_shape('harmonic')
+
 
     def show(self):
+        self.make_layout('harmonic')
+        self.plot_shape('harmonic')
         self._show('harmonic')
 
 

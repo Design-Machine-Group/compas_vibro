@@ -57,13 +57,14 @@ def write_harmonic_step(structure, path, filename):
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
 
-    fh.write('timeSeries Sine 1 0.0 1.0 5.0 \n')
+    fh.write('timeSeries Sine 1 0.0 10.0 1.0 \n')
+    # fh.write('timeSeries Constant 1\n')
     fh.write('pattern Plain 1 1 -fact 1 {\n')
     fh.write('#\n')
     fh.write('#\n')
 
     fh.write('load 100 0.0 0.0 -100.0 0.0 0.0 0.0\n')
-    fh.write('load 200 0.0 0.0 -100.0 0.0 0.0 0.0\n')
+    fh.write('load 200 0.0 0.0 100.0 0.0 0.0 0.0\n')
     fh.write('}\n')
     fh.write('#\n')
     fh.write('#\n')
@@ -77,6 +78,6 @@ def write_harmonic_step(structure, path, filename):
     fh.write('algorithm NewtonLineSearch\n')
     fh.write('integrator LoadControl 0.01\n')
     fh.write('analysis Static\n')
-    fh.write('analyze 10\n')
+    fh.write('analyze 100\n')
 
     fh.close()

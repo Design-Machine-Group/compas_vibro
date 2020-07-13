@@ -72,4 +72,5 @@ s.analyze_harmonic(freq_list, fields=['u'], backend='opensees')
 s.to_obj()
 
 v = HarmonicViewer(s)
+v.scale = 1e6
 v.show()
