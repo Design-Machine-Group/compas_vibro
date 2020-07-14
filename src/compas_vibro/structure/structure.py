@@ -39,6 +39,14 @@ Elements
 class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
     def __init__(self, path, name='VibroStructure'):
+        """
+        Properties
+        ----------
+
+        displacements(dict): The displacements dictionary. The keys are intergers
+        and the values are dispplacement objects.
+
+        """
 
         self.displacements         = {}
         self.elements              = {}

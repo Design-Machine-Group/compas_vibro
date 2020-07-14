@@ -32,8 +32,11 @@ class PlotlyViewer(object):
         name = self.structure.name
         if plot_type == 'modal':
             title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name,0, f)
-        else:
+        elif plot_type == 'harmonic':
             title = '{0} - Analysis - {1}Hz'.format(name, f)
+        else:
+            raise NameError('PLot type {} does not exist yet'.format(plot_type))
+        
         layout = go.Layout(title=title,
                           scene=dict(aspectmode='data',
                                     xaxis=dict(

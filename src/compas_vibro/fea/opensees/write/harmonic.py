@@ -49,10 +49,12 @@ def write_harmonic_step(structure, path, filename):
     #TODO: Fix frequency, period, analyze, load control to make sense, minimize calc time
     # This configuration does one full period no matter the frquency
     # I dont think using LoadControl integrator is ideal, must be a faster way
-    # How many analysys cycles do I need??? Why???
+    # How many analysys cycles do I need???
+    # Set it up such that the final configuration is computed in just one cycle, this should be linear anyhow. 
 
     outpath = os.path.join(path, '{}_output'.format(structure.name))
     numnodes = structure.node_count()
+    cycles = 20
     f = 100.
     t = (1 / f)  # in ms??
     fh = open(os.path.join(path, filename), 'a')
@@ -81,8 +83,8 @@ def write_harmonic_step(structure, path, filename):
     fh.write('system ProfileSPD\n')
     fh.write('test NormUnbalance 0.01 100 5\n')
     fh.write('algorithm NewtonLineSearch\n')
-    fh.write('integrator LoadControl {}\n'.format(t / 10))
+    fh.write('integrator LoadControl {}\n'.format(t / cycles))
     fh.write('analysis Static\n')
-    fh.write('analyze {}\n'.format(int(10)))
+    fh.write('analyze {}\n'.format(int(cycles)))
 
     fh.close()

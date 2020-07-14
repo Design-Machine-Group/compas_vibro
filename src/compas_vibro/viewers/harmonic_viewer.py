@@ -19,7 +19,7 @@ class HarmonicViewer(PlotlyViewer):
     """
     def __init__(self, structure):
         super().__init__(structure)
-        self.scale      = 1e7
+        self.scale      = 1e6
 
 
     def show(self):
@@ -37,7 +37,8 @@ if __name__ == "__main__":
 
     filepath = os.path.join(compas_vibro.TEMP, 'opensees_mesh_flat_20x20_harmonic.obj')
     s = Structure.from_obj(filepath)
-    v = HarmonicViewer(s)
-    v.show()
+    # v = HarmonicViewer(s)
+    # v.scale = 1e6
+    # v.show()
 
 
