@@ -72,7 +72,7 @@ class PlotlyViewer(object):
             f = round(self.structure.results[plot_type][i].frequency, 4)
             name = self.structure.name
             if plot_type == 'modal':
-                title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name,0, f)
+                title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name, 0, f)
             else:
                 title = '{0} - Analysis - {1}Hz'.format(name, f)
             step = dict(
