@@ -64,13 +64,19 @@ def write_shells(structure, path, filename, ekeys, section, material):
 
     # TODO: understand which opensees element type works best
     string = 'element ShellMITC4 {0} {1} {2} {3} {4} {5} \n' # not finished!
+    string3 = 'element ShellMITC4 {0} {1} {2} {3} {4} \n' # not finished!
     # string = 'element quad  {0} {1} {2} {3} {4} {5} "PlaneStrain" {6}\n'
     for ek in ekeys:
-        i, j, k, l = structure.elements[ek].nodes
+        nodes = structure.elements[ek].nodes
         # t = structure.sections[section].geometry['t']
         # mat = structure.materials[material].index + 1
         sec = structure.sections[section].index + 1
-        fh.write(string.format(ek + 1, i + 1, j + 1, k + 1, l + 1, sec))
+        if len(nodes) == 4:
+            i, j, k, l = structure.elements[ek].nodes
+            fh.write(string.format(ek + 1, i + 1, j + 1, k + 1, l + 1, sec))
+        elif len(nodes) == 3:
+            i, j, k = structure.elements[ek].nodes
+            fh.write(string3.format(ek + 1, i + 1, j + 1, k + 1, sec))
 
     # fh.write('puts \"End Elements \"\n')  # printouts from opensees
 
