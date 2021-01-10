@@ -130,7 +130,8 @@ class PlotlyViewer(object):
             triangles = []
             for face in faces:
                 triangles.append(face[:3])
-                triangles.append([face[2], face[3], face[0]])
+                if len(face) == 4:
+                    triangles.append([face[2], face[3], face[0]])
             
             i = [v[0] for v in triangles]
             j = [v[1] for v in triangles]
