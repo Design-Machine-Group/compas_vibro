@@ -64,7 +64,7 @@ def write_shells(structure, path, filename, ekeys, section, material):
 
     # TODO: understand which opensees element type works best
     string = 'element ShellMITC4 {0} {1} {2} {3} {4} {5} \n' # not finished!
-    string3 = 'element ShellMITC4 {0} {1} {2} {3} {4} \n' # not finished!
+    string3 = 'element ShellDKGT {0} {1} {2} {3} {4} \n' # not finished!
     # string = 'element quad  {0} {1} {2} {3} {4} {5} "PlaneStrain" {6}\n'
     for ek in ekeys:
         nodes = structure.elements[ek].nodes
