@@ -29,8 +29,8 @@ for i in range(60):
     print()
 
 path = compas_vibro.TEMP
-geometry = 'pringle'
-# geometry = 'mesh_flat_20x20'
+# geometry = 'pringle'
+geometry = 'mesh_flat_20x20'
 name = 'opensees_{0}_modal'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
