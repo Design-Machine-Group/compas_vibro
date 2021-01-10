@@ -47,10 +47,11 @@ def write_harmonic_solve(structure, path, filename):
 
 def write_harmonic_step(structure, path, filename):
     #TODO: Fix frequency, period, analyze, load control to make sense, minimize calc time
-    # This configuration does one full period no matter the frquency
+    # This configuration does one full period no matter the frequency
     # I dont think using LoadControl integrator is ideal, must be a faster way
     # How many analysys cycles do I need???
-    # Set it up such that the final configuration is computed in just one cycle, this should be linear anyhow. 
+    # Set it up such that the final configuration is computed in just one cycle, 
+    # this should be linear anyhow. 
 
     outpath = os.path.join(path, '{}_output'.format(structure.name))
     numnodes = structure.node_count()

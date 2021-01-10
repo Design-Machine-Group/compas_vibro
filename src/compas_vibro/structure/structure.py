@@ -14,6 +14,7 @@ from compas_vibro.fea.ansys.ansys import ansys_harmonic
 
 from compas_vibro.fea.opensees.opensees import opensees_modal
 from compas_vibro.fea.opensees.opensees import opensees_harmonic
+from compas_vibro.fea.opensees.opensees import opensees_static
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -104,6 +105,14 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             ansys_modal(self, fields, num_modes=num_modes)
         elif backend == 'opensees':
             opensees_modal(self, fields, num_modes=num_modes)
+        else:
+            raise NameError('This backend is not implemented')
+
+    def analyze_static(self, fields, backend='ansys'):
+        if backend == 'ansys':
+            raise NameError('This backend is not implemented')
+        elif backend == 'opensees':
+            opensees_static(self, fields)
         else:
             raise NameError('This backend is not implemented')
 

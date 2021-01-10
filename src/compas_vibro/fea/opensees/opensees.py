@@ -12,13 +12,16 @@ from subprocess import PIPE
 
 from compas_vibro.structure.step import ModalStep
 from compas_vibro.structure.step import HarmonicStep
+from compas_vibro.structure.step import StaticStep
 
 from compas_vibro.fea.opensees import write_command_file_modal
 from compas_vibro.fea.opensees import write_command_file_harmonic
+from compas_vibro.fea.opensees import write_command_file_static
 
 from compas_vibro.fea.opensees.read import read_modal_displacements
 from compas_vibro.fea.opensees.read import read_modal_frequencies
 from compas_vibro.fea.opensees.read import read_harmonic_displacements
+from compas_vibro.fea.opensees.read import read_static_displacements
 
 
 from compas_vibro.structure.result import Result
@@ -35,7 +38,6 @@ __all__ = ['opensees_modal',
 
 
 def opensees_modal(structure, fields, num_modes, license='introductory'):
-    # TODO: opensees
 
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
@@ -49,6 +51,20 @@ def opensees_modal(structure, fields, num_modes, license='introductory'):
     extract_data(structure, fields, 'modal')
     return structure
 
+def opensees_static(structure, fields, license='introductory'):
+    # TODO: opensees
+
+    # add modal step -----------------------------------------------------------
+    step = StaticStep(name=structure.name + '_static', 
+                     displacements=[list(structure.displacements.keys())[0]],
+                     loads=None)
+    structure.add(step)
+
+    # analyse and extraxt results ----------------------------------------------
+    write_command_file_static(structure, fields)
+    opensess_launch_process(structure)
+    extract_data(structure, fields, 'static')
+    return structure
 
 def opensees_harmonic(structure, freq_list, fields='all', damping=0.05):
     # TODO: opensees
@@ -97,6 +113,13 @@ def extract_data(structure, fields, results_type):
             structure.results.update({'harmonic':rdict})
             for fkey in hd:
                 structure.results['harmonic'][fkey].displacements = hd[fkey]
+    
+    elif results_type == 'static':
+        if 'u' in fields or 'all' in fields:
+            sd = read_static_displacements(out_path)
+            print(sd)
+
+
 
     return structure
 

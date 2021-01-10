@@ -12,3 +12,4 @@ from .harmonic import *
 from .process import *
 from .materials import *
 from .elements import *
+from .static import *

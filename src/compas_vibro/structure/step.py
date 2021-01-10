@@ -89,7 +89,9 @@ class StaticStep(Step):
 
     """
 
-    def __init__(self, name, increments=100, iterations=100, tolerance=0.01, factor=1.0, nlgeom=True, nlmat=True, displacements=None, loads=None, type='static', modify=True):
+    def __init__(self, name, factor=1.0, nlgeom=True, nlmat=True, 
+                 displacements=None, loads=None, type='static'):
+                 
         Step.__init__(self, name=name)
 
         if not displacements:
@@ -100,15 +102,15 @@ class StaticStep(Step):
 
         self.__name__      = 'GeneralStep'
         self.name          = name
-        self.increments    = increments
-        self.iterations    = iterations
-        self.tolerance     = tolerance
+        # self.increments    = increments
+        # self.iterations    = iterations
+        # self.tolerance     = tolerance
         self.factor        = factor
         self.nlgeom        = nlgeom
         self.nlmat         = nlmat
         self.displacements = displacements
         self.loads         = loads
-        self.modify        = modify
+        # self.modify        = modify
         self.type          = type
         self.attr_list.extend(['increments', 'iterations', 'factor', 'nlgeom', 'nlmat', 'displacements', 'loads',
                                'type', 'tolerance', 'modify'])
@@ -135,6 +137,7 @@ class ModalStep(Step):
     """
 
     def __init__(self, name, modes=10, increments=100, displacements=None, type='modal'):
+        
         Step.__init__(self, name=name)
 
         if not displacements:
@@ -172,7 +175,9 @@ class HarmonicStep(Step):
 
     """
 
-    def __init__(self, name, freq_list, displacements=None, loads=None, factor=1.0, damping=None, type='harmonic'):
+    def __init__(self, name, freq_list, displacements=None, loads=None, factor=1.0, 
+                 damping=None, type='harmonic'):
+        
         Step.__init__(self, name=name)
 
         if not displacements:
