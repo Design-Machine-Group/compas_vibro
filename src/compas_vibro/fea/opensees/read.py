@@ -47,7 +47,7 @@ def read_harmonic_displacements(outpath):
     hd = {}
     for j, line in enumerate(lines):
         line = line.split(' ')
-        time = line.pop(0)
+        _ = line.pop(0)
         nkey = 0
         hd[j] = {'ux':{}, 'uy': {}, 'uz': {}}
         for i in range(0, len(line), 3):
@@ -57,6 +57,25 @@ def read_harmonic_displacements(outpath):
             hd[j]['uz'][nkey] = a[2]
             nkey += 1
     return hd
+
+def read_static_displacements(outpath):
+    filepath = os.path.join(outpath, 'displacements.out')
+    fh = open(filepath, 'r')
+    line = fh.readline()
+    fh.close()
+    line = line.split(' ')
+    _ = line.pop(0)
+    nkey = 0
+    sd = {'ux':{}, 'uy': {}, 'uz': {}}
+    for i in range(0, len(line), 3):
+        a = list(map(float, line[i: i + 3]))
+        sd['ux'][nkey] = a[0]
+        sd['uy'][nkey] = a[1]
+        sd['uz'][nkey] = a[2]
+        nkey += 1
+    return sd
+
+
 
 if __name__ == "__main__":
     pass

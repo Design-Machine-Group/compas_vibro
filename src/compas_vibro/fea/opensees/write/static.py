@@ -46,10 +46,11 @@ def write_static_loads(structure, path, filename):
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
     fh.write('pattern Plain 1 "Linear" {\n')
-    fh.write('load 200 0 0 -50 0 0 0\n')
+    fh.write('load 8 0 0 -50 0 0 0\n')
     fh.write('}\n')
     fh.write('#\n')
     fh.close()
+
 
 def write_static_solve(structure, path, filename):
     fh = open(os.path.join(path, filename), 'a')
@@ -63,6 +64,7 @@ def write_static_solve(structure, path, filename):
     fh.write('#\n')
     fh.close()
 
+
 def write_static_shape(structure, path, filename):
     num_nodes = len(structure.nodes)
     outpath = os.path.join(path, '{}_output'.format(structure.name))
@@ -74,11 +76,13 @@ def write_static_shape(structure, path, filename):
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
     string = 'recorder Node -file \"{0}/displacements.out\" -load -nodeRange 1 {1} -dof 1 2 3 disp\n'
+    # string = 'recorder Node -file \"{0}/displacements.out\" -nodeRange 1 {1} -dof 1 2 3 disp\n'
     # 'recorder Node -file example.out -load -node 4 -dof 1 2 disp'
     fh.write(string.format(outpath, num_nodes))
     fh.write('#\n')
     fh.write('#\n')
     fh.close()
+
 
 def write_static_analyze(structure, path, filename):
     fh = open(os.path.join(path, filename), 'a')

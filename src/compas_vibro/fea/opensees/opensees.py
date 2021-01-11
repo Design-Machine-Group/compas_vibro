@@ -117,9 +117,8 @@ def extract_data(structure, fields, results_type):
     elif results_type == 'static':
         if 'u' in fields or 'all' in fields:
             sd = read_static_displacements(out_path)
-            print(sd)
-
-
+            structure.results['static'] = Result('static', name='VibroResult'.format(0), type='static')
+            structure.results['static'].displacements = sd
 
     return structure
 
