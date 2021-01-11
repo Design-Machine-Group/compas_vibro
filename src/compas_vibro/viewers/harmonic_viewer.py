@@ -15,12 +15,12 @@ from compas.datastructures import Mesh
 from compas_vibro.viewers import PlotlyViewer
 
 class HarmonicViewer(PlotlyViewer):
-    """Plotly based viewer for modal analysis.
+    """
+    Plotly based viewer for harmonic analysis.
     """
     def __init__(self, structure):
         super().__init__(structure)
         self.scale      = 1e6
-
 
     def show(self):
         self.make_layout('harmonic')
