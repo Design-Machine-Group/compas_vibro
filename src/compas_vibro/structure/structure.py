@@ -16,6 +16,8 @@ from compas_vibro.fea.opensees.opensees import opensees_modal
 from compas_vibro.fea.opensees.opensees import opensees_harmonic
 from compas_vibro.fea.opensees.opensees import opensees_static
 
+from compas_vibro.structure.load import PointLoad
+
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
 __license__    = 'MIT License'
@@ -94,11 +96,17 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         for fkey in list(mesh.faces()):
             face = [self.check_node_exists(mesh.vertex_coordinates(i)) for i in mesh.face[fkey]]
             ekeys.append(self.add_element(nodes=face, type=element_type))
-
         if elset:
             self.add_set(name=elset, type='element', selection=ekeys)
 
         return ekeys
+
+    def add_gravity_from_mesh(self, mesh, thickness, density):
+        for vk in mesh.vertices():
+            area = mesh.vertex_area(vk)
+            l = area * thickness * density
+            load = PointLoad(vk, vk, z=-l)
+            self.loads[vk] = load
 
     def analyze_modal(self, fields, backend='ansys', num_modes=10):
         if backend == 'ansys':

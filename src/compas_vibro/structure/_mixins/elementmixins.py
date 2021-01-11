@@ -46,7 +46,6 @@ class ElementMixins(object):
         """
 
         if len(nodes) == len(set(nodes)):
-
             ekey = self.check_element_exists(nodes)
 
             if ekey is None:
@@ -62,7 +61,6 @@ class ElementMixins(object):
             return ekey
 
         else:
-
             return None
 
     def add_elements(self, elements, type, thermal=False, axes={}):

@@ -46,11 +46,20 @@ def write_static_loads(structure, path, filename):
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
     fh.write('pattern Plain 1 "Linear" {\n')
-    fh.write('load 8 0 0 -50 0 0 0\n')
+    # fh.write('load 8 0 0 -50 0 0 0\n')
+    for vk in structure.loads:
+        l = structure.loads[vk] 
+        if l.__name__ == 'PointLoad':
+            x = l.components['x']
+            y = l.components['y']
+            z = l.components['z']
+            xx = l.components['xx']
+            yy = l.components['yy']
+            zz = l.components['zz']
+            fh.write('load {0} {1} {2} {3} {4} {5} {6}\n'.format(vk + 1, x, y, z, xx, yy, zz))
     fh.write('}\n')
     fh.write('#\n')
     fh.close()
-
 
 def write_static_solve(structure, path, filename):
     fh = open(os.path.join(path, filename), 'a')

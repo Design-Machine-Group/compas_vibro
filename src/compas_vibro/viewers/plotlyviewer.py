@@ -28,12 +28,15 @@ class PlotlyViewer(object):
         self.scale      = None
 
     def make_layout(self, plot_type):
-        f = round(self.structure.results[plot_type][0].frequency, 4)
         name = self.structure.name
         if plot_type == 'modal':
+            f = round(self.structure.results[plot_type][0].frequency, 4)
             title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name,0, f)
         elif plot_type == 'harmonic':
+            f = round(self.structure.results[plot_type][0].frequency, 4)
             title = '{0} - Analysis - {1}Hz'.format(name, f)
+        elif plot_type == 'static':
+            title = '{0} - Analysis'.format(name)
         else:
             raise NameError('PLot type {} does not exist yet'.format(plot_type))
         
@@ -69,12 +72,15 @@ class PlotlyViewer(object):
         # Create and add slider
         steps = []
         for i in range(modes):
-            f = round(self.structure.results[plot_type][i].frequency, 4)
             name = self.structure.name
             if plot_type == 'modal':
+                f = round(self.structure.results[plot_type][i].frequency, 4)
                 title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name, 0, f)
-            else:
+            if plot_type == 'harmonic':
+                f = round(self.structure.results[plot_type][i].frequency, 4)
                 title = '{0} - Analysis - {1}Hz'.format(name, f)
+            else:
+                title = '{0} - Analysis'.format(name)
             step = dict(
                 method="update",
                 args=[{"visible": [False] * len(fig.data)},
@@ -100,6 +106,8 @@ class PlotlyViewer(object):
             modes = len(self.structure.results[plot_type])
         elif plot_type == 'modal':
             modes = self.structure.step.modes
+        elif plot_type == 'static':
+            modes = 1
         else:
             raise NameError('Plot type {} has not yet been implemented'.format(plot_type))
         for i in range(modes):
