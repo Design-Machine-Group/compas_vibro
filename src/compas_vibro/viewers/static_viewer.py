@@ -20,7 +20,7 @@ class StaticViewer(PlotlyViewer):
     def __init__(self, structure):
         super().__init__(structure)
         self.scale      = 1e3
-        self.num_steps  = 10
+        self.num_steps  = 5
 
     def show(self):
         self.make_layout('static')
