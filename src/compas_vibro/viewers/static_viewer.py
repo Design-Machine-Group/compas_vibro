@@ -78,7 +78,7 @@ class StaticViewer(PlotlyViewer):
                             k=k,
                             opacity=1.,
                             colorbar_title='Displacements (mm)',
-                            colorscale='viridis',
+                            colorscale='viridis', # 'jet
                             intensity=intensity
                     )]
             self.data.extend(lines)

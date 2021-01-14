@@ -11,9 +11,9 @@ __email__      = 'tmendeze@uw.edu'
 import plotly.graph_objects as go
 from compas.utilities import i_to_rgb
 from compas.datastructures import Mesh
+from compas.geometry import length_vector
 
 import plotly.io as pio
-# pio.renderers.default = "firefox"
 
 all = ['PlotlyViewer']
 
@@ -79,8 +79,8 @@ class PlotlyViewer(object):
             if plot_type == 'harmonic':
                 f = round(self.structure.results[plot_type][i].frequency, 4)
                 title = '{0} - Analysis - {1}Hz'.format(name, f)
-            else:
-                title = '{0} - Analysis'.format(name)
+            # else:
+            #     title = '{0} - Analysis'.format(name)
             step = dict(
                 method="update",
                 args=[{"visible": [False] * len(fig.data)},
@@ -114,6 +114,7 @@ class PlotlyViewer(object):
             mode = i
             s = self.scale
             vertices = []
+            dm = []
             nodes = sorted(self.structure.nodes.keys(), key=int)
             for vk in nodes:
                 x, y, z = self.structure.nodes[vk].xyz()
@@ -121,6 +122,7 @@ class PlotlyViewer(object):
                 dy = self.structure.results[plot_type][mode].displacements['uy'][vk]
                 dz = self.structure.results[plot_type][mode].displacements['uz'][vk]
                 xyz = [x + dx * s, y + dy * s, z + dz * s]
+                dm.append(length_vector([dx, dy, dz]))
                 vertices.append(xyz)
 
             faces = [self.structure.elements[ek].nodes for ek in self.structure.elements]
@@ -134,6 +136,7 @@ class PlotlyViewer(object):
                 x.extend([u[0], v[0], [None]])
                 y.extend([u[1], v[1], [None]])
                 z.extend([u[2], v[2], [None]])
+
             lines = [go.Scatter3d(x=x, y=y, z=z, mode='lines', line=line_marker)]
             triangles = []
             for face in faces:
@@ -149,14 +152,7 @@ class PlotlyViewer(object):
             y = [v[1] for v in vertices]
             z = [v[2] for v in vertices]
 
-            vcolor = []
-            minh, maxh = min(z), max(z)
-            if minh == maxh:
-                vcolor = ['rgb(0,0,255)' for i in range(len(z))]
-            else:
-                for h in z:
-                    r, g, b = i_to_rgb((h - minh)/(maxh - minh))
-                    vcolor.append('rgb({0},{1},{2})'.format(r, g, b))
+            intensity = [d * 1e3 for d in dm]
 
             faces = [go.Mesh3d(x=x,
                             y=y,
@@ -166,7 +162,10 @@ class PlotlyViewer(object):
                             k=k,
                             opacity=1.,
                             # contour={'show':True},
-                            vertexcolor=vcolor,
+                            # vertexcolor=vcolor,
+                            colorbar_title='Displacements',
+                            colorscale='jet', # 'viridis'
+                            intensity=intensity
                     )]
             self.data.extend(lines)
             self.data.extend(faces)
