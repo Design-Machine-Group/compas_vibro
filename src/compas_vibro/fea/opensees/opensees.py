@@ -33,6 +33,9 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
+#TODO: Path to opensees is HARDCODED!!!!, figure a way to fix
+
+
 __all__ = ['opensees_modal',
            'opensees_harmonic']
 
@@ -51,6 +54,7 @@ def opensees_modal(structure, fields, num_modes, license='introductory'):
     extract_data(structure, fields, 'modal')
     return structure
 
+
 def opensees_static(structure, fields, license='introductory'):
     # TODO: opensees
 
@@ -65,6 +69,7 @@ def opensees_static(structure, fields, license='introductory'):
     opensess_launch_process(structure)
     extract_data(structure, fields, 'static')
     return structure
+
 
 def opensees_harmonic(structure, freq_list, fields='all', damping=0.05):
     # TODO: opensees
@@ -165,7 +170,8 @@ def opensess_launch_process(structure, exe=None, output=True, delete=True):
     if not exe:
         exe = '/Applications/OpenSees3.2.1/OpenSees'
 
-    command = '{0} {1}/{2}.tcl'.format(exe, path, name)
+    path_ = os.path.join(path, '{}.tcl'.format(name))
+    command = '{0} {1}'.format(exe, path_)
     p = Popen(command, stdout=PIPE, stderr=PIPE, cwd=temp, shell=True)
 
     print('Executing command ', command)
