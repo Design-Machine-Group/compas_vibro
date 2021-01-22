@@ -18,7 +18,9 @@ To use `compas_vibro` you need to install COMPAS, and have at least one of the s
 
 By installing COMPAS all required Python packages for `compas_vibro` will be installed as well. To install COMPAS, see the Getting Started instructions in the COMPAS docs <https://compas.dev/compas/latest/>.
 
-`compas_vibro` can be installed using pip from a local source repo, or directly from GitHub. Make sure to install `compas_vibro` in the same environment as COMPAS!
+`compas_vibro` can be installed using pip from a local source repo, or directly from GitHub. 
+
+Make sure to install `compas_vibro` in the same environment as COMPAS!
 
 
 ### From Local Source
@@ -31,6 +33,23 @@ Then navigate to the root of the `compas_vibro` repo and install using pip:
 cd compas_fea
 pip install -e .
 ```
+
+### From GitHub
+
+To install directly from the GitHub repo, just do
+```bash
+$ pip install git+https://github.com/Design-Machine-Group/compas_vibro.git.git#egg=compas_vibro
+```
+
+### Verify
+
+To check the installation, open an interactive Python prompt and import the package.
+
+```bash
+>>> import compas
+>>> import compas_fea
+```
+
 
 
 <!-- `compas_cgal` is available via `conda-forge` for Windows, OSX, and Linux,
