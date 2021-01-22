@@ -21,7 +21,7 @@ By installing COMPAS all required Python packages for `compas_vibro` will be ins
 `compas_vibro` can be installed using pip from a local source repo, or directly from GitHub. Make sure to install `compas_vibro` in the same environment as COMPAS!
 
 
-# From Local Source
+### From Local Source
 
 To install `compas_vibro` from a local source repo, clone the repo onto your computer using your Favourite Git client, or using the command line.
 
