@@ -9,9 +9,6 @@
 
 Vibroacoustic modeling of building components via numerical models. 
 
-<!-- More information is available in the docs:
-<https://compas.dev/compas_cgal/> -->
-
 ## Installation
 
 To use `compas_vibro` you need to install COMPAS, and have at least one of the supported analysis backends available on your system. Currently, `compas_vibro` supports ANSYS and OpenSEES to various degrees. 
@@ -52,35 +49,6 @@ To check the installation, open an interactive Python prompt and import the pack
 
 ## License
 
-`compas_vibro` **COMPAS** is [released under the MIT license](https://compas.dev/compas/latest/license.html).
+`compas_vibro` is [released under the MIT license](https://compas.dev/compas/latest/license.html).
 
-<!-- `compas_cgal` is available via `conda-forge` for Windows, OSX, and Linux,
-and can be installed using `conda`.
 
-```bash
-conda install COMPAS compas_cgal
-``` -->
-
-<!-- ## Usage
-
-Currently, the following functions are available:
-
-* `boolean_union`
-* `boolean_difference`
-* `boolean_intersection`
-* `intersection_mesh_mesh`
-* `remesh`
-* `slice_mesh`
-
-These functions can be used directly from `compas_cgal`
-or from `compas.geometry` through the plugin mechanism in COMPAS.
-
-For examples, see <https://compas.dev/compas_cgal/latest/examples.html>.
-
-## Contribute
-
-See [CONTRIBUTING](CONTRIBUTING.md) for more information.
-
-## License
-
-`compas_cgal` is released under the LGPL 3.0 to be compatible with the license of CGAL. -->
