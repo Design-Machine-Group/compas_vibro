@@ -44,7 +44,7 @@ To check the installation, open an interactive Python prompt and import the pack
 
 ```bash
 >>> import compas
->>> import compas_fea
+>>> import compas_vibro
 ```
 
 ## License
