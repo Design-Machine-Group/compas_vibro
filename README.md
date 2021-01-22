@@ -13,7 +13,7 @@ Vibroacoustic modeling of building components via numerical models.
 
 To use `compas_vibro` you need to install COMPAS, and have at least one of the supported analysis backends available on your system. Currently, `compas_vibro` supports ANSYS and OpenSEES to various degrees. 
 
-By installing COMPAS all required Python packages for `compas_vibro` will be installed as well. To install COMPAS, see the Getting Started instructions in the [COMPAS docs] (https://compas.dev/compas/latest/).
+By installing COMPAS all required Python packages for `compas_vibro` will be installed as well. To install COMPAS, see the Getting Started instructions in the [COMPAS docs](https://compas.dev/compas/latest/).
 
 `compas_vibro` can be installed using pip from a local source repo, or directly from GitHub. 
 
