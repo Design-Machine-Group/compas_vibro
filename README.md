@@ -1,11 +1,11 @@
-
-
-
-
 # COMPAS VIBRO
 
-<!-- [![GitHub - License](https://img.shields.io/github/license/compas-dev/compas_cgal.svg)](https://github.com/compas-dev/compas_cgal)
-[![Conda - Latest Release](https://anaconda.org/conda-forge/compas_cgal/badges/version.svg)](https://anaconda.org/conda-forge/compas_cgal) -->
+<!-- ![build](https://github.com/compas-dev/compas/workflows/build/badge.svg) -->
+[![GitHub - License](https://img.shields.io/github/license/compas-dev/compas.svg)](https://github.com/compas-dev/compas)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/COMPAS.svg)](https://pypi.python.org/project/COMPAS)
+<!-- [![PyPI - Latest Release](https://img.shields.io/pypi/v/COMPAS.svg)](https://pypi.python.org/project/COMPAS) -->
+<!-- [![Conda - Latest Release](https://anaconda.org/conda-forge/compas/badges/version.svg)](https://anaconda.org/conda-forge/compas) -->
+<!-- [![DOI](https://zenodo.org/badge/104857648.svg)](https://zenodo.org/badge/latestdoi/104857648) -->
 
 Vibroacoustic modeling of building components via numerical models. 
 
@@ -16,7 +16,7 @@ Vibroacoustic modeling of building components via numerical models.
 
 To use `compas_vibro` you need to install COMPAS, and have at least one of the supported analysis backends available on your system. Currently, `compas_vibro` supports ANSYS and OpenSEES to various degrees. 
 
-By installing COMPAS all required Python packages for `compas_vibro` will be installed as well. To install COMPAS, see the Getting Started instructions in the COMPAS docs <https://compas.dev/compas/latest/>.
+By installing COMPAS all required Python packages for `compas_vibro` will be installed as well. To install COMPAS, see the Getting Started instructions in the [COMPAS docs] (https://compas.dev/compas/latest/).
 
 `compas_vibro` can be installed using pip from a local source repo, or directly from GitHub. 
 
@@ -38,7 +38,7 @@ pip install -e .
 
 To install directly from the GitHub repo, just do
 ```bash
-$ pip install git+https://github.com/Design-Machine-Group/compas_vibro.git.git#egg=compas_vibro
+$ pip install git+https://github.com/Design-Machine-Group/compas_vibro.git#egg=compas_vibro
 ```
 
 ### Verify
@@ -50,7 +50,9 @@ To check the installation, open an interactive Python prompt and import the pack
 >>> import compas_fea
 ```
 
+## License
 
+`compas_vibro` **COMPAS** is [released under the MIT license](https://compas.dev/compas/latest/license.html).
 
 <!-- `compas_cgal` is available via `conda-forge` for Windows, OSX, and Linux,
 and can be installed using `conda`.
