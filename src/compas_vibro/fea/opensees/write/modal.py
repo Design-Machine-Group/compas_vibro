@@ -76,9 +76,10 @@ def write_modal_shape(structure, path, filename):
     fh.write('# Modal shape recorders\n')
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
+    op_= outpath.replace('\\', '/')
     string = 'recorder Node -file \"{0}/mode{1}.out\" -nodeRange 1 {2} -dof 1 2 3 "eigen {1}"\n'
     for i in range(modes):
-        fh.write(string.format(outpath, i + 1, num_nodes))
+        fh.write(string.format(op_, i + 1, num_nodes))
     fh.write('#\n')
     fh.write('#\n')
     fh.close()
@@ -104,7 +105,8 @@ def write_modal_frequency(structure, path, filename):
     fh.write('#\n')
     # fh.write('puts "frequencies are $F"\n')
     fh.write('#\n')
-    fh.write('set freq "{}/modal_frequencies.out"\n'.format(outpath))
+    op_= outpath.replace('\\', '/')
+    fh.write('set freq "{}/modal_frequencies.out"\n'.format(op_))
     fh.write('set Freq [open $freq "w"]\n')
     fh.write('foreach f $F {\n')
     fh.write('    puts $Freq " $f"\n')

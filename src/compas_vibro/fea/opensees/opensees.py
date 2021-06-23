@@ -168,10 +168,12 @@ def opensess_launch_process(structure, exe=None, output=True, delete=True):
     tic = time()
 
     if not exe:
-        exe = '/Applications/OpenSees3.2.1/OpenSees'
+        # exe = '/Applications/OpenSees3.2.1/OpenSees'
+        exe = 'opensees'
 
     path_ = os.path.join(path, '{}.tcl'.format(name))
     command = '{0} {1}'.format(exe, path_)
+
     p = Popen(command, stdout=PIPE, stderr=PIPE, cwd=temp, shell=True)
 
     print('Executing command ', command)
