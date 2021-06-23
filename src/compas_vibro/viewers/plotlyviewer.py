@@ -164,7 +164,7 @@ class PlotlyViewer(object):
                             # contour={'show':True},
                             # vertexcolor=vcolor,
                             colorbar_title='Displacements',
-                            colorscale='jet', # 'viridis'
+                            colorscale= 'viridis', # 'jet', # 'viridis'
                             intensity=intensity
                     )]
             self.data.extend(lines)
