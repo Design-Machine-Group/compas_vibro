@@ -150,7 +150,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         filename = os.path.join(self.path, self.name + '.obj')
 
         with open(filename, 'wb') as f:
-            pickle.dump(self, f)
+            pickle.dump(self, f, protocol=2)
 
         if output:
             print('***** Structure saved to: {0} *****\n'.format(filename))
