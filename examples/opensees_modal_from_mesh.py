@@ -8,7 +8,6 @@ from compas.datastructures import Mesh
 
 import compas_vibro
 
-
 from compas_vibro.structure import Structure
 from compas_vibro.structure import FixedDisplacement
 from compas_vibro.structure import PointLoad
@@ -34,6 +33,7 @@ name = 'opensees_{0}_modal'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
 s = Structure(path, name)
+
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
 d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
@@ -54,8 +54,6 @@ s.add(el_prop)
 
 s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=20)
 # s.to_obj()
-
 # s = Structure.from_obj(os.path.join(path, name + '.obj'))
-
 v = ModalViewer(s)
 v.show()
