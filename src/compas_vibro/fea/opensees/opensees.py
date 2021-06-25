@@ -33,9 +33,6 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
-#TODO: Path to opensees is HARDCODED!!!!, figure a way to fix
-
-
 __all__ = ['opensees_modal',
            'opensees_harmonic']
 
