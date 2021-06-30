@@ -75,7 +75,5 @@ def read_static_displacements(outpath):
         nkey += 1
     return sd
 
-
-
 if __name__ == "__main__":
     pass

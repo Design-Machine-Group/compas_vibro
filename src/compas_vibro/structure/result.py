@@ -8,6 +8,8 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
+from compas.geometry import length_vector
+
 
 TPL = """
 ################################################################################
@@ -40,6 +42,16 @@ class Result(object):
 
     def __str__(self):
         return TPL.format(self.frequency, self.type)
+
+    def compute_max_displacement(self):
+        d = []
+        nodes = list(self.displacements['ux'].keys())
+        for vk in nodes:
+            dx = self.displacements['ux'][vk]
+            dy = self.displacements['uy'][vk]
+            dz = self.displacements['uz'][vk]
+            d.append(length_vector([dx, dy, dz]))
+        return max(d)
 
 
 if __name__ == '__main__':
