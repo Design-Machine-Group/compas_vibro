@@ -16,6 +16,7 @@ from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 
+from compas_vibro.viewers import ModalViewer
 
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
@@ -24,15 +25,16 @@ __email__ = "tmendeze@uw.edu"
 __version__ = "0.1.0"
 
 
-for i in range(60):
-    print()
+for i in range(60): print('')
 
 path = compas_vibro.TEMP
-geometry = 'mesh_flat_10x10'
+# geometry = 'pringle'
+geometry = 'mesh_flat_20x20'
 name = 'ansys_{0}_modal'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
 s = Structure(path, name)
+
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
 d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
@@ -44,12 +46,19 @@ s.add(section)
 material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
 s.add(material)
 
+
 el_prop = ElementProperties('concrete_shell',
                             material='concrete',
                             section='shell_sec',
                             elset='shell')
 s.add(el_prop)
 
-
-s.analyze_modal(fields=['f', 'u'], num_modes=20)
+s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 s.to_obj()
+v = ModalViewer(s)
+v.show()
+
+modes = s.results['modal'].keys()
+for mode in modes:
+    f = s.results['modal'][mode].frequency
+    print(mode, f)

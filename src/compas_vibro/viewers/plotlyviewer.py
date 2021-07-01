@@ -74,25 +74,29 @@ class PlotlyViewer(object):
         for i in range(modes):
             name = self.structure.name
             if plot_type == 'modal':
+                prefix = 'Mode: '
                 f = round(self.structure.results[plot_type][i].frequency, 4)
                 title = '{0} - Modal Analysis - mode {1} - {2}Hz'.format(name, i, f)
+                step_label = str(i)
             if plot_type == 'harmonic':
+                prefix = 'Frequency: '
                 f = round(self.structure.results[plot_type][i].frequency, 4)
                 title = '{0} - Analysis - {1}Hz'.format(name, f)
+                step_label = str(f)
             # else:
             #     title = '{0} - Analysis'.format(name)
             step = dict(
                 method="update",
                 args=[{"visible": [False] * len(fig.data)},
                     {"title": title}],
-                label=str(i))
+                label=step_label)
             step["args"][0]["visible"][i * 2] = True
             step["args"][0]["visible"][i * 2 + 1] = True
             steps.append(step)
 
         sliders = [dict(
             active=0,
-            currentvalue={"prefix": "Mode: "},
+            currentvalue={"prefix": prefix},
             pad={"t": 50},
             steps=steps
         )]
@@ -121,6 +125,10 @@ class PlotlyViewer(object):
                 dx = self.structure.results[plot_type][mode].displacements['ux'][vk]
                 dy = self.structure.results[plot_type][mode].displacements['uy'][vk]
                 dz = self.structure.results[plot_type][mode].displacements['uz'][vk]
+                # dx = self.structure.results[plot_type][mode].displacements[vk]['real']['x']
+                # dy = self.structure.results[plot_type][mode].displacements[vk]['real']['y']
+                # dz = self.structure.results[plot_type][mode].displacements[vk]['real']['z']
+
                 xyz = [x + dx * s, y + dy * s, z + dz * s]
                 dm.append(length_vector([dx, dy, dz]))
                 vertices.append(xyz)

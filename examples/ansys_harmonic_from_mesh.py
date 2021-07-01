@@ -16,6 +16,7 @@ from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 
+from compas_vibro.viewers import HarmonicViewer
 
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
@@ -28,10 +29,10 @@ for i in range(60):
     print()
 
 path = compas_vibro.TEMP
-geometry = 'mesh_flat_10x10'
-name = '{0}_harmonic'.format(geometry)
+geometry = 'mesh_flat_20x20'
+name = 'ansys_{0}_harmonic'.format(geometry)
 
-mesh = Mesh.from_json(compas_vibro.get('ansys_{0}.json'.format(geometry)))
+mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
 
 # make an instance of the stucture object - - - - - - - - - - - - - - - - - - - 
 s = Structure(path, name) 
@@ -44,7 +45,7 @@ d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
 s.add(d)
 
 # add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-load = PointLoad(name='pload', nodes=[10, 15], x=0, y=0, z=1, xx=0, yy=0, zz=0)
+load = PointLoad(name='pload', nodes=[100], x=0, y=0, z=1, xx=0, yy=0, zz=0)
 s.add(load)
 
 # add sections - - - - - - - - - - - - 
@@ -66,7 +67,10 @@ s.add(el_prop)
 freq_list = range(100, 500, 2)
 
 # analyze - - - - 
-s.analyze_harmonic(freq_list, fields=['u'])
+s.analyze_harmonic(freq_list, fields=['u'], backend='ansys')
 
 # save results - - - - - - 
 s.to_obj()
+
+v = HarmonicViewer(s)
+v.show()

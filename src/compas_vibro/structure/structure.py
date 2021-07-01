@@ -127,7 +127,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
     def analyze_harmonic(self, freq_list, fields, damping=.05, backend='ansys'):
         if backend == 'ansys':
             ansys_harmonic(self, freq_list, fields, damping=damping)
-        if backend == 'opensees':
+        elif backend == 'opensees':
             opensees_harmonic(self, freq_list, fields=fields, damping=damping)
         else:
             raise NameError('This backend is not implemented')

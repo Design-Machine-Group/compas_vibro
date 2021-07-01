@@ -53,9 +53,9 @@ el_prop = ElementProperties('concrete_shell',
 s.add(el_prop)
 
 s.analyze_modal(backend='opensees', fields=['f', 'u'], num_modes=20)
-# s.to_obj()
-# v = ModalViewer(s)
-# v.show()
+s.to_obj()
+v = ModalViewer(s)
+v.show()
 
 modes = s.results['modal'].keys()
 for mode in modes:
