@@ -30,15 +30,13 @@ class Result(object):
 
     def __init__(self, frequency, name='VibroResult', type=None):
 
-        self.displacements         = {}
-        # self.elements              = {}
-        # self.element_index         = {}
-        self.frequency             = frequency
-        self.name                  = name
-        # self.nodes                 = {}
-        # self.node_index            = {}
-        self.tol                   = '3'
-        self.type                  = type
+        self.displacements          = {}
+        self.frequency              = frequency
+        self.name                   = name
+        self.tol                    = '3'
+        self.type                   = type
+        self.pfact                  = {}
+        self.efmass                 = {}
 
     def __str__(self):
         return TPL.format(self.frequency, self.type)

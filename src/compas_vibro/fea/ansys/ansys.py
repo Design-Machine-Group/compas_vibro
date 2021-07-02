@@ -15,6 +15,8 @@ from compas_vibro.fea.ansys.write import write_command_file_modal
 from compas_vibro.fea.ansys.write import write_command_file_harmonic
 
 from compas_vibro.fea.ansys.read import read_modal_freq
+from compas_vibro.fea.ansys.read import read_participation_factor
+from compas_vibro.fea.ansys.read import read_effective_mass
 from compas_vibro.fea.ansys.read import read_modal_displacements
 from compas_vibro.fea.ansys.read import read_harmonic_displacements
 
@@ -71,6 +73,16 @@ def extract_data(structure, fields, results_type):
         mfreq = read_modal_freq(out_path)
         rdict = {fk: Result(mfreq[fk], name='VibroResult_{}'.format(fk), type='modal') for fk in mfreq}
         structure.results.update({'modal':rdict})
+
+        pfact = read_participation_factor(out_path)
+        for fk in pfact:
+            structure.results['modal'][fk].pfact = pfact[fk]
+
+
+        efmass = read_effective_mass(out_path)
+        for fk in efmass:
+            structure.results['modal'][fk].efmass = efmass[fk]
+
 
         if 'u' in fields or 'all' in fields:
             for fk in mfreq:

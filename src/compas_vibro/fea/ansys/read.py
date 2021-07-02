@@ -64,6 +64,44 @@ def read_modal_displacements(out_path, mode):
     return disp_dict
 
 
+def read_participation_factor(out_path):
+    p_dict = {}
+    fh = open(os.path.join(out_path, 'modal_pfact.txt'), 'r')
+    mode = fh.readlines()
+    fh.close()
+    for j in range(len(mode)):
+        p_dict[j] = {'x': {}, 'y': {}, 'z': {}, 'rx': {}, 'ry': {}, 'rz': {}}
+        string = mode[j].split(',')
+        a = list(map(float, string))
+        nkey = int(a[0]) - 1
+        p_dict[j]['x']  = a[1]
+        p_dict[j]['y']  = a[2]
+        p_dict[j]['z']  = a[3]
+        p_dict[j]['rx'] = a[4]
+        p_dict[j]['ry'] = a[5]
+        p_dict[j]['rz'] = a[6]
+    return p_dict
+
+
+def read_effective_mass(out_path):
+    m_dict = {}
+    fh = open(os.path.join(out_path, 'modal_efmass.txt'), 'r')
+    mode = fh.readlines()
+    fh.close()
+    for j in range(len(mode)):
+        m_dict[j] = {'x': {}, 'y': {}, 'z': {}, 'rx': {}, 'ry': {}, 'rz': {}}
+        string = mode[j].split(',')
+        a = list(map(float, string))
+        nkey = int(a[0]) - 1
+        m_dict[j]['x']  = a[1]
+        m_dict[j]['y']  = a[2]
+        m_dict[j]['z']  = a[3]
+        m_dict[j]['rx'] = a[4]
+        m_dict[j]['ry'] = a[5]
+        m_dict[j]['rz'] = a[6]
+    return m_dict
+
+
 def read_modal_freq(out_path):
     modal_freq_file = open(os.path.join(out_path, 'modal_freq.txt'), 'r')
     if modal_freq_file:

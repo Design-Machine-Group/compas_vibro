@@ -55,10 +55,13 @@ s.add(el_prop)
 
 s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 s.to_obj()
-v = ModalViewer(s)
-v.show()
+
+# v = ModalViewer(s)
+# v.show()
 
 modes = s.results['modal'].keys()
 for mode in modes:
     f = s.results['modal'][mode].frequency
-    print(mode, f)
+    pf = s.results['modal'][mode].pfact['z']
+    em = s.results['modal'][mode].efmass['z']
+    print(mode, f, pf, em)
