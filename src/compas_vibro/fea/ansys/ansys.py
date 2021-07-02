@@ -81,7 +81,9 @@ def extract_data(structure, fields, results_type):
 
         efmass = read_effective_mass(out_path)
         for fk in efmass:
-            structure.results['modal'][fk].efmass = efmass[fk]
+            structure.results['modal'][fk].efmass   = efmass[fk]
+            for ok in efmass[fk]:
+                structure.results['modal'][fk].efmass_r[ok] = efmass[fk][ok] / structure.mass
 
 
         if 'u' in fields or 'all' in fields:

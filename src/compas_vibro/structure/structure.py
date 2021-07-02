@@ -68,6 +68,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.sets                  = {}
         self.step                  = None
         self.tol                   = '3'
+        self.mass                  = None
 
     def __str__(self):
         return TPL.format(self.name, self.node_count(), self.element_count())
@@ -111,6 +112,8 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             self.loads[vk] = load
 
     def analyze_modal(self, fields, backend='ansys', num_modes=10):
+        self.compute_mass()
+       
         if backend == 'ansys':
             ansys_modal(self, fields, num_modes=num_modes)
         elif backend == 'opensees':
@@ -157,18 +160,19 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         if output:
             print('***** Structure saved to: {0} *****\n'.format(filename))
 
-    @property
-    def mass(self):
+    def compute_mass(self):
         mass = 0
         for epk in self.element_properties:
             mat = self.element_properties[epk].material
+            section = self.element_properties[epk].section
+            thick = self.sections[section].geometry['t']
             density = self.materials[mat].p
             elset = self.element_properties[epk].elset
             ekeys = self.sets[elset].selection
             for ek in ekeys:
                 pl = [self.nodes[nk].xyz() for nk in self.elements[ek].nodes]
-                mass += area_polygon(pl) * density
-        return mass
+                mass += area_polygon(pl) * thick * density
+        self.mass = mass
 
     @staticmethod
     def from_obj(filename, output=True):

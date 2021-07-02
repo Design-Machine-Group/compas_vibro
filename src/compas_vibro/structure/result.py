@@ -37,6 +37,7 @@ class Result(object):
         self.type                   = type
         self.pfact                  = {}
         self.efmass                 = {}
+        self.efmass_r               = {}
 
     def __str__(self):
         return TPL.format(self.frequency, self.type)
