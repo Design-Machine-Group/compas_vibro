@@ -5,6 +5,8 @@ from __future__ import print_function
 import os
 import pickle
 
+from compas.geometry import area_polygon
+
 from compas_vibro.structure._mixins.nodemixins import NodeMixins
 from compas_vibro.structure._mixins.elementmixins import ElementMixins
 from compas_vibro.structure._mixins.objectmixins import ObjectMixins
@@ -154,6 +156,19 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         if output:
             print('***** Structure saved to: {0} *****\n'.format(filename))
+
+    @property
+    def mass(self):
+        mass = 0
+        for epk in self.element_properties:
+            mat = self.element_properties[epk].material
+            density = self.materials[mat].p
+            elset = self.element_properties[epk].elset
+            ekeys = self.sets[elset].selection
+            for ek in ekeys:
+                pl = [self.nodes[nk].xyz() for nk in self.elements[ek].nodes]
+                mass += area_polygon(pl) * density
+        return mass
 
     @staticmethod
     def from_obj(filename, output=True):

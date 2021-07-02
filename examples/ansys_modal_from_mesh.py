@@ -55,7 +55,6 @@ s.add(el_prop)
 
 s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 s.to_obj()
-
 # v = ModalViewer(s)
 # v.show()
 
