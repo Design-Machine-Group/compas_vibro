@@ -13,8 +13,8 @@ from .ansys_materials import write_materials
 
 from .ansys_process import write_preprocess
 
-from .ansys_steps import write_loadstep
-from .ansys_steps import write_solve_step
+# from .ansys_steps import write_loadstep
+# from .ansys_steps import write_solve_step
 
 from .ansys_loads import write_loads
 
@@ -24,10 +24,10 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
-__all__ = ['write_command_file_harmonic']
+__all__ = ['write_command_file_harmonic_super']
 
 
-def write_command_file_harmonic(structure, fields):
+def write_command_file_harmonic_super(structure, fields):
     path = structure.path
     filename = structure.name + '.txt'
     
@@ -35,15 +35,48 @@ def write_command_file_harmonic(structure, fields):
     write_materials(structure, path, filename)
     write_nodes(structure, path, filename)
     write_elements(structure, path, filename)
-    write_harmonic_solve(structure, path, filename)
-    write_constraints(structure, 'harmonic', path, filename)
-    write_loads(structure, path, filename)
-    write_loadstep(structure, path, filename)
-    write_solve_step(structure, path, filename)
+    write_modalsuper_solve(structure, path, filename)
+    write_constraints(structure, 'modal', path, filename)
+    write_super_solve_step(structure, path, filename)
+    write_harmonicsuper_solve(structure, path, filename)
+    write_loads(structure, 'harmonic', path, filename)
+    write_super_solve_step(structure, path, filename)
+    # write_loadstep(structure, path, filename)
+    # write_solve_step(structure, path, filename)
     write_harmonic_results(structure, fields, path, filename)
 
 
-def write_harmonic_solve(structure, path, filename):
+def write_modalsuper_solve(structure, path, filename):
+    num_modes = structure.step['modal'].modes
+    cFile = open(os.path.join(path, filename), 'a')
+    cFile.write('FINISH\n')
+    cFile.write('!\n')
+    cFile.write('!\n')
+    cFile.write('/SOL \n')
+    cFile.write('!\n')
+    cFile.write('ANTYPE,MODAL \n')
+
+    cFile.write('MODOPT,LANB,' + str(num_modes) + ' \n')
+    cFile.write('EQSLV,SPAR \n')
+    cFile.write('MXPAND,' + str(num_modes) + ', , ,1 \n')
+    # cFile.write('LUMPM,0 \n')
+    # cFile.write('PSTRES,0 \n')
+    cFile.write('!\n')
+    cFile.write('!\n')
+    cFile.close()
+
+
+def write_super_solve_step(structure, path, filename):
+    cFile = open(os.path.join(path, filename), 'a')
+    cFile.write('SAVE\n')
+    cFile.write('SOLVE\n')
+    cFile.write('FINISH\n')
+    cFile.write('!\n')
+    cFile.write('!\n')
+    cFile.close()
+
+
+def write_harmonicsuper_solve(structure, path, filename):
 
     freq_list = structure.step['harmonic'].freq_list
     damping = structure.step['harmonic'].damping
@@ -58,7 +91,10 @@ def write_harmonic_solve(structure, path, filename):
     cFile.write('!\n')
     cFile.write('FINISH \n')
     cFile.write('/SOLU \n')
-    cFile.write('ANTYPE,3            ! Harmonic analysis \n')
+    cFile.write('ANTYPE,HARMIC            ! Harmonic analysis \n')
+    cFile.write('HROPT,MSUP,,,YES,,YES             ! Mode-superposition method; number of modes to use \n')
+    cFile.write('HROUT,,,,,                  ! Harmonic analysis output options; cluster option\n')
+
     cFile.write('*dim, freq_list{0}, array, {1} \n'.format(sind, len(freq_list)))
     for i, freq in enumerate(freq_list_):
         cFile.write('freq_list{0}('.format(sind) + str(i * n + 1) + ') = ' + ', '.join([str(f) for f in freq]) + '\n')

@@ -221,8 +221,20 @@ class ObjectMixins(object):
 
         """
 
-        step.index = 0
-        self.step = step
+        # step.index = 0
+        # self.step = step
+
+        if step.__name__ == 'HarmonicStep':
+            step.index = 1
+            self.step['harmonic'] = step
+        elif step.__name__ == 'ModalStep':
+            step.index = 0
+            self.step['modal'] = step
+        elif step.__name__ == 'StaticStep':
+            step.index = 0
+            self.step['static'] = step
+        else:
+            raise NameError('This type of step is not implemented yet')
 
 if __name__ == "__main__":
     pass

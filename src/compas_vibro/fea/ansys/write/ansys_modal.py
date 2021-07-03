@@ -34,14 +34,14 @@ def write_command_file_modal(structure, fields):
     write_nodes(structure, path, filename)
     write_elements(structure, path, filename)
     write_modal_solve(structure, path, filename)
-    write_constraints(structure, path, filename)
+    write_constraints(structure, 'modal', path, filename)
     write_loadstep(structure, path, filename)
     write_solve_step(structure, path, filename)
     write_modal_results(structure, fields, path, filename)
 
 
 def write_modal_solve(structure, path, filename):
-    num_modes = structure.step.modes
+    num_modes = structure.step['modal'].modes
     cFile = open(os.path.join(path, filename), 'a')
     cFile.write('/SOL \n')
     cFile.write('!\n')
@@ -69,7 +69,7 @@ def write_modal_solve(structure, path, filename):
 def write_modal_freq(structure, path, filename):
     path = structure.path
     name = structure.name
-    num_modes = structure.step.modes
+    num_modes = structure.step['modal'].modes
     out_path = os.path.join(path, name + '_output')
 
     cFile = open(os.path.join(path, filename), 'a')
@@ -107,7 +107,7 @@ def write_modal_freq(structure, path, filename):
 def write_participation_factor(structure, path, filename):
     path = structure.path
     name = structure.name
-    num_modes = structure.step.modes
+    num_modes = structure.step['modal'].modes
     out_path = os.path.join(path, name + '_output')
 
     cFile = open(os.path.join(path, filename), 'a')
@@ -156,7 +156,7 @@ def write_participation_factor(structure, path, filename):
 def write_effective_mass(structure, path, filename):
     path = structure.path
     name = structure.name
-    num_modes = structure.step.modes
+    num_modes = structure.step['modal'].modes
     out_path = os.path.join(path, name + '_output')
 
     cFile = open(os.path.join(path, filename), 'a')
@@ -203,7 +203,7 @@ def write_effective_mass(structure, path, filename):
 
 
 def write_modal_shapes(structure, path, filename):
-    num_modes = structure.step.modes
+    num_modes = structure.step['modal'].modes
 
     cFile = open(os.path.join(path, filename), 'a')
     cFile.write('/POST1 \n')

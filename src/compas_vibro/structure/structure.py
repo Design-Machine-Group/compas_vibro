@@ -13,6 +13,7 @@ from compas_vibro.structure._mixins.objectmixins import ObjectMixins
 
 from compas_vibro.fea.ansys.ansys import ansys_modal
 from compas_vibro.fea.ansys.ansys import ansys_harmonic
+from compas_vibro.fea.ansys.ansys import ansys_harmonic_super
 
 from compas_vibro.fea.opensees.opensees import opensees_modal
 from compas_vibro.fea.opensees.opensees import opensees_harmonic
@@ -66,7 +67,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.results               = {}
         self.sections              = {}
         self.sets                  = {}
-        self.step                  = None
+        self.step                  = {'modal': None, 'static': None, 'harmonic': None}
         self.tol                   = '3'
         self.mass                  = None
 
@@ -137,6 +138,12 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         else:
             raise NameError('This backend is not implemented')
         
+    def analyze_harmonic_super(self, num_modes, freq_list, fields, damping=.05, backend='ansys'):
+        if backend == 'ansys':
+            ansys_harmonic_super(self, num_modes, freq_list, fields, damping=damping)
+        else:
+            raise NameError('This backend is not implemented yet')
+
     def to_obj(self, output=True):
 
         """ Exports the Structure object to an .obj file through Pickle.

@@ -6,7 +6,7 @@ import os
 
 def write_preprocess(path, filename):
     cFile = open(os.path.join(path, filename), 'w')
-    cFile.write('! Ansys command file written from compas_fea \n')
+    cFile.write('! Ansys command file written from compas_vibro \n')
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.write('/PREP7 \n')
@@ -17,7 +17,7 @@ def write_preprocess(path, filename):
 
 def write_postprocess(path, filename):
     cFile = open(os.path.join(path, filename), 'w')
-    cFile.write('! Ansys post-process file written from compas_fea DUDE\n')
+    cFile.write('! Ansys post-process file written from compas_vibro\n')
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.write('/POST1 \n')

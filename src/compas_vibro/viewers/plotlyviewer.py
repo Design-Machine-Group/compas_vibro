@@ -109,7 +109,7 @@ class PlotlyViewer(object):
         if plot_type == 'harmonic':
             modes = len(self.structure.results[plot_type])
         elif plot_type == 'modal':
-            modes = self.structure.step.modes
+            modes = self.structure.step['modal'].modes
         elif plot_type == 'static':
             modes = 1
         else:

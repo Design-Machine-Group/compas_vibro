@@ -13,6 +13,7 @@ from compas_vibro.structure.step import HarmonicStep
 
 from compas_vibro.fea.ansys.write import write_command_file_modal
 from compas_vibro.fea.ansys.write import write_command_file_harmonic
+from compas_vibro.fea.ansys.write import write_command_file_harmonic_super
 
 from compas_vibro.fea.ansys.read import read_modal_freq
 from compas_vibro.fea.ansys.read import read_participation_factor
@@ -64,6 +65,32 @@ def ansys_harmonic(structure, freq_list, fields='all', damping=0.05):
     return structure
 
 
+def ansys_harmonic_super(structure, num_modes, freq_list, fields='all', damping=0.05):
+
+    # add modal step -----------------------------------------------------------
+    step = ModalStep(name=structure.name + '_modal', 
+                     displacements=[list(structure.displacements.keys())[0]],
+                     modes=num_modes)
+    structure.add(step)
+
+
+    # # add harmonic step --------------------------------------------------------
+    loads = [structure.loads[lk].name for lk in structure.loads]
+    step = HarmonicStep(name=structure.name + '_harmonic',
+                        displacements=[list(structure.displacements.keys())[0]],
+                        loads=loads,
+                        freq_list=freq_list,
+                        damping=damping)
+    structure.add(step)
+    structure.steps_order = [structure.name + '_harmonic']
+
+    # analyse and extraxt results ----------------------------------------------
+    write_command_file_harmonic_super(structure, fields)
+    ansys_launch_process(structure, cpus=4, license=license, delete=True)
+    extract_data(structure, fields, 'harmonic')
+    return structure
+
+
 def extract_data(structure, fields, results_type):
     path = structure.path
     name = structure.name
@@ -92,7 +119,7 @@ def extract_data(structure, fields, results_type):
                 structure.results['modal'][fk].displacements = d
     
     elif results_type == 'harmonic':
-        freq_list = structure.step.freq_list
+        freq_list = structure.step['harmonic'].freq_list
         fdict = {i:freq_list[i] for i in range(len(freq_list))}
         rdict = {fk: Result(fdict[fk], name='VibroResult_{}'.format(fk), type='harmonic') for fk in fdict}
         structure.results.update({'harmonic':rdict})

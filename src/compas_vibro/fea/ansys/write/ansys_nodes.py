@@ -84,9 +84,9 @@ def write_request_node_displacements(structure, step_index, mode=None):
     # fh.close()
 
 
-def write_constraints(structure, output_path, filename):
+def write_constraints(structure, step_type, output_path, filename):
 
-    displacements = structure.step.displacements
+    displacements = structure.step[step_type].displacements
     cFile = open(os.path.join(output_path, filename), 'a')
 
     cdict = {'x' : 'UX', 'y' : 'UY', 'z' : 'UZ', 'xx' : 'ROTX', 'yy' : 'ROTY', 'zz' : 'ROTZ'}

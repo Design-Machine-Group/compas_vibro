@@ -50,7 +50,7 @@ def write_modal_record(structure, path, filename):
     fh.close()
 
 def write_modal_solve(structure, path, filename):
-    modes = structure.step.modes
+    modes = structure.step['modal'].modes
 
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
@@ -66,7 +66,7 @@ def write_modal_solve(structure, path, filename):
     fh.close()
 
 def write_modal_shape(structure, path, filename):
-    modes = structure.step.modes
+    modes = structure.step['modal'].modes
     num_nodes = len(structure.nodes)
     outpath = os.path.join(path, '{}_output'.format(structure.name))
 
@@ -85,7 +85,7 @@ def write_modal_shape(structure, path, filename):
     fh.close()
 
 def write_modal_frequency(structure, path, filename):
-    # modes = structure.step.modes
+    # modes = structure.step['modal'].modes
     # num_nodes = len(structure.nodes)
     outpath = os.path.join(path, '{}_output'.format(structure.name))
 

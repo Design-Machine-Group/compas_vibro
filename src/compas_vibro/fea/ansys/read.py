@@ -18,7 +18,7 @@ __all__ = ['read_harmonic_displacements',
 
 def read_harmonic_displacements(structure, path):
     harmonic_disp = {}
-    hd = {i:{} for i in range(len(structure.step.freq_list))}
+    hd = {i:{} for i in range(len(structure.step['harmonic'].freq_list))}
     for nkey in structure.nodes:
         filename  = 'node_real_{0}.txt'.format(nkey + 1)
         filename_ = 'node_imag_{0}.txt'.format(nkey + 1)

@@ -29,9 +29,9 @@ def add_load_to_ploads(structure, pload, load, factor):
     return pload
 
 
-def write_loads(structure, output_path, filename):
+def write_loads(structure, step_type, output_path, filename):
     
-    loads = structure.step.loads
+    loads = structure.step[step_type].loads
     factor = 1
 
     pload = {}
