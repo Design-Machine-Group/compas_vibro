@@ -30,7 +30,7 @@ for i in range(60):
 
 path = compas_vibro.TEMP
 geometry = 'mesh_flat_20x20'
-name = 'ansys_{0}_harmonic'.format(geometry)
+name = 'ansys_{0}_harmonic_s'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
 
@@ -64,7 +64,7 @@ el_prop = ElementProperties('concrete_shell',
 s.add(el_prop)
 
 # add analysis frequencies - - - - - - - -
-freq_list = range(100, 500, 2)
+freq_list = range(20, 150, 2)
 
 num_modes = 20
 
