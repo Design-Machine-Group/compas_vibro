@@ -38,6 +38,7 @@ class Result(object):
         self.pfact                  = {}
         self.efmass                 = {}
         self.efmass_r               = {}
+        self.modal_coordinates      = {}
 
     def __str__(self):
         return TPL.format(self.frequency, self.type)

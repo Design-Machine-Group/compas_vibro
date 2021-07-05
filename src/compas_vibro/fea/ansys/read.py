@@ -14,7 +14,9 @@ __email__      = 'tmendeze@uw.edu'
 
 __all__ = ['read_harmonic_displacements',
            'read_modal_displacements',
-           'read_modal_freq']
+           'read_modal_freq',
+           'read_modal_coordinates']
+
 
 def read_harmonic_displacements(structure, path):
     harmonic_disp = {}
@@ -114,6 +116,23 @@ def read_modal_freq(out_path):
         modal_freqs = None
 
     return modal_freqs
+
+
+def read_modal_coordinates(structure, out_path):
+    fh = open(os.path.join(out_path, '{}{}.mcf'.format(structure.name, 0)), 'r')
+    num_modes = structure.step['modal'].modes
+    coo = fh.readlines()[8:]
+    ncd = {}
+    for i, c in enumerate(coo):
+        ncd[i] = {}
+        data = c.split()
+        ncd[i]['f'] = float(data[0])
+        tot = [abs(float(real)) for real in data[1::2]]
+        tot = sum(tot)
+        cd = {j: {'real':float(data[(j * 2) + 1]), 'imag':float(data[(j * 2) + 2]), 'norm':abs(float(data[(j * 2) + 1])) / tot} for j in range(num_modes)}
+        ncd[i].update(cd)
+    return ncd
+        
 
 
 if __name__ == '__main__':

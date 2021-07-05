@@ -64,7 +64,7 @@ el_prop = ElementProperties('concrete_shell',
 s.add(el_prop)
 
 # add analysis frequencies - - - - - - - -
-freq_list = range(20, 150, 2)
+freq_list = range(20, 50, 2)
 
 num_modes = 20
 
@@ -72,7 +72,8 @@ num_modes = 20
 s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
 
 # # save results - - - - - - 
-s.to_obj()
+# s.to_obj()
 
-v = HarmonicViewer(s)
-v.show()
+# v = HarmonicViewer(s)
+# v.show()
+

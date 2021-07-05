@@ -18,6 +18,8 @@ from .ansys_process import write_preprocess
 
 from .ansys_loads import write_loads
 
+from .ansys_modal import write_modal_results
+
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -44,6 +46,7 @@ def write_command_file_harmonic_super(structure, fields):
     # write_loadstep(structure, path, filename)
     # write_solve_step(structure, path, filename)
     write_harmonic_results(structure, fields, path, filename)
+    write_modal_results(structure, fields, path, filename)
 
 
 def write_modalsuper_solve(structure, path, filename):
@@ -181,4 +184,3 @@ def write_freq_displacements(structure, path, filename):
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
-

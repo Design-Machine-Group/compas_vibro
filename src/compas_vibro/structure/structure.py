@@ -114,7 +114,6 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
     def analyze_modal(self, fields, backend='ansys', num_modes=10):
         self.compute_mass()
-       
         if backend == 'ansys':
             ansys_modal(self, fields, num_modes=num_modes)
         elif backend == 'opensees':
@@ -139,6 +138,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             raise NameError('This backend is not implemented')
         
     def analyze_harmonic_super(self, num_modes, freq_list, fields, damping=.05, backend='ansys'):
+        self.compute_mass()
         if backend == 'ansys':
             ansys_harmonic_super(self, num_modes, freq_list, fields, damping=damping)
         else:

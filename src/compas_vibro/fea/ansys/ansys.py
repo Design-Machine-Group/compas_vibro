@@ -20,6 +20,7 @@ from compas_vibro.fea.ansys.read import read_participation_factor
 from compas_vibro.fea.ansys.read import read_effective_mass
 from compas_vibro.fea.ansys.read import read_modal_displacements
 from compas_vibro.fea.ansys.read import read_harmonic_displacements
+from compas_vibro.fea.ansys.read import read_modal_coordinates
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -73,7 +74,6 @@ def ansys_harmonic_super(structure, num_modes, freq_list, fields='all', damping=
                      modes=num_modes)
     structure.add(step)
 
-
     # # add harmonic step --------------------------------------------------------
     loads = [structure.loads[lk].name for lk in structure.loads]
     step = HarmonicStep(name=structure.name + '_harmonic',
@@ -87,7 +87,7 @@ def ansys_harmonic_super(structure, num_modes, freq_list, fields='all', damping=
     # analyse and extraxt results ----------------------------------------------
     write_command_file_harmonic_super(structure, fields)
     ansys_launch_process(structure, cpus=4, license=license, delete=True)
-    extract_data(structure, fields, 'harmonic')
+    extract_data(structure, fields, 'harmonic_s')
     return structure
 
 
@@ -96,7 +96,7 @@ def extract_data(structure, fields, results_type):
     name = structure.name
     out_path = os.path.join(path, name + '_output')
 
-    if results_type == 'modal':
+    if results_type == 'modal' or results_type == 'harmonic_s':
         mfreq = read_modal_freq(out_path)
         rdict = {fk: Result(mfreq[fk], name='VibroResult_{}'.format(fk), type='modal') for fk in mfreq}
         structure.results.update({'modal':rdict})
@@ -118,7 +118,7 @@ def extract_data(structure, fields, results_type):
                 d = read_modal_displacements(out_path, fk)
                 structure.results['modal'][fk].displacements = d
     
-    elif results_type == 'harmonic':
+    if results_type == 'harmonic' or results_type == 'harmonic_s':
         freq_list = structure.step['harmonic'].freq_list
         fdict = {i:freq_list[i] for i in range(len(freq_list))}
         rdict = {fk: Result(fdict[fk], name='VibroResult_{}'.format(fk), type='harmonic') for fk in fdict}
@@ -130,6 +130,10 @@ def extract_data(structure, fields, results_type):
             structure.tomas = hd
             for fkey in hd:
                 structure.results['harmonic'][fkey].displacements = hd[fkey]
+    
+    if results_type == 'harmonic_s':
+        ncd = read_modal_coordinates(structure, out_path)
+        
 
     return structure
 
