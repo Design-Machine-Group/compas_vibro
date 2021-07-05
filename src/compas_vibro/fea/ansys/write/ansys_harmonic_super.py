@@ -45,6 +45,7 @@ def write_command_file_harmonic_super(structure, fields):
     write_super_solve_step(structure, path, filename)
     # write_loadstep(structure, path, filename)
     # write_solve_step(structure, path, filename)
+
     write_harmonic_results(structure, fields, path, filename)
     write_modal_results(structure, fields, path, filename)
 
@@ -146,6 +147,7 @@ def write_freq_displacements(structure, path, filename):
     cFile.write('*get,n_min,NODE,0,NUM,MIN ! get min node number \n')
 
     cFile.write('/POST26 \n')
+    cFile.write('FILE,,RFRQ \n')
     cFile.write('PRCPLX, 0 \n')
     cFile.write('!\n')
     cFile.write('!\n')
