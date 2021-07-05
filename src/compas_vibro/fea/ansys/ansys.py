@@ -133,7 +133,8 @@ def extract_data(structure, fields, results_type):
     
     if results_type == 'harmonic_s':
         ncd = read_modal_coordinates(structure, out_path)
-        
+        for k in ncd:
+            structure.results['harmonic'][k].modal_coordinates = ncd[k]
 
     return structure
 
