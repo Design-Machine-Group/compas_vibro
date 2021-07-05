@@ -37,7 +37,7 @@ def write_command_file_harmonic(structure, fields):
     write_elements(structure, path, filename)
     write_harmonic_solve(structure, path, filename)
     write_constraints(structure, 'harmonic', path, filename)
-    write_loads(structure, path, filename)
+    write_loads(structure, 'harmonic', path, filename)
     write_loadstep(structure, path, filename)
     write_solve_step(structure, path, filename)
     write_harmonic_results(structure, fields, path, filename)
