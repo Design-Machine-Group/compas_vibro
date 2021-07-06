@@ -64,7 +64,7 @@ el_prop = ElementProperties('concrete_shell',
 s.add(el_prop)
 
 # add analysis frequencies - - - - - - - -
-freq_list = range(100, 500, 2)
+freq_list = range(20, 200, 2)
 
 # analyze - - - - 
 s.analyze_harmonic(freq_list, fields=['u'], backend='ansys')
