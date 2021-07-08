@@ -1,15 +1,11 @@
 
-try:
-    from numba import jit
-    import numpy as np
-    # from compas.hpc.linalg.linalg_numba import diag_complex_numba
-    # from compas.hpc.linalg.linalg_numba import ew_cmatrix_cscalar_division_numba as msdc
-    # from compas.hpc.linalg.linalg_numba import ew_matrix_cscalar_multiplication_numba as msxc
-    # from compas.hpc.linalg.linalg_numba import ew_cmatrix_matrix_division_numba as mmdcf
-    # from compas.hpc.linalg.linalg_numba import ew_cmatrix_cmatrix_multiplication_numba as mmxc
-except:
-    pass
-
+from numba import jit
+import numpy as np
+from compas_vibro.hpc import diag_complex_numba
+# from compas_vibro.hpc import ew_cmatrix_cscalar_division_numba as msdc
+# from compas_vibro.hpc import ew_matrix_cscalar_multiplication_numba as msxc
+# from compas_vibro.hpc import ew_cmatrix_matrix_division_numba as mmdcf
+# from compas_vibro.hpc import ew_cmatrix_cmatrix_multiplication_numba as mmxc
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -22,8 +18,13 @@ __email__      = 'tmendeze@uw.edu'
 # TODO: rename Z matrix to impedance matrix
 # TODO: when two approaches are the same, find out the fastest.
 
+def compute_rad_power_structure(structure):
+    pass
+
+
+
 def calculate_rayleigh_rad_power_np(s, p, v, n, sum=False):
-    # both approaches to the sum W are the same (find out wich is faster)
+    # TODO: both approaches to the sum W are the same (find out wich is faster)
     vH = np.conjugate(np.transpose(v))
     if sum:
         # w = float(np.sum(w))
@@ -106,36 +107,36 @@ def eigenvalue_decomposition(A):
     return W, V
 
 
-# @jit(nogil=True, nopython=True, parallel=False, cache=True)
-# def calculate_radiation_matrix_numba(k, rho, c, S, D):
-#     A = msdc(msxc(S, k * -1j), (complex(2) * np.pi))
-#     B = mmdcf(np.exp(msxc(D, 1j * k)), D)
-#     Z = mmxc(A, B)
-#     tempvar = k * np.sqrt(np.diag(S) / np.pi)
-#     d = 1.0 / 2.0 * (tempvar) ** 2.0 - 1j * 8.0 / 3.0 / np.pi * tempvar
-#     Z = diag_complex_numba(Z, d)
-#     Z *= (rho * c)
-#     return Z
-#
-#
-# @jit(nopython=True)
-# def calculate_rayleigh_rad_power_numba(S, p, v):
-#     s = S[0].reshape(-1, 1)
-#     # vH = np.conjugate(np.transpose(v))
-#     vH = np.conj(v.T)
-#     vH = vH.reshape(-1, 1)
-#     x = p * vH
-#     W = s * x.real
-#     W /= 2.0
-#     W = np.sum(W)
-#     W = float(W)
-#     return W
-#
-#
-# @jit(nopython=True)
-# def calculate_pressure_numba(Z, v):
-#     p = np.dot(Z, v)
-#     return p
+@jit(nogil=True, nopython=True, parallel=False, cache=True)
+def calculate_radiation_matrix_numba(k, rho, c, S, D):
+    A = msdc(msxc(S, k * -1j), (complex(2) * np.pi))
+    B = mmdcf(np.exp(msxc(D, 1j * k)), D)
+    Z = mmxc(A, B)
+    tempvar = k * np.sqrt(np.diag(S) / np.pi)
+    d = 1.0 / 2.0 * (tempvar) ** 2.0 - 1j * 8.0 / 3.0 / np.pi * tempvar
+    Z = diag_complex_numba(Z, d)
+    Z *= (rho * c)
+    return Z
+
+
+@jit(nopython=True)
+def calculate_rayleigh_rad_power_numba(S, p, v):
+    s = S[0].reshape(-1, 1)
+    # vH = np.conjugate(np.transpose(v))
+    vH = np.conj(v.T)
+    vH = vH.reshape(-1, 1)
+    x = p * vH
+    W = s * x.real
+    W /= 2.0
+    W = np.sum(W)
+    W = float(W)
+    return W
+
+
+@jit(nopython=True)
+def calculate_pressure_numba(Z, v):
+    p = np.dot(Z, v)
+    return p
 
 
 if __name__ == '__main__':
@@ -152,9 +153,11 @@ if __name__ == '__main__':
 
     import time
 
+    for i in range(50): print('')
+
     # from mesh ----------------------------------------------------------------
 
-    numiter = 1
+    numiter = 1000
     f = 50.0
     c = 340.0
     rho = 1.225
@@ -162,11 +165,8 @@ if __name__ == '__main__':
     k = (2. * np.pi) / wlen
     omega = k * c
 
-    with open(compas_vibro.get('flat10x10.json'), 'r') as fp:
-        data = json.load(fp)
-    mesh = Mesh()
-    mesh.data = data['mesh']
-    mdata = get_mesh_data(mesh)
+    mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'mesh_flat_10x10.json'))
+
     faces = sorted(mesh.face, key=int)
     s = [mesh.face_area(fkey) for fkey in faces]
     face_centers = [mesh.face_center(fkey) for fkey in faces]
@@ -303,13 +303,13 @@ if __name__ == '__main__':
     #     lw_ = from_W_to_dB(W_)
     # t3 = time.time()
 
-    # print '-' * 50
-    # print 'numba'
-    # print 'W_   ', W_
-    # print 'lw_    ', lw_
-    # print 'calculation time = ', t3 - t2
-    # print '-' * 50
+    # print ('-' * 50)
+    # print ('numba')
+    # print ('W_   ', W_)
+    # print ('lw_    ', lw_)
+    # print ('calculation time = ', t3 - t2)
+    # print ('-' * 50)
     # # --------------------------------------------------------------------------
-    # print np.allclose(Z, Z_)
+    # print (np.allclose(Z, Z_))
 
 

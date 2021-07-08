@@ -181,6 +181,9 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
                 mass += area_polygon(pl) * thick * density
         self.mass = mass
 
+    def compute_rad_power(self):
+        pass
+
     @staticmethod
     def from_obj(filename, output=True):
 
