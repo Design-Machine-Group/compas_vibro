@@ -1,6 +1,9 @@
 
 from numba import jit
 import numpy as np
+
+from compas_vibro.structure.result import Result
+
 from compas_vibro.hpc import diag_complex_numba
 
 from compas_vibro.vibro.utilities import structure_face_surfaces
@@ -42,13 +45,15 @@ def compute_structure_face_velocities(structure, rkey):
 
     return velocities
 
+
 def compute_rad_power_structure(structure):
     sareas = structure_face_surfaces(structure)
     face_centers = structure_face_centers(structure)
     rkeys = list(structure.results['harmonic'].keys())
-    
+    structure.results['radiation'] = {}
     for rk in rkeys:
         f = structure.results['harmonic'][rk].frequency
+        structure.results['radiation'][rk] = Result(f) 
         wlen = structure.c / f
         k = (2. * np.pi) / wlen
         omega = k * structure.c
@@ -62,23 +67,26 @@ def compute_rad_power_structure(structure):
         # Ii = 1 - I
         Z = calculate_radiation_matrix_np(k, structure.rho, structure.c, S, D)
         p = calculate_pressure_np(Z, v)
-        W = calculate_rayleigh_rad_power_np(sareas, p, v, n, sum=True)
-        lw = from_W_to_dB(W)
+        W, W_tot = calculate_rayleigh_rad_power_np(sareas, p, v, n, sum=True)
+        # lw = from_W_to_dB(W_tot)
+        structure.results['radiation'][rk].radiated_p_faces = W
+        structure.results['radiation'][rk].radiated_p_faces = W_tot
 
 
 def calculate_rayleigh_rad_power_np(s, p, v, n, sum=False):
     # TODO: both approaches to the sum W are the same (find out wich is faster)
     vH = np.conjugate(np.transpose(v))
+    w = s * np.real(vH * p)
+    w /= 2.0
     if sum:
         # w = float(np.sum(w))
         # w = float(w)
         area = np.sum(s)
-        w = area * np.real(np.dot(vH, p)) / (2 * n)
-        w = float(w)
+        w_tot = area * np.real(np.dot(vH, p)) / (2 * n)
+        w_tot = float(w_tot)
+        return w, w_tot
     else:
-        w = s * np.real(vH * p)
-        w /= 2.0
-    return w
+        return w
 
 
 def calculate_rayleigh_rad_power_R_np(R, v):
@@ -193,8 +201,6 @@ if __name__ == '__main__':
     name = 'ansys_mesh_flat_20x20_harmonic.obj'
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, name))
     compute_rad_power_structure(s)
-
-
 
 
 

@@ -8,6 +8,9 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
+
+import numpy as np
+
 from compas.geometry import length_vector
 
 
@@ -39,6 +42,9 @@ class Result(object):
         self.efmass                 = {}
         self.efmass_r               = {}
         self.modal_coordinates      = {}
+        self.velocities             = {}
+        self.radiated_p             = {}
+        self.radiated_p_faces       = {}
 
     def __str__(self):
         return TPL.format(self.frequency, self.type)
@@ -53,6 +59,19 @@ class Result(object):
             d.append(length_vector([dx, dy, dz]))
         return max(d)
 
+    def compute_node_velocities(self):
+        for nkey in self.displacements:
+            vr = self.displacements[nkey]['real']
+            vi = self.displacements[nkey]['imag']
+
+            vr = [vr['x'], vr['y'], vr['z']]
+            vi = [vi['x'], vi['y'], vi['z']]
+
+            real_l = (vr[0] ** 2 + vr[1] ** 2 + vr[2] ** 2) ** 0.5
+            imag_l = (vi[0] ** 2 + vi[1] ** 2 + vi[2] ** 2) ** 0.5
+            x = real_l + (imag_l * 1j)
+            v = 2 * np.pi * float(self.frequency) * x * 1j
+            self.velocities[nkey] = v
 
 if __name__ == '__main__':
     pass

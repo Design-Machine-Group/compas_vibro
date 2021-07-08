@@ -28,9 +28,9 @@ __version__ = "0.1.0"
 for i in range(60):
     print()
 
-path = compas_vibro.TEMP
+path = compas_vibro.DATA
 geometry = 'mesh_flat_20x20'
-name = 'ansys_{0}_harmonic'.format(geometry)
+name = '{0}_radiation'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
 
@@ -68,6 +68,5 @@ freq_list = range(20, 200, 2)
 
 # analyze - - - - 
 s.analyze_harmonic(freq_list, fields=['u'], backend='ansys')
+s.compute_rad_power()
 s.to_obj()
-
-# s.compute_rad_power()

@@ -21,6 +21,8 @@ from compas_vibro.fea.opensees.opensees import opensees_static
 
 from compas_vibro.structure.load import PointLoad
 
+from compas_vibro.vibro import compute_rad_power_structure
+
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
 __license__    = 'MIT License'
@@ -184,7 +186,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.mass = mass
 
     def compute_rad_power(self):
-        pass
+        compute_rad_power_structure(self)
 
     @staticmethod
     def from_obj(filename, output=True):
