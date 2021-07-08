@@ -7,6 +7,7 @@ from compas_vibro.vibro.utilities import structure_face_surfaces
 from compas_vibro.vibro.utilities import structure_face_centers
 from compas_vibro.vibro.utilities import make_area_matrix
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np
+from compas_vibro.vibro.utilities import from_W_to_dB
 
 # from compas_vibro.hpc import ew_cmatrix_cscalar_division_numba as msdc
 # from compas_vibro.hpc import ew_matrix_cscalar_multiplication_numba as msxc
@@ -24,13 +25,30 @@ __email__      = 'tmendeze@uw.edu'
 # TODO: rename Z matrix to impedance matrix
 # TODO: when two approaches are the same, find out the fastest.
 
+
+def compute_structure_face_velocities(structure, rkey):
+    structure.results['harmonic'][rkey].compute_node_velocities()
+    eks = structure.elements
+    velocities = []
+    for ek in eks:
+        nkeys = structure.elements[ek].nodes
+
+        vr = [structure.results['harmonic'][rkey].velocities[nkey].real for nkey in nkeys]
+        vi = [structure.results['harmonic'][rkey].velocities[nkey].imag for nkey in nkeys]
+
+        real = np.average(vr, axis=0)
+        imag = np.average(vi, axis=0)
+        velocities.append(complex(real, imag))
+
+    return velocities
+
 def compute_rad_power_structure(structure):
-    
     sareas = structure_face_surfaces(structure)
     face_centers = structure_face_centers(structure)
+    rkeys = list(structure.results['harmonic'].keys())
     
-    freqs = [structure.results['harmonic'][k].frequency for k in structure.results['harmonic']]
-    for f in freqs[:5]:
+    for rk in rkeys:
+        f = structure.results['harmonic'][rk].frequency
         wlen = structure.c / f
         k = (2. * np.pi) / wlen
         omega = k * structure.c
@@ -38,11 +56,14 @@ def compute_rad_power_structure(structure):
         S = make_area_matrix(sareas)
         D = calculate_distance_matrix_np(face_centers)
         n = int(np.sqrt(np.shape(S)[0]))
-    #     v = make_velocities_pattern_mesh(mesh, .1, 3, complex=True)
-    #     vr = np.real(v)
-    #     I = np.eye(np.shape(D)[0])
-    #     Ii = 1 - I
-
+        v = compute_structure_face_velocities(structure, rk)
+        # vr = np.real(v)
+        # I = np.eye(np.shape(D)[0])
+        # Ii = 1 - I
+        Z = calculate_radiation_matrix_np(k, structure.rho, structure.c, S, D)
+        p = calculate_pressure_np(Z, v)
+        W = calculate_rayleigh_rad_power_np(sareas, p, v, n, sum=True)
+        lw = from_W_to_dB(W)
 
 
 def calculate_rayleigh_rad_power_np(s, p, v, n, sum=False):
