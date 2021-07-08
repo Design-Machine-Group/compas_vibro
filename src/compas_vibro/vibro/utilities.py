@@ -1,4 +1,8 @@
 
+from compas.geometry import area_polygon
+from compas.geometry import centroid_points
+
+
 try:
     import numpy as np
     import scipy.spatial.distance as sp
@@ -16,7 +20,8 @@ all = ['calculate_distance_matrix_np',
        'get_mesh_data',
        'from_W_to_dB',
        'make_area_matrix',
-       'frequency_key']
+       'frequency_key',
+       'structure_face_surfaces']
 
 
 def calculate_distance_matrix_np(face_centers):
@@ -79,17 +84,35 @@ def frequency_key(frequency, tol='3f'):
     return '{0:.{1}}'.format(float(frequency), tol)
 
 
+def structure_face_surfaces(structure):
+    eks = structure.elements
+    areas = []
+    for ek in eks:
+        pl = [structure.nodes[nk].xyz() for nk in structure.elements[ek].nodes]
+        areas.append(area_polygon(pl))
+    return areas
+
+def structure_face_centers(structure):
+    eks = structure.elements
+    centers = []
+    for ek in eks:
+        pl = [structure.nodes[nk].xyz() for nk in structure.elements[ek].nodes]
+        centers.append(centroid_points(pl))
+    return centers
+
+
 if __name__ == '__main__':
+    import os
     import compas_vibro
-    import json
-    from compas_vibro.datastructures import VibroMesh
+    from compas_vibro.structure import Structure
 
-    f = 3
-    amp = .4
+    for i in range(50): print('')
 
-    with open(compas_vibro.get('flat20x20.json'), 'r') as fp:
-        data = json.load(fp)
-    mesh = VibroMesh.from_data(data['mesh'])
-    v = make_velocities_pattern_mesh(mesh, f, amp, complex=False)
-    print(v)
-
+    name = 'ansys_mesh_flat_20x20_harmonic.obj'
+    s = Structure.from_obj(os.path.join(compas_vibro.DATA, name))
+    
+    # areas = structure_face_surfaces(s)
+    # print(areas)
+    
+    centers = structure_face_centers(s)
+    print(centers)

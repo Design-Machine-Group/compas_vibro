@@ -68,5 +68,6 @@ freq_list = range(20, 200, 2)
 
 # analyze - - - - 
 s.analyze_harmonic(freq_list, fields=['u'], backend='ansys')
+s.to_obj()
 
-s.compute_rad_power()
+# s.compute_rad_power()

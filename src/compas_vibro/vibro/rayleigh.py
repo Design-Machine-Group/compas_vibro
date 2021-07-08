@@ -2,6 +2,12 @@
 from numba import jit
 import numpy as np
 from compas_vibro.hpc import diag_complex_numba
+
+from compas_vibro.vibro.utilities import structure_face_surfaces
+from compas_vibro.vibro.utilities import structure_face_centers
+from compas_vibro.vibro.utilities import make_area_matrix
+from compas_vibro.vibro.utilities import calculate_distance_matrix_np
+
 # from compas_vibro.hpc import ew_cmatrix_cscalar_division_numba as msdc
 # from compas_vibro.hpc import ew_matrix_cscalar_multiplication_numba as msxc
 # from compas_vibro.hpc import ew_cmatrix_matrix_division_numba as mmdcf
@@ -19,7 +25,23 @@ __email__      = 'tmendeze@uw.edu'
 # TODO: when two approaches are the same, find out the fastest.
 
 def compute_rad_power_structure(structure):
-    pass
+    
+    sareas = structure_face_surfaces(structure)
+    face_centers = structure_face_centers(structure)
+    
+    freqs = [structure.results['harmonic'][k].frequency for k in structure.results['harmonic']]
+    for f in freqs[:5]:
+        wlen = structure.c / f
+        k = (2. * np.pi) / wlen
+        omega = k * structure.c
+
+        S = make_area_matrix(sareas)
+        D = calculate_distance_matrix_np(face_centers)
+        n = int(np.sqrt(np.shape(S)[0]))
+    #     v = make_velocities_pattern_mesh(mesh, .1, 3, complex=True)
+    #     vr = np.real(v)
+    #     I = np.eye(np.shape(D)[0])
+    #     Ii = 1 - I
 
 
 
@@ -142,174 +164,189 @@ def calculate_pressure_numba(Z, v):
 if __name__ == '__main__':
 
     import os
-    import json
     import compas_vibro
-    from compas.datastructures import Mesh
-    from compas_vibro.vibro import get_mesh_data
-    from compas_vibro.vibro import make_area_matrix
-    from compas_vibro.vibro import make_velocities_pattern_mesh
-    from compas_vibro.vibro import from_W_to_dB
-    from compas_vibro.vibro import calculate_distance_matrix_np
-
-    import time
+    from compas_vibro.structure import Structure
 
     for i in range(50): print('')
 
-    # from mesh ----------------------------------------------------------------
+    name = 'ansys_mesh_flat_20x20_harmonic.obj'
+    s = Structure.from_obj(os.path.join(compas_vibro.DATA, name))
+    compute_rad_power_structure(s)
 
-    numiter = 1000
-    f = 50.0
-    c = 340.0
-    rho = 1.225
-    wlen = c / f
-    k = (2. * np.pi) / wlen
-    omega = k * c
 
-    mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'mesh_flat_10x10.json'))
 
-    faces = sorted(mesh.face, key=int)
-    s = [mesh.face_area(fkey) for fkey in faces]
-    face_centers = [mesh.face_center(fkey) for fkey in faces]
 
-    S = make_area_matrix(s)
-    D = calculate_distance_matrix_np(face_centers)
-    n = int(np.sqrt(np.shape(S)[0]))
-    v = make_velocities_pattern_mesh(mesh, .1, 3, complex=True)
-    vr = np.real(v)
-    I = np.eye(np.shape(D)[0])
-    Ii = 1 - I
 
-    # from vibro structure -----------------------------------------------------
 
-    # from compas_vibro.datastructures import VibroStructure
+    # import os
+    # import json
+    # import compas_vibro
+    # from compas.datastructures import Mesh
+    # from compas_vibro.vibro import get_mesh_data
+    # from compas_vibro.vibro import make_area_matrix
+    # from compas_vibro.vibro import make_velocities_pattern_mesh
+    # from compas_vibro.vibro import from_W_to_dB
+    # from compas_vibro.vibro import calculate_distance_matrix_np
 
-    # path = compas_vibro.TEMP
-    # # name = 'testing_0'
-    # # name = 'testing2x2_0'
-    # name = 'testing20x20wide0'
-    # # name = 'testing100x100'
-    # filepath = os.path.join(path, name + '.json')
-    # vib = VibroStructure.from_json(filepath)
+    # import time
 
-    # numiter = 1
+    # for i in range(50): print('')
 
-    # f_index = 8  # key of the frequencies dict in the VibroStructure
-    # f = vib.frequencies[f_index]
+    # # from mesh ----------------------------------------------------------------
+
+    # numiter = 1000
+    # f = 50.0
     # c = 340.0
     # rho = 1.225
     # wlen = c / f
     # k = (2. * np.pi) / wlen
     # omega = k * c
-    # print 'f', f, 'k', k
 
-    # mesh = vib.mesh
+    # mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'mesh_flat_10x10.json'))
+
     # faces = sorted(mesh.face, key=int)
     # s = [mesh.face_area(fkey) for fkey in faces]
     # face_centers = [mesh.face_center(fkey) for fkey in faces]
 
     # S = make_area_matrix(s)
     # D = calculate_distance_matrix_np(face_centers)
-    # n = len(mesh.face)
-    # v = [vib.face_v[fkey][f_index] for fkey in faces]
+    # n = int(np.sqrt(np.shape(S)[0]))
+    # v = make_velocities_pattern_mesh(mesh, .1, 3, complex=True)
     # vr = np.real(v)
+    # I = np.eye(np.shape(D)[0])
+    # Ii = 1 - I
 
-    # # # numpy via Z matrix ---------------------------------------------------
+    # # from vibro structure -----------------------------------------------------
 
-    t0 = time.time()
-    for i in range(numiter):
-        Z = calculate_radiation_matrix_np(k, rho, c, S, D)
-        p = calculate_pressure_np(Z, v)
-        W = calculate_rayleigh_rad_power_np(s, p, v, n, sum=True)
-        lw = from_W_to_dB(W)
-    t1 = time.time()
+    # # from compas_vibro.datastructures import VibroStructure
 
-    print('-' * 50)
-    print('numpy')
-    print('W   ', W)
-    print('lw    ', lw)
-    print('calculation time = ', t1 - t0)
-    print('-' * 50)
+    # # path = compas_vibro.TEMP
+    # # # name = 'testing_0'
+    # # # name = 'testing2x2_0'
+    # # name = 'testing20x20wide0'
+    # # # name = 'testing100x100'
+    # # filepath = os.path.join(path, name + '.json')
+    # # vib = VibroStructure.from_json(filepath)
 
-    # # # numpy via fahy Z matrix ---------------------------------------------------
+    # # numiter = 1
 
-    t0 = time.time()
-    for i in range(numiter):
-        Z = calculate_radiation_matrix_np_fahy(k, rho, omega, S, D)
-        p = calculate_pressure_np(Z, v)
-        W = calculate_rayleigh_rad_power_np(s, p, v, n, sum=True)
-        lw = from_W_to_dB(W)
-    t1 = time.time()
+    # # f_index = 8  # key of the frequencies dict in the VibroStructure
+    # # f = vib.frequencies[f_index]
+    # # c = 340.0
+    # # rho = 1.225
+    # # wlen = c / f
+    # # k = (2. * np.pi) / wlen
+    # # omega = k * c
+    # # print 'f', f, 'k', k
 
-    print('-' * 50)
-    print('numpy Fahy')
-    print('W   ', W)
-    print('lw    ', lw)
-    print('calculation time = ', t1 - t0)
-    print('-' * 50)
-    # # # numpy via Berkhoff Z matrix ---------------------------------------------------
+    # # mesh = vib.mesh
+    # # faces = sorted(mesh.face, key=int)
+    # # s = [mesh.face_area(fkey) for fkey in faces]
+    # # face_centers = [mesh.face_center(fkey) for fkey in faces]
 
-    t0 = time.time()
-    for i in range(numiter):
-        Z = calculate_radiation_matrix_berkhoff_np(k, rho, c, S, D)
-        p = calculate_pressure_np(Z, v)
-        W = calculate_rayleigh_rad_power_np(s, p, v, n, sum=True)
-        lw = from_W_to_dB(W)
-    t1 = time.time()
+    # # S = make_area_matrix(s)
+    # # D = calculate_distance_matrix_np(face_centers)
+    # # n = len(mesh.face)
+    # # v = [vib.face_v[fkey][f_index] for fkey in faces]
+    # # vr = np.real(v)
 
-    print('-' * 50)
-    print('numpy Berkhoff')
-    print('W   ', W)
-    print('lw    ', lw)
-    print('calculation time = ', t1 - t0)
-    print('-' * 50)
+    # # # # numpy via Z matrix ---------------------------------------------------
 
-    # # # numpy via R matrix -----------------------------------------------------
-
-    t0 = time.time()
-    for i in range(numiter):
-        R = calculate_resistance_matrix_np(k, omega, rho, c, s, D)
-        # R = calculate_resistance_from_impedance(Z, s, n)
-        W_ = calculate_rayleigh_rad_power_R_np(R, vr)
-        lw_ = from_W_to_dB(W_)
-    t1 = time.time()
-
-    print('-' * 50)
-    print('numpy via R matrix')
-    print('W_   ', W_)
-    print('lw_    ', lw_)
-    print('calculation time = ', t1 - t0)
-    print('-' * 50)
-    print(lw_.shape)
-
-    print('the R matrix')
-    print('is possitive definite', np.all(np.linalg.eigvals(R) > 0))
-    # print('eigenvalues' , np.linalg.eigvals(R))
-    print('is symmetric', np.allclose(R, R.T))
-    print('is complex', np.iscomplexobj(R))
-    print('shape', R.shape)
-    # np.linalg.cholesky(R)
-
-
-
-    # # ------------------------------------------------------------------------
-
-    # # numba ------------------------------------------------------------------
-
-    # t2 = time.time()
+    # t0 = time.time()
     # for i in range(numiter):
-    #     Z_ = calculate_radiation_matrix_numba(k, rho, c, S, D)
-    #     p_ = calculate_pressure_numba(Z_, v)
-    #     W_ = calculate_rayleigh_rad_power_numba(S, p_, v)
-    #     lw_ = from_W_to_dB(W_)
-    # t3 = time.time()
+    #     Z = calculate_radiation_matrix_np(k, rho, c, S, D)
+    #     p = calculate_pressure_np(Z, v)
+    #     W = calculate_rayleigh_rad_power_np(s, p, v, n, sum=True)
+    #     lw = from_W_to_dB(W)
+    # t1 = time.time()
 
-    # print ('-' * 50)
-    # print ('numba')
-    # print ('W_   ', W_)
-    # print ('lw_    ', lw_)
-    # print ('calculation time = ', t3 - t2)
-    # print ('-' * 50)
-    # # --------------------------------------------------------------------------
-    # print (np.allclose(Z, Z_))
+    # print('-' * 50)
+    # print('numpy')
+    # print('W   ', W)
+    # print('lw    ', lw)
+    # print('calculation time = ', t1 - t0)
+    # print('-' * 50)
+
+    # # # # numpy via fahy Z matrix ---------------------------------------------------
+
+    # t0 = time.time()
+    # for i in range(numiter):
+    #     Z = calculate_radiation_matrix_np_fahy(k, rho, omega, S, D)
+    #     p = calculate_pressure_np(Z, v)
+    #     W = calculate_rayleigh_rad_power_np(s, p, v, n, sum=True)
+    #     lw = from_W_to_dB(W)
+    # t1 = time.time()
+
+    # print('-' * 50)
+    # print('numpy Fahy')
+    # print('W   ', W)
+    # print('lw    ', lw)
+    # print('calculation time = ', t1 - t0)
+    # print('-' * 50)
+    # # # # numpy via Berkhoff Z matrix ---------------------------------------------------
+
+    # t0 = time.time()
+    # for i in range(numiter):
+    #     Z = calculate_radiation_matrix_berkhoff_np(k, rho, c, S, D)
+    #     p = calculate_pressure_np(Z, v)
+    #     W = calculate_rayleigh_rad_power_np(s, p, v, n, sum=True)
+    #     lw = from_W_to_dB(W)
+    # t1 = time.time()
+
+    # print('-' * 50)
+    # print('numpy Berkhoff')
+    # print('W   ', W)
+    # print('lw    ', lw)
+    # print('calculation time = ', t1 - t0)
+    # print('-' * 50)
+
+    # # # # numpy via R matrix -----------------------------------------------------
+
+    # t0 = time.time()
+    # for i in range(numiter):
+    #     R = calculate_resistance_matrix_np(k, omega, rho, c, s, D)
+    #     # R = calculate_resistance_from_impedance(Z, s, n)
+    #     W_ = calculate_rayleigh_rad_power_R_np(R, vr)
+    #     lw_ = from_W_to_dB(W_)
+    # t1 = time.time()
+
+    # print('-' * 50)
+    # print('numpy via R matrix')
+    # print('W_   ', W_)
+    # print('lw_    ', lw_)
+    # print('calculation time = ', t1 - t0)
+    # print('-' * 50)
+    # print(lw_.shape)
+
+    # print('the R matrix')
+    # print('is possitive definite', np.all(np.linalg.eigvals(R) > 0))
+    # # print('eigenvalues' , np.linalg.eigvals(R))
+    # print('is symmetric', np.allclose(R, R.T))
+    # print('is complex', np.iscomplexobj(R))
+    # print('shape', R.shape)
+    # # np.linalg.cholesky(R)
+
+
+
+    # # # ------------------------------------------------------------------------
+
+    # # # numba ------------------------------------------------------------------
+
+    # # t2 = time.time()
+    # # for i in range(numiter):
+    # #     Z_ = calculate_radiation_matrix_numba(k, rho, c, S, D)
+    # #     p_ = calculate_pressure_numba(Z_, v)
+    # #     W_ = calculate_rayleigh_rad_power_numba(S, p_, v)
+    # #     lw_ = from_W_to_dB(W_)
+    # # t3 = time.time()
+
+    # # print ('-' * 50)
+    # # print ('numba')
+    # # print ('W_   ', W_)
+    # # print ('lw_    ', lw_)
+    # # print ('calculation time = ', t3 - t2)
+    # # print ('-' * 50)
+    # # # --------------------------------------------------------------------------
+    # # print (np.allclose(Z, Z_))
 
 

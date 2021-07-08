@@ -54,22 +54,24 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         """
 
-        self.displacements         = {}
-        self.elements              = {}
-        self.element_index         = {}
-        self.element_properties    = {}
-        self.loads                 = {}
-        self.materials             = {}
-        self.name                  = name
-        self.nodes                 = {}
-        self.node_index            = {}
-        self.path                  = path
-        self.results               = {}
-        self.sections              = {}
-        self.sets                  = {}
-        self.step                  = {'modal': None, 'static': None, 'harmonic': None}
-        self.tol                   = '3'
-        self.mass                  = None
+        self.displacements          = {}
+        self.elements               = {}
+        self.element_index          = {}
+        self.element_properties     = {}
+        self.loads                  = {}
+        self.materials              = {}
+        self.name                   = name
+        self.nodes                  = {}
+        self.node_index             = {}
+        self.path                   = path
+        self.results                = {}
+        self.sections               = {}
+        self.sets                   = {}
+        self.step                   = {'modal': None, 'static': None, 'harmonic': None}
+        self.tol                    = '3'
+        self.mass                   = None
+        self.c                      = 340.0
+        self.rho                    = 1.225
 
     def __str__(self):
         return TPL.format(self.name, self.node_count(), self.element_count())
