@@ -92,6 +92,7 @@ def structure_face_surfaces(structure):
         areas.append(area_polygon(pl))
     return areas
 
+
 def structure_face_centers(structure):
     eks = structure.elements
     centers = []
