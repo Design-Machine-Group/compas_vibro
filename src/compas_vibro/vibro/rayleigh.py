@@ -1,10 +1,19 @@
 
-from numba import jit
-import numpy as np
+
+try:
+    import numpy as np
+    from numba import jit
+    # from compas_vibro.hpc import diag_complex_numba
+    # from compas_vibro.hpc import ew_cmatrix_cscalar_division_numba as msdc
+    # from compas_vibro.hpc import ew_matrix_cscalar_multiplication_numba as msxc
+    # from compas_vibro.hpc import ew_cmatrix_matrix_division_numba as mmdcf
+    # from compas_vibro.hpc import ew_cmatrix_cmatrix_multiplication_numba as mmxc
+
+except:
+    pass
+
 
 from compas_vibro.structure.result import Result
-
-from compas_vibro.hpc import diag_complex_numba
 
 from compas_vibro.vibro.utilities import structure_face_surfaces
 from compas_vibro.vibro.utilities import structure_face_centers
@@ -12,10 +21,7 @@ from compas_vibro.vibro.utilities import make_area_matrix
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np
 from compas_vibro.vibro.utilities import from_W_to_dB
 
-# from compas_vibro.hpc import ew_cmatrix_cscalar_division_numba as msdc
-# from compas_vibro.hpc import ew_matrix_cscalar_multiplication_numba as msxc
-# from compas_vibro.hpc import ew_cmatrix_matrix_division_numba as mmdcf
-# from compas_vibro.hpc import ew_cmatrix_cmatrix_multiplication_numba as mmxc
+
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -69,8 +75,8 @@ def compute_rad_power_structure(structure):
         p = calculate_pressure_np(Z, v)
         W, W_tot = calculate_rayleigh_rad_power_np(sareas, p, v, n, sum=True)
         # lw = from_W_to_dB(W_tot)
-        structure.results['radiation'][rk].radiated_p_faces = W
-        structure.results['radiation'][rk].radiated_p_faces = W_tot
+        structure.results['radiation'][rk].radiated_p_faces = W.tolist()
+        structure.results['radiation'][rk].radiated_p = W_tot
 
 
 def calculate_rayleigh_rad_power_np(s, p, v, n, sum=False):
@@ -158,36 +164,36 @@ def eigenvalue_decomposition(A):
     return W, V
 
 
-@jit(nogil=True, nopython=True, parallel=False, cache=True)
-def calculate_radiation_matrix_numba(k, rho, c, S, D):
-    A = msdc(msxc(S, k * -1j), (complex(2) * np.pi))
-    B = mmdcf(np.exp(msxc(D, 1j * k)), D)
-    Z = mmxc(A, B)
-    tempvar = k * np.sqrt(np.diag(S) / np.pi)
-    d = 1.0 / 2.0 * (tempvar) ** 2.0 - 1j * 8.0 / 3.0 / np.pi * tempvar
-    Z = diag_complex_numba(Z, d)
-    Z *= (rho * c)
-    return Z
+# @jit(nogil=True, nopython=True, parallel=False, cache=True)
+# def calculate_radiation_matrix_numba(k, rho, c, S, D):
+#     A = msdc(msxc(S, k * -1j), (complex(2) * np.pi))
+#     B = mmdcf(np.exp(msxc(D, 1j * k)), D)
+#     Z = mmxc(A, B)
+#     tempvar = k * np.sqrt(np.diag(S) / np.pi)
+#     d = 1.0 / 2.0 * (tempvar) ** 2.0 - 1j * 8.0 / 3.0 / np.pi * tempvar
+#     Z = diag_complex_numba(Z, d)
+#     Z *= (rho * c)
+#     return Z
 
 
-@jit(nopython=True)
-def calculate_rayleigh_rad_power_numba(S, p, v):
-    s = S[0].reshape(-1, 1)
-    # vH = np.conjugate(np.transpose(v))
-    vH = np.conj(v.T)
-    vH = vH.reshape(-1, 1)
-    x = p * vH
-    W = s * x.real
-    W /= 2.0
-    W = np.sum(W)
-    W = float(W)
-    return W
+# @jit(nopython=True)
+# def calculate_rayleigh_rad_power_numba(S, p, v):
+#     s = S[0].reshape(-1, 1)
+#     # vH = np.conjugate(np.transpose(v))
+#     vH = np.conj(v.T)
+#     vH = vH.reshape(-1, 1)
+#     x = p * vH
+#     W = s * x.real
+#     W /= 2.0
+#     W = np.sum(W)
+#     W = float(W)
+#     return W
 
 
-@jit(nopython=True)
-def calculate_pressure_numba(Z, v):
-    p = np.dot(Z, v)
-    return p
+# @jit(nopython=True)
+# def calculate_pressure_numba(Z, v):
+#     p = np.dot(Z, v)
+#     return p
 
 
 if __name__ == '__main__':

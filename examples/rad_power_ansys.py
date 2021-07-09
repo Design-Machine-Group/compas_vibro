@@ -28,7 +28,9 @@ __version__ = "0.1.0"
 for i in range(60):
     print()
 
-path = compas_vibro.DATA
+import timber_vibro
+
+path = os.path.join(timber_vibro.DATA, 'radiation')
 geometry = 'mesh_flat_20x20'
 name = '{0}_radiation'.format(geometry)
 
@@ -66,7 +68,9 @@ s.add(el_prop)
 # add analysis frequencies - - - - - - - -
 freq_list = range(20, 200, 2)
 
+num_modes = 25
 # analyze - - - - 
-s.analyze_harmonic(freq_list, fields=['u'], backend='ansys')
+s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
+
 s.compute_rad_power()
 s.to_obj()

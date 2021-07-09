@@ -9,7 +9,10 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
-import numpy as np
+try:
+    import numpy as np
+except:
+    pass
 
 from compas.geometry import length_vector
 
