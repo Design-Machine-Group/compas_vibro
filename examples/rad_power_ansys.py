@@ -71,18 +71,20 @@ s.add(material)
 el_prop1 = ElementProperties('concrete_shell_thin',
                              material='concrete',
                              section='thin_sec',
-                             elset='fins')
+                             elset='fins',
+                             is_rad=False)
 s.add(el_prop1)
 
 el_prop2 = ElementProperties('concrete_shell_thick',
                              material='concrete',
                              section='thick_sec',
-                             elset='no_fins')
+                             elset='no_fins',
+                             is_rad=True)
 s.add(el_prop2)
 
 
 # add analysis frequencies - - - - - - - -
-freq_list = range(20, 200, 2)
+freq_list = range(20, 350, 2)
 
 num_modes = 25
 # analyze - - - - 

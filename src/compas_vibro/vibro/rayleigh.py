@@ -36,8 +36,17 @@ __email__      = 'tmendeze@uw.edu'
 
 
 def compute_structure_face_velocities(structure, rkey):
+    eks = []
+    for ep in structure.element_properties:
+        if structure.element_properties[ep].is_rad:
+            elements = structure.element_properties[ep].elements
+            elset = structure.element_properties[ep].elset
+            if elements:
+                eks.extend(elements)
+            elif elset:
+                eks.extend(structure.sets[elset].selection)
+
     structure.results['harmonic'][rkey].compute_node_velocities()
-    eks = structure.elements
     velocities = []
     for ek in eks:
         nkeys = structure.elements[ek].nodes
@@ -204,7 +213,7 @@ if __name__ == '__main__':
 
     for i in range(50): print('')
 
-    name = 'ansys_mesh_flat_20x20_harmonic.obj'
+    name = 'clt_1_remeshed_radiation.obj'
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, name))
     compute_rad_power_structure(s)
 

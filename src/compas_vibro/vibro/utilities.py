@@ -85,7 +85,15 @@ def frequency_key(frequency, tol='3f'):
 
 
 def structure_face_surfaces(structure):
-    eks = structure.elements
+    eks = []
+    for ep in structure.element_properties:
+        if structure.element_properties[ep].is_rad:
+            elements = structure.element_properties[ep].elements
+            elset = structure.element_properties[ep].elset
+            if elements:
+                eks.extend(elements)
+            elif elset:
+                eks.extend(structure.sets[elset].selection)
     areas = []
     for ek in eks:
         pl = [structure.nodes[nk].xyz() for nk in structure.elements[ek].nodes]
@@ -94,7 +102,15 @@ def structure_face_surfaces(structure):
 
 
 def structure_face_centers(structure):
-    eks = structure.elements
+    eks = []
+    for ep in structure.element_properties:
+        if structure.element_properties[ep].is_rad:
+            elements = structure.element_properties[ep].elements
+            elset = structure.element_properties[ep].elset
+            if elements:
+                eks.extend(elements)
+            elif elset:
+                eks.extend(structure.sets[elset].selection)
     centers = []
     for ek in eks:
         pl = [structure.nodes[nk].xyz() for nk in structure.elements[ek].nodes]
