@@ -52,14 +52,15 @@ class ElementProperties(object):
 
     """
 
-    def __init__(self, name, material=None, section=None, elset=None, elements=None):
+    def __init__(self, name, material=None, section=None, elset=None, elements=None, is_rad=True):
 
-        self.__name__ = 'ElementProperties'
-        self.name     = name
-        self.material = material
-        self.section  = section
-        self.elset    = elset
-        self.elements = elements
+        self.__name__   = 'ElementProperties'
+        self.name       = name
+        self.material   = material
+        self.section    = section
+        self.elset      = elset
+        self.elements   = elements
+        self.is_rad     = is_rad
 
         if (not elset) and (not elements):
             raise NameError('***** ElementProperties objects require elements or element sets *****')

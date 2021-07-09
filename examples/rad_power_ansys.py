@@ -25,13 +25,8 @@ __email__ = "tmendeze@uw.edu"
 __version__ = "0.1.0"
 
 
-for i in range(60):
-    print()
-
-import timber_vibro
-
-path = os.path.join(timber_vibro.DATA, 'radiation')
-geometry = 'mesh_flat_20x20'
+path = compas_vibro.TEMP
+geometry = 'clt_1_remeshed'
 name = '{0}_radiation'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
@@ -43,27 +38,48 @@ s = Structure(path, name)
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
 # add displacements - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
+# d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
+# s.add(d)
+
+bv = {vk for fk in mesh.faces_where({'is_boundary': True}) for vk in mesh.face_vertices(fk)}
+d = FixedDisplacement('boundary', list(bv))
 s.add(d)
+
 
 # add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 load = PointLoad(name='pload', nodes=[100], x=0, y=0, z=1, xx=0, yy=0, zz=0)
 s.add(load)
 
+
 # add sections - - - - - - - - - - - - 
-section = ShellSection('shell_sec', t=.1)
+section = ShellSection('thin_sec', t=.1)
 s.add(section)
+section = ShellSection('thick_sec', t=.2)
+s.add(section)
+
+# add sets - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+fins = list(mesh.faces_where({'is_fin':True}))
+no_fins = list(mesh.faces_where({'is_fin':False}))
+s.add_set('fins', 'element', fins)
+s.add_set('no_fins', 'element', no_fins)
 
 # add material - - - - - - 
 material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
-
 s.add(material)
+
 # add element properties - - - - - - - - -
-el_prop = ElementProperties('concrete_shell',
-                            material='concrete',
-                            section='shell_sec',
-                            elset='shell')
-s.add(el_prop)
+el_prop1 = ElementProperties('concrete_shell_thin',
+                             material='concrete',
+                             section='thin_sec',
+                             elset='fins')
+s.add(el_prop1)
+
+el_prop2 = ElementProperties('concrete_shell_thick',
+                             material='concrete',
+                             section='thick_sec',
+                             elset='no_fins')
+s.add(el_prop2)
+
 
 # add analysis frequencies - - - - - - - -
 freq_list = range(20, 200, 2)
@@ -71,6 +87,5 @@ freq_list = range(20, 200, 2)
 num_modes = 25
 # analyze - - - - 
 s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
-
 s.compute_rad_power()
 s.to_obj()
