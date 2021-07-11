@@ -3,11 +3,11 @@
 try:
     import numpy as np
     from numba import jit
-    # from compas_vibro.hpc import diag_complex_numba
+    from compas_vibro.hpc import diag_complex_numba
     # from compas_vibro.hpc import ew_cmatrix_cscalar_division_numba as msdc
-    # from compas_vibro.hpc import ew_matrix_cscalar_multiplication_numba as msxc
-    # from compas_vibro.hpc import ew_cmatrix_matrix_division_numba as mmdcf
-    # from compas_vibro.hpc import ew_cmatrix_cmatrix_multiplication_numba as mmxc
+    from compas_vibro.hpc import scale_matrix_complex_numba as msxc
+    from compas_vibro.hpc import divide_matrices_complex_numba as mmdcf
+    from compas_vibro.hpc import multiply_matrices_complex_numba as mmxc
 
 except:
     pass
@@ -173,9 +173,10 @@ def eigenvalue_decomposition(A):
     return W, V
 
 
-# @jit(nogil=True, nopython=True, parallel=False, cache=True)
+# @jit(nogil=True, nopython=False, parallel=False, cache=True)
 # def calculate_radiation_matrix_numba(k, rho, c, S, D):
-#     A = msdc(msxc(S, k * -1j), (complex(2) * np.pi))
+#     # A = msdc(msxc(S, k * -1j), (complex(2) * np.pi))
+#     A = msxc(msxc(S, k * -1j), (1. / (complex(2) * np.pi)))
 #     B = mmdcf(np.exp(msxc(D, 1j * k)), D)
 #     Z = mmxc(A, B)
 #     tempvar = k * np.sqrt(np.diag(S) / np.pi)
@@ -234,7 +235,7 @@ if __name__ == '__main__':
 
     # for i in range(50): print('')
 
-    # # from mesh ----------------------------------------------------------------
+    # from mesh ----------------------------------------------------------------
 
     # numiter = 1000
     # f = 50.0
@@ -372,23 +373,23 @@ if __name__ == '__main__':
 
     # # # ------------------------------------------------------------------------
 
-    # # # numba ------------------------------------------------------------------
+    # # numba ------------------------------------------------------------------
 
-    # # t2 = time.time()
-    # # for i in range(numiter):
-    # #     Z_ = calculate_radiation_matrix_numba(k, rho, c, S, D)
-    # #     p_ = calculate_pressure_numba(Z_, v)
-    # #     W_ = calculate_rayleigh_rad_power_numba(S, p_, v)
-    # #     lw_ = from_W_to_dB(W_)
-    # # t3 = time.time()
+    # t2 = time.time()
+    # for i in range(numiter):
+    #     Z_ = calculate_radiation_matrix_numba(k, rho, c, S, D)
+    #     p_ = calculate_pressure_numba(Z_, v)
+    #     W_ = calculate_rayleigh_rad_power_numba(S, p_, v)
+    #     lw_ = from_W_to_dB(W_)
+    # t3 = time.time()
 
-    # # print ('-' * 50)
-    # # print ('numba')
-    # # print ('W_   ', W_)
-    # # print ('lw_    ', lw_)
-    # # print ('calculation time = ', t3 - t2)
-    # # print ('-' * 50)
-    # # # --------------------------------------------------------------------------
-    # # print (np.allclose(Z, Z_))
+    # print ('-' * 50)
+    # print ('numba')
+    # print ('W_   ', W_)
+    # print ('lw_    ', lw_)
+    # print ('calculation time = ', t3 - t2)
+    # print ('-' * 50)
+    # # --------------------------------------------------------------------------
+    # print (np.allclose(Z, Z_))
 
 
