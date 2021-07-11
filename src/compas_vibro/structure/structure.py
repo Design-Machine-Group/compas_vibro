@@ -148,7 +148,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         else:
             raise NameError('This backend is not implemented yet')
 
-    def to_obj(self, output=True):
+    def to_obj(self, output=True, path=None):
 
         """ Exports the Structure object to an .obj file through Pickle.
 
@@ -162,8 +162,9 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         None
 
         """
-
-        filename = os.path.join(self.path, self.name + '.obj')
+        if not path:
+            path = self.path
+        filename = os.path.join(path, self.name + '.obj')
 
         with open(filename, 'wb') as f:
             pickle.dump(self, f, protocol=2)
