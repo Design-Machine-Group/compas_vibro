@@ -66,7 +66,7 @@ def ansys_harmonic(structure, freq_list, fields='all', damping=0.05):
     return structure
 
 
-def ansys_harmonic_super(structure, num_modes, freq_list, fields='all', damping=0.05):
+def ansys_harmonic_super(structure, num_modes, freq_list, fields='all', damping=0.02):
 
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
