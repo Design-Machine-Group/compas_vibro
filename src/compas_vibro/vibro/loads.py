@@ -71,7 +71,7 @@ if __name__ == '__main__':
 
     num_waves = 4
 
-    model = 'flat_mesh_20x20.json'
+    model = 'flat_mesh_100x100.json'
     # model = 'clt_2.json'
     mesh = Mesh.from_json(compas_vibro.get(model))
     # waves = generate_random_waves_numpy(num_waves)
