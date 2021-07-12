@@ -69,14 +69,15 @@ if __name__ == '__main__':
 
     for i in range(50): print('')
 
-    num_waves = 4
+    num_waves = 400
 
-    model = 'flat_mesh_100x100.json'
+    model = 'flat_mesh_20x20.json'
     # model = 'clt_2.json'
     mesh = Mesh.from_json(compas_vibro.get(model))
     # waves = generate_random_waves_numpy(num_waves)
     waves = generate_uniform_waves_numpy()
     frequencies = range(20, 500, 10)
-    fields = compute_pressure_fields(waves, mesh, frequencies, center=True)
+    fields = compute_pressure_fields(waves, mesh, frequencies, center=False)
     v = PressureFieldViewer(mesh, fields)
+    v.real = True
     v.show()

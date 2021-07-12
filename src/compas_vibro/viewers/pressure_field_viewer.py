@@ -21,11 +21,12 @@ class PressureFieldViewer(object):
     """Plotly based viewer for acoustic pressure fields.
     """
     def __init__(self, mesh, fields):
-        self.name = 'Pressure fields'
-        self.mesh = mesh
-        self.fields = fields
+        self.name       = 'Pressure fields'
+        self.mesh       = mesh
+        self.fields     = fields
         self.data       = []
         self.layout     = None
+        self.real       = True
 
     def make_layout(self):
         name = self.name
@@ -133,7 +134,12 @@ class PressureFieldViewer(object):
         z = [v[2] for v in vertices]
 
         for mode in modes:
-            intensity = [self.fields[mode][fk].real for fk in mesh.face]
+            if self.real:
+                intensity = [self.fields[mode][fk].real for fk in mesh.face]
+                cbar_title =  'Amplitude'
+            else:
+                intensity = [self.fields[mode][fk].imag for fk in mesh.face]
+                cbar_title =  'Phase'
             intensity_ = []
             for inte in intensity:
                 intensity_.extend([inte, inte])
@@ -147,8 +153,8 @@ class PressureFieldViewer(object):
                             opacity=1.,
                             # contour={'show':True},
                             # vertexcolor=vcolor,
-                            colorbar_title='Amplitude',
-                            colorscale= 'jet', # 'jet', # 'viridis'
+                            colorbar_title=cbar_title,
+                            colorscale= 'Agsunset', # 'jet', # 'viridis', # 'RdBu' # 'Agsunset'
                             intensity=intensity_,
                             intensitymode='cell'
                     )]
