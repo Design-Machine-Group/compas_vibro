@@ -28,6 +28,7 @@ def generate_uniform_waves_numpy(num_waves=4):
     amplitude   = np.ones(num_waves)
     return {'polar': polar, 'azimuth': azimuth, 'phase': phase, 'amplitude': amplitude}
 
+
 def compute_pressure_fields(waves, mesh, frequencies, center=False):
     xyz = [mesh.vertex_coordinates(vk) for vk in mesh.vertex]
     xyz = np.array(xyz)
