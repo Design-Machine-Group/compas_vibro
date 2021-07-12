@@ -30,7 +30,8 @@ def generate_uniform_waves_numpy(num_waves=4):
 
 
 def compute_pressure_fields(waves, mesh, frequencies, center=False):
-    xyz = [mesh.vertex_coordinates(vk) for vk in mesh.vertex]
+    # xyz = [mesh.vertex_coordinates(vk) for vk in mesh.vertex]
+    xyz = [mesh.face_center(fk) for fk in mesh.faces()]
     xyz = np.array(xyz)
 
     if center:
@@ -70,7 +71,7 @@ if __name__ == '__main__':
 
     num_waves = 4
 
-    model = 'flat_mesh_100x100.json'
+    model = 'flat_mesh_20x20.json'
     # model = 'clt_2.json'
     mesh = Mesh.from_json(compas_vibro.get(model))
     # waves = generate_random_waves_numpy(num_waves)

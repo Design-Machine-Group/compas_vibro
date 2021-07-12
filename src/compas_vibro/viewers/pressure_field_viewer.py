@@ -133,7 +133,11 @@ class PressureFieldViewer(object):
         z = [v[2] for v in vertices]
 
         for mode in modes:
-            intensity = [self.fields[mode][vk].real for vk in mesh.vertex]
+            intensity = [self.fields[mode][fk].real for fk in mesh.face]
+            intensity_ = []
+            for inte in intensity:
+                intensity_.extend([inte, inte])
+
             faces_ = [go.Mesh3d(x=x,
                             y=y,
                             z=z,
@@ -145,7 +149,8 @@ class PressureFieldViewer(object):
                             # vertexcolor=vcolor,
                             colorbar_title='Amplitude',
                             colorscale= 'jet', # 'jet', # 'viridis'
-                            intensity=intensity
+                            intensity=intensity_,
+                            intensitymode='cell'
                     )]
             self.data.extend(lines)
             self.data.extend(faces_)
