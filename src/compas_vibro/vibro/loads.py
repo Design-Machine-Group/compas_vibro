@@ -17,9 +17,26 @@ def generate_random_waves_numpy(num_waves):
     amplitude   = np.random.uniform(low=0., high= 1, size=num_waves)
     return {'polar': polar, 'azimuth': azimuth, 'phase': phase, 'amplitude': amplitude}
 
-def compute_pressure_fields(waves, mesh, frequencies):
+
+def generate_uniform_waves_numpy(num_waves=4):
+    # polar       = np.linspace(0., np.pi / 2., num_waves)
+    polar   = np.ones(num_waves) * np.pi / 4.
+    azimuth     = np.linspace(0., 2 * np.pi, num_waves + 1)
+    # phase       = np.linspace(0., 2 * np.pi, num_waves)
+    phase       = np.ones(num_waves)
+    # amplitude   = np.linspace(0., 1, num_waves)
+    amplitude   = np.ones(num_waves)
+    return {'polar': polar, 'azimuth': azimuth, 'phase': phase, 'amplitude': amplitude}
+
+def compute_pressure_fields(waves, mesh, frequencies, center=False):
     xyz = [mesh.vertex_coordinates(vk) for vk in mesh.vertex]
     xyz = np.array(xyz)
+
+    if center:
+        cx, cy, cz = mesh.centroid()
+        xyz[:, 0] -= cx
+        xyz[:, 1] -= cy
+        xyz[:, 2] -= cz 
 
     c = 340.0
     fields = {}
@@ -43,8 +60,6 @@ def compute_pressure_fields(waves, mesh, frequencies):
         fields[f] = P
     return fields
 
-
-
 if __name__ == '__main__':
     import compas_vibro
     from compas.datastructures import Mesh
@@ -52,20 +67,14 @@ if __name__ == '__main__':
 
     for i in range(50): print('')
 
-    # acoustic input -----------------------------------------------------------
-    f = 500
-    c = 340.0
-    rho = 1.225
-    lambda_ = c / f
-    k = (2 * np.pi) / lambda_
-    num_waves = 1000
-    # --------------------------------------------------------------------------
+    num_waves = 4
 
-    # model = 'mesh_flat_100x100.json'
-    model = 'clt_2_remeshed.json'
+    model = 'flat_mesh_100x100.json'
+    # model = 'clt_2.json'
     mesh = Mesh.from_json(compas_vibro.get(model))
-    waves = generate_random_waves_numpy(num_waves)
-    frequencies = range(100, 1000, 10)
-    fields = compute_pressure_fields(waves, mesh, frequencies)
+    # waves = generate_random_waves_numpy(num_waves)
+    waves = generate_uniform_waves_numpy()
+    frequencies = range(20, 500, 10)
+    fields = compute_pressure_fields(waves, mesh, frequencies, center=True)
     v = PressureFieldViewer(mesh, fields)
     v.show()

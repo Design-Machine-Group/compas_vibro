@@ -67,10 +67,10 @@ class PressureFieldViewer(object):
         for i in range(modes):
             name = self.name
 
-            prefix = ''
+            prefix = 'Freq. '
             f = freqs[i]
             title = '{0} - {1}Hz'.format(name, f)
-            step_label = str(f)
+            step_label = '{} Hz'.format(f)
 
             step = dict(
                 method="update",
