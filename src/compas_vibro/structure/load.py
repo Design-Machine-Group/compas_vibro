@@ -12,7 +12,7 @@ __email__      = 'tmendeze@uw.edu'
 __all__ = ['Load',
            'PointLoad',
            'HarmonicPointLoad',
-           'HarmonicPressureFieldLoad',
+           'HarmonicPressureFieldsLoad',
            ]
 
 
@@ -74,12 +74,12 @@ class Load(object):
         return '{0}({1})'.format(self.__name__, self.name)
 
 
-class FieldLoad(object):
-    def __init__(self, name, field):
+class FieldsLoad(object):
+    def __init__(self, name, fields):
 
         self.__name__   = 'FieldLoadObject'
         self.name       = name
-        self.field      = field
+        self.fields      = fields
 
 class PointLoad(Load):
 
@@ -145,15 +145,15 @@ class HarmonicPointLoad(Load):
         self.components = {'x': x, 'y': y, 'z': z, 'xx': xx, 'yy': yy, 'zz': zz}
 
 
-class HarmonicPressureFieldLoad(FieldLoad):
+class HarmonicPressureFieldsLoad(FieldsLoad):
 
     """
     """
 
-    def __init__(self, name, field):
-        FieldLoad.__init__(self, name=name, field=field)
+    def __init__(self, name, fields):
+        FieldsLoad.__init__(self, name=name, fields=fields)
 
-        self.__name__   = 'HarmonicPressureFieldLoad'
-        self.field      = field
+        self.__name__   = 'HarmonicPressureFieldsLoad'
+        self.fields      = fields
 
 

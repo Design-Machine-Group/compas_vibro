@@ -29,7 +29,9 @@ __email__      = 'tmendeze@uw.edu'
 
 
 __all__ = ['ansys_modal',
-           'ansys_harmonic']
+           'ansys_harmonic',
+           'ansys_harmonic_super',
+           'ansys_harmonic_field']
 
 
 def ansys_modal(structure, fields, num_modes, license='introductory'):
@@ -47,7 +49,7 @@ def ansys_modal(structure, fields, num_modes, license='introductory'):
     return structure
 
 
-def ansys_harmonic(structure, freq_list, fields='all', damping=0.05):
+def ansys_harmonic(structure, freq_list, fields='all', damping=0.02):
 
     # # add harmonic step --------------------------------------------------------
     loads = [structure.loads[lk].name for lk in structure.loads]
@@ -90,6 +92,33 @@ def ansys_harmonic_super(structure, num_modes, freq_list, fields='all', damping=
     extract_data(structure, fields, 'harmonic_s')
     return structure
 
+
+def ansys_harmonic_field(structure, num_modes, freq_list, fields='all', damping=0.02):
+
+    # add modal step -----------------------------------------------------------
+    step = ModalStep(name=structure.name + '_modal', 
+                     displacements=[list(structure.displacements.keys())[0]],
+                     modes=num_modes)
+    structure.add(step)
+
+    structure.steps_order = []
+    fields = structure.loads[list(structure.loads.keys())[0]].fields
+    for fk in fields:
+        # add harmonic step --------------------------------------------------------
+        loads = [structure.loads[lk].name for lk in structure.loads]
+        step = HarmonicStep(name='{}_f_{}'.format(structure.name, fk),
+                            displacements=[list(structure.displacements.keys())[0]],
+                            loads=loads,
+                            freq_list=[fk],
+                            damping=damping)
+        structure.add(step)
+        structure.steps_order.append('{}_f_{}'.format(structure.name, fk))
+
+    # # analyse and extraxt results ----------------------------------------------
+    write_command_file_harmonic_super(structure, fields)
+    # ansys_launch_process(structure, cpus=4, license=license, delete=True)
+    # extract_data(structure, fields, 'harmonic_s')
+    # return structure
 
 def extract_data(structure, fields, results_type):
     path = structure.path

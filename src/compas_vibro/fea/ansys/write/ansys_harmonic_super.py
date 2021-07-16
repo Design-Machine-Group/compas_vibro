@@ -6,18 +6,10 @@ import os
 
 from .ansys_nodes import write_constraints
 from .ansys_nodes import write_nodes
-
 from .ansys_elements import write_elements
-
 from .ansys_materials import write_materials
-
 from .ansys_process import write_preprocess
-
-# from .ansys_steps import write_loadstep
-# from .ansys_steps import write_solve_step
-
 from .ansys_loads import write_loads
-
 from .ansys_modal import write_modal_results
 
 

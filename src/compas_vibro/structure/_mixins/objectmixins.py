@@ -6,6 +6,7 @@ from __future__ import print_function
 from compas_vibro.structure.displacement import GeneralDisplacement
 from compas_vibro.structure.section import Section
 from compas_vibro.structure.load import Load
+from compas_vibro.structure.load import FieldsLoad
 from compas_vibro.structure.element_properties import ElementProperties
 from compas_vibro.structure.material import Material
 from compas_vibro.structure.set import Set
@@ -54,6 +55,9 @@ class ObjectMixins(object):
 
             elif issubclass(cl, Load):
                 self.add_load(i)
+
+            elif issubclass(cl, FieldsLoad):
+                self.add_fields_load(i)
 
             elif isinstance(i, ElementProperties):
                 self.add_element_properties(i)
@@ -106,6 +110,24 @@ class ObjectMixins(object):
     def add_load(self, load):
 
         """ Adds a Load object to structure.loads.
+
+        Parameters
+        ----------
+        load : obj
+            The Load object.
+
+        Returns
+        -------
+        None
+
+        """
+
+        load.index = len(self.loads)
+        self.loads[load.name] = load
+
+    def add_fields_load(self, load):
+
+        """ Adds a FieldsLoad object to structure.loads.
 
         Parameters
         ----------

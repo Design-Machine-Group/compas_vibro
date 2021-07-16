@@ -44,19 +44,33 @@ def write_loads(structure, step_type, output_path, filename):
             if load.__name__ == 'PointLoad' or load.__name__ == 'HarmonicPointLoad':
                 # write_apply_nodal_load(structure, output_path, filename, lkey, factor)
                 pload = add_load_to_ploads(structure, pload, load, factor)
-            # elif load.__name__ == 'GravityLoad':
-            #     gravity = load.g
-            #     write_gravity_loading(structure, output_path, filename, gravity, factor)
-            # elif load.__name__ == 'TributaryLoad':
-            #     # write_appply_tributary_load(structure, output_path, filename, lkey, factor)
-            #     pload = add_load_to_ploads(structure, pload, load, factor)
-            # elif load.__name__ == 'HarmonicPressureLoad':
-            #     write_apply_harmonic_pressure_load(structure, output_path, filename, lkey, factor, index)
-            # elif load.__name__ == 'AcousticDiffuseFieldLoad':
-            #     write_apply_acoustic_diffuse_field_load(structure, output_path, filename, lkey, index)
+            elif load.__name__ == 'HarmonicPressureFieldsLoad':
+                fload =  write_fields_loads(structure, load, output_path, filename)
             else:
                 raise ValueError(load.__name__ + ' Type of load is not yet implemented for Ansys')
-        write_combined_point_loads(pload, output_path, filename)
+        if pload:
+            write_combined_point_loads(pload, output_path, filename)
+        
+
+def write_fields_loads(structure, load, output_path, filename):
+    fields = load.fields
+    freq = list(fields.keys())[0]
+    field = fields[freq]
+    elements = field.keys()
+
+    cFile = open(os.path.join(output_path, filename), 'a')
+    string = 'SFE, {0}, {1}, PRES, {2}, {3} \n'
+    for i, ekey in enumerate(elements):
+        # ekey += add
+        string_ = string.format(ekey + 1, '', 1, field[ekey].real)
+        cFile.write(string_)
+        string_ = string.format(ekey + 1, '', 2, field[ekey].imag)
+        cFile.write(string_)
+    cFile.write('!\n')
+    cFile.write('!\n')
+    cFile.close()
+
+
 
 
 def write_combined_point_loads(pload, output_path, filename):
@@ -134,7 +148,7 @@ def write_gravity_loading(structure, output_path, filename, gravity, factor):
     cFile.close()
 
 
-def write_apply_harmonic_pressure_load(structure, output_path, filename, lkey, factor, index):
+def write_apply_harmonic_pressure_load(structure, output_path, filename, lkey):
     load_elements = structure.loads[lkey].elements
     if type(load_elements) != list:
         load_elements = [load_elements]

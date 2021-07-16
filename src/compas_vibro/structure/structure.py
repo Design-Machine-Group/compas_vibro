@@ -16,6 +16,7 @@ from compas_vibro.structure._mixins.objectmixins import ObjectMixins
 from compas_vibro.fea.ansys.ansys import ansys_modal
 from compas_vibro.fea.ansys.ansys import ansys_harmonic
 from compas_vibro.fea.ansys.ansys import ansys_harmonic_super
+from compas_vibro.fea.ansys.ansys import ansys_harmonic_field
 
 from compas_vibro.fea.opensees.opensees import opensees_modal
 from compas_vibro.fea.opensees.opensees import opensees_harmonic
@@ -137,7 +138,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         else:
             raise NameError('This backend is not implemented')
 
-    def analyze_harmonic(self, freq_list, fields, damping=.05, backend='ansys'):
+    def analyze_harmonic(self, freq_list, fields, damping=.02, backend='ansys'):
         if backend == 'ansys':
             ansys_harmonic(self, freq_list, fields, damping=damping)
         elif backend == 'opensees':
@@ -145,12 +146,19 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         else:
             raise NameError('This backend is not implemented')
         
-    def analyze_harmonic_super(self, num_modes, freq_list, fields, damping=.05, backend='ansys'):
+    def analyze_harmonic_super(self, num_modes, freq_list, fields, damping=.02, backend='ansys'):
         self.compute_mass()
         if backend == 'ansys':
             ansys_harmonic_super(self, num_modes, freq_list, fields, damping=damping)
         else:
             raise NameError('This backend is not implemented yet')
+
+    def analyze_harmonic_field(self, num_modes, freq_list, fields, damping=.02, backend='ansys'):
+        self.compute_mass()
+        if backend == 'ansys':
+            ansys_harmonic_field(self, num_modes, freq_list, fields, damping=damping)
+        else:
+            raise NameError('This backend is not implemented')
 
     def to_obj(self, output=True, path=None, name=None):
 
