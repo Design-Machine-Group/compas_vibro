@@ -29,7 +29,9 @@ def generate_uniform_waves_numpy(num_waves=4):
     return {'polar': polar, 'azimuth': azimuth, 'phase': phase, 'amplitude': amplitude}
 
 
-def compute_pressure_fields(waves, mesh, frequencies, center=False):
+def compute_pressure_fields_mesh(waves, mesh, frequencies, center=False):
+    # TODO: Vectorize pressure field calculation
+
     # xyz = [mesh.vertex_coordinates(vk) for vk in mesh.vertex]
     xyz = [mesh.face_center(fk) for fk in mesh.faces()]
     xyz = np.array(xyz)
@@ -62,6 +64,9 @@ def compute_pressure_fields(waves, mesh, frequencies, center=False):
         fields[f] = P
     return fields
 
+def compute_pressure_fields_structure(waves, structure, frequencies, center=False):
+    pass
+
 if __name__ == '__main__':
     import compas_vibro
     from compas.datastructures import Mesh
@@ -69,7 +74,7 @@ if __name__ == '__main__':
 
     for i in range(50): print('')
 
-    num_waves = 400
+    num_waves = 500
 
     model = 'flat_mesh_20x20.json'
     # model = 'clt_2.json'
@@ -77,7 +82,7 @@ if __name__ == '__main__':
     # waves = generate_random_waves_numpy(num_waves)
     waves = generate_uniform_waves_numpy()
     frequencies = range(20, 500, 10)
-    fields = compute_pressure_fields(waves, mesh, frequencies, center=False)
+    fields = compute_pressure_fields_mesh(waves, mesh, frequencies, center=True)
     v = PressureFieldViewer(mesh, fields)
     v.real = True
     v.show()

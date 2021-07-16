@@ -9,12 +9,10 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
-__all__ = [
-    'Load',
-    'PointLoad',
-    'HarmonicPointLoad',
-    'HarmonicPressureLoad',
-    'AcousticDiffuseFieldLoad'
+__all__ = ['Load',
+           'PointLoad',
+           'HarmonicPointLoad',
+           'HarmonicPressureFieldLoad',
            ]
 
 
@@ -75,6 +73,13 @@ class Load(object):
 
         return '{0}({1})'.format(self.__name__, self.name)
 
+
+class FieldLoad(object):
+    def __init__(self, name, field):
+
+        self.__name__   = 'FieldLoadObject'
+        self.name       = name
+        self.field      = field
 
 class PointLoad(Load):
 
@@ -140,53 +145,15 @@ class HarmonicPointLoad(Load):
         self.components = {'x': x, 'y': y, 'z': z, 'xx': xx, 'yy': yy, 'zz': zz}
 
 
-class HarmonicPressureLoad(Load):
-
-    """ Harmonic pressure loads [units:N/m2] applied to element(s).
-
-    Parameters
-    ----------
-    name : str
-        Name of the HarmonicPressureLoad object.
-    elements : str, list
-        Elements set or element keys the load is applied to.
-    pressure : float
-        Normal acting pressure to be applied to the elements.
-    phase : float
-        Phase angle in radians.
+class HarmonicPressureFieldLoad(FieldLoad):
 
     """
-
-    def __init__(self, name, elements, pressure=0, phase=None):
-        Load.__init__(self, name=name, elements=elements, axes='global')
-
-        self.__name__   = 'HarmonicPressureLoad'
-        self.components = {'pressure': pressure, 'phase': phase}
-
-
-class AcousticDiffuseFieldLoad(Load):
-
-    """ Acoustic Diffuse field loads applied to elements.
-
-    Parameters
-    ----------
-    name : str
-        Name of the HarmonicPressureLoad object.
-    elements : str, list
-        Elements set or element keys the load is applied to.
-    air_density : float
-        Density of the acoustic fluid (defaults to air at 20 degrees).
-    sound_speed : float
-        Speed of sound (defaults to air at 20 degrees)
-    max_inc_angle: float
-        Maximum angle with the positive z axis for the randon incident plane waves
-
     """
 
-    def __init__(self, name, elements, air_density=1.225, sound_speed=340, max_inc_angle=90):
-        Load.__init__(self, name=name, elements=elements, axes='global')
+    def __init__(self, name, field):
+        FieldLoad.__init__(self, name=name, field=field)
 
-        self.__name__   = 'AcousticDiffuseFieldLoad'
-        self.components = {'air_density':   air_density,
-                           'sound_speed':   sound_speed,
-                           'max_inc_angle': max_inc_angle}
+        self.__name__   = 'HarmonicPressureFieldLoad'
+        self.field      = field
+
+
