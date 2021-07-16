@@ -19,7 +19,8 @@ from compas_vibro.vibro.utilities import structure_face_surfaces
 from compas_vibro.vibro.utilities import structure_face_centers
 from compas_vibro.vibro.utilities import make_area_matrix
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np
-from compas_vibro.vibro.utilities import from_W_to_dB
+# from compas_vibro.vibro.utilities import from_W_to_dB
+from compas_vibro.vibro.utilities import radiating_faces
 
 
 
@@ -36,32 +37,21 @@ __email__      = 'tmendeze@uw.edu'
 
 
 def compute_structure_face_velocities(structure, rkey):
-    eks = []
-    for ep in structure.element_properties:
-        if structure.element_properties[ep].is_rad:
-            elements = structure.element_properties[ep].elements
-            elset = structure.element_properties[ep].elset
-            if elements:
-                eks.extend(elements)
-            elif elset:
-                eks.extend(structure.sets[elset].selection)
-
+    eks = radiating_faces(structure)
     structure.results['harmonic'][rkey].compute_node_velocities()
     velocities = []
     for ek in eks:
         nkeys = structure.elements[ek].nodes
-
         vr = [structure.results['harmonic'][rkey].velocities[nkey].real for nkey in nkeys]
         vi = [structure.results['harmonic'][rkey].velocities[nkey].imag for nkey in nkeys]
-
         real = np.average(vr, axis=0)
         imag = np.average(vi, axis=0)
         velocities.append(complex(real, imag))
-
     return velocities
 
 
 def compute_rad_power_structure(structure):
+    eks = radiating_faces(structure)
     sareas = structure_face_surfaces(structure)
     face_centers = structure_face_centers(structure)
     rkeys = list(structure.results['harmonic'].keys())
@@ -84,7 +74,9 @@ def compute_rad_power_structure(structure):
         p = calculate_pressure_np(Z, v)
         W, W_tot = calculate_rayleigh_rad_power_np(sareas, p, v, n, sum=True)
         # lw = from_W_to_dB(W_tot)
-        structure.results['radiation'][rk].radiated_p_faces = W.tolist()
+        W = W.tolist()
+        W_ = {ek:W[ek] for ek in eks}
+        structure.results['radiation'][rk].radiated_p_faces = W_
         structure.results['radiation'][rk].radiated_p = W_tot
 
 

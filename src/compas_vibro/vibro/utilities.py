@@ -84,9 +84,10 @@ def frequency_key(frequency, tol='3f'):
     return '{0:.{1}}'.format(float(frequency), tol)
 
 
-def structure_face_surfaces(structure):
+def radiating_faces(structure):
+    eps = sorted(list(structure.element_properties.keys()))
     eks = []
-    for ep in structure.element_properties:
+    for ep in eps:
         if structure.element_properties[ep].is_rad:
             elements = structure.element_properties[ep].elements
             elset = structure.element_properties[ep].elset
@@ -94,6 +95,10 @@ def structure_face_surfaces(structure):
                 eks.extend(elements)
             elif elset:
                 eks.extend(structure.sets[elset].selection)
+    return eks
+
+def structure_face_surfaces(structure):
+    eks = radiating_faces(structure)
     areas = []
     for ek in eks:
         pl = [structure.nodes[nk].xyz() for nk in structure.elements[ek].nodes]
@@ -102,15 +107,7 @@ def structure_face_surfaces(structure):
 
 
 def structure_face_centers(structure):
-    eks = []
-    for ep in structure.element_properties:
-        if structure.element_properties[ep].is_rad:
-            elements = structure.element_properties[ep].elements
-            elset = structure.element_properties[ep].elset
-            if elements:
-                eks.extend(elements)
-            elif elset:
-                eks.extend(structure.sets[elset].selection)
+    eks = radiating_faces(structure)
     centers = []
     for ek in eks:
         pl = [structure.nodes[nk].xyz() for nk in structure.elements[ek].nodes]
