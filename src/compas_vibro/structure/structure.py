@@ -7,6 +7,8 @@ import pickle
 
 from compas.geometry import area_polygon
 
+from compas.datastructures import Mesh
+
 from compas_vibro.structure._mixins.nodemixins import NodeMixins
 from compas_vibro.structure._mixins.elementmixins import ElementMixins
 from compas_vibro.structure._mixins.objectmixins import ObjectMixins
@@ -21,7 +23,9 @@ from compas_vibro.fea.opensees.opensees import opensees_static
 
 from compas_vibro.structure.load import PointLoad
 
-from compas_vibro.vibro import compute_rad_power_structure
+from compas_vibro.vibro.rayleigh import compute_rad_power_structure
+
+from compas.geometry import centroid_points
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -217,6 +221,44 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             print('***** Structure loaded from: {0} *****'.format(filename))
 
         return structure
+
+    def radiating_faces(self):
+        eps = sorted(list(self.element_properties.keys()))
+        eks = []
+        for ep in eps:
+            if self.element_properties[ep].is_rad:
+                elements = self.element_properties[ep].elements
+                elset = self.element_properties[ep].elset
+                if elements:
+                    eks.extend(elements)
+                elif elset:
+                    eks.extend(self.sets[elset].selection)
+        return eks
+
+    def radiating_face_centers(self):
+        eks = self.radiating_faces()
+        centers = []
+        for ek in eks:
+            pl = [self.nodes[nk].xyz() for nk in self.elements[ek].nodes]
+            centers.append(centroid_points(pl))
+        return centers
+
+
+    def radiating_center(self):
+        centers = self.radiating_face_centers()
+        cpt = centroid_points(centers)
+        return cpt
+
+    def to_radiating_mesh(self):
+        # faces = self.radiating_faces()
+        faces = [self.elements[fk].nodes for fk in self.radiating_faces()]
+        # nodes = {nk for fk in faces for nk in self.elements[fk].nodes}
+        # print(nodes)
+        vertices = [self.nodes[k].xyz() for k in self.nodes]
+        mesh = Mesh.from_vertices_and_faces(vertices, faces)
+        mesh.cull_vertices()
+        return mesh
+
 
 
 if __name__ == '__main__':

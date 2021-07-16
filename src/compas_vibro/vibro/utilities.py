@@ -21,7 +21,9 @@ all = ['calculate_distance_matrix_np',
        'from_W_to_dB',
        'make_area_matrix',
        'frequency_key',
-       'structure_face_surfaces']
+       'structure_face_surfaces',
+       'radiating_faces',
+       'structure_face_centers']
 
 
 def calculate_distance_matrix_np(face_centers):
@@ -97,6 +99,7 @@ def radiating_faces(structure):
                 eks.extend(structure.sets[elset].selection)
     return eks
 
+
 def structure_face_surfaces(structure):
     eks = radiating_faces(structure)
     areas = []
@@ -122,11 +125,11 @@ if __name__ == '__main__':
 
     for i in range(50): print('')
 
-    name = 'ansys_mesh_flat_20x20_harmonic.obj'
-    s = Structure.from_obj(os.path.join(compas_vibro.DATA, name))
+    # name = 'ansys_mesh_flat_20x20_harmonic.obj'
+    # s = Structure.from_obj(os.path.join(compas_vibro.DATA, name))
     
-    # areas = structure_face_surfaces(s)
-    # print(areas)
+    # # areas = structure_face_surfaces(s)
+    # # print(areas)
     
-    centers = structure_face_centers(s)
-    print(centers)
+    # centers = structure_face_centers(s)
+    # print(centers)

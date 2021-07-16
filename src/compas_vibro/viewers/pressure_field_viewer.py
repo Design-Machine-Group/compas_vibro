@@ -20,13 +20,18 @@ all = ['PressureFieldViewer']
 class PressureFieldViewer(object):
     """Plotly based viewer for acoustic pressure fields.
     """
-    def __init__(self, mesh, fields):
+    def __init__(self, fields, mesh=None, structure=None):
+        
+        if not mesh:
+            mesh = structure.to_radiating_mesh()
+
         self.name       = 'Pressure fields'
         self.mesh       = mesh
         self.fields     = fields
         self.data       = []
         self.layout     = None
         self.real       = True
+        self.structure  = structure
 
     def make_layout(self):
         name = self.name
@@ -140,9 +145,16 @@ class PressureFieldViewer(object):
             else:
                 intensity = [self.fields[mode][fk].imag for fk in mesh.face]
                 cbar_title =  'Phase'
+            
             intensity_ = []
-            for inte in intensity:
-                intensity_.extend([inte, inte])
+            for m, fk in enumerate(mesh.face):
+                intensity_.append(intensity[m])
+                if len(mesh.face[fk]) == 4:
+                    intensity_.append(intensity[m])
+           
+            # intensity_ = []
+            # for inte in intensity:
+            #     intensity_.extend([inte, inte])
 
             faces_ = [go.Mesh3d(x=x,
                             y=y,

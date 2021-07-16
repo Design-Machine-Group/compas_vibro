@@ -29,10 +29,9 @@ def generate_uniform_waves_numpy(num_waves=4):
     return {'polar': polar, 'azimuth': azimuth, 'phase': phase, 'amplitude': amplitude}
 
 
-def compute_pressure_fields_mesh(waves, mesh, frequencies, center=False):
+def compute_pressure_fields_mesh(waves, mesh, frequencies, c, center=False):
     # TODO: Vectorize pressure field calculation
 
-    # xyz = [mesh.vertex_coordinates(vk) for vk in mesh.vertex]
     xyz = [mesh.face_center(fk) for fk in mesh.faces()]
     xyz = np.array(xyz)
 
@@ -42,7 +41,6 @@ def compute_pressure_fields_mesh(waves, mesh, frequencies, center=False):
         xyz[:, 1] -= cy
         xyz[:, 2] -= cz 
 
-    c = 340.0
     fields = {}
     for f in frequencies:
         lambda_ = c / float(f)
@@ -64,15 +62,63 @@ def compute_pressure_fields_mesh(waves, mesh, frequencies, center=False):
         fields[f] = P
     return fields
 
+
 def compute_pressure_fields_structure(waves, structure, frequencies, center=False):
-    pass
+    # TODO: Vectorize pressure field calculation
+
+    eks = structure.radiating_faces()
+    xyz = structure.radiating_face_centers()
+    xyz = np.array(xyz)
+
+    if center:
+        cx, cy, cz = structure.radiating_center()
+        xyz[:, 0] -= cx
+        xyz[:, 1] -= cy
+        xyz[:, 2] -= cz 
+
+    fields = {}
+    for f in frequencies:
+        lambda_ = structure.c / float(f)
+        k = (2 * np.pi) / lambda_
+        P = np.zeros(shape=len(xyz), dtype=np.complex128)
+        for i in range(len(waves['polar'])):
+            pl      = waves['polar'][i]
+            az      = waves['azimuth'][i]
+            phase   = waves['phase'][i]
+            p       = waves['amplitude'][i]
+
+            kx = k * np.sin(pl) * np.cos(az)
+            ky = k * np.sin(pl) * np.sin(az)
+            kz = k * np.cos(pl)
+
+            temp = 1j * (phase + kx * xyz[:, 0] + ky * xyz[:, 1] + kz * xyz[:, 2])
+            # P = 2 * p * np.cos(pl) * np.exp(temp)
+            P += 2 * p * np.exp(temp)
+        P = P.tolist()
+        fields[f] = {ek: P[i] for i, ek in enumerate(eks)}
+    return fields
+
 
 if __name__ == '__main__':
+    import os
     import compas_vibro
     from compas.datastructures import Mesh
     from compas_vibro.viewers import PressureFieldViewer
+    from compas_vibro.structure import Structure
 
     for i in range(50): print('')
+
+
+    filepath = os.path.join(compas_vibro.DATA, 'clt_1_remeshed_radiation.obj')
+    s = Structure.from_obj(filepath)
+    frequencies = range(20, 500, 10)
+    waves = generate_uniform_waves_numpy()
+    fields = compute_pressure_fields_structure(waves, s, frequencies, center=True)
+
+    v = PressureFieldViewer(fields, structure=s)
+    v.real = True
+    v.show()
+
 
     num_waves = 500
 
@@ -82,7 +128,8 @@ if __name__ == '__main__':
     # waves = generate_random_waves_numpy(num_waves)
     waves = generate_uniform_waves_numpy()
     frequencies = range(20, 500, 10)
-    fields = compute_pressure_fields_mesh(waves, mesh, frequencies, center=True)
-    v = PressureFieldViewer(mesh, fields)
+    c = 340.0
+    fields = compute_pressure_fields_mesh(waves, mesh, frequencies, c, center=True)
+    v = PressureFieldViewer(fields, mesh=mesh)
     v.real = True
     v.show()

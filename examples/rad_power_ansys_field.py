@@ -8,8 +8,6 @@ from compas.datastructures import Mesh
 
 import compas_vibro
 
-from compas_vibro.vibro.loads import compute_pressure_fields
-
 from compas_vibro.structure import Structure
 from compas_vibro.structure import FixedDisplacement
 from compas_vibro.structure import HarmonicPressureFieldLoad
@@ -78,9 +76,12 @@ el_prop2 = ElementProperties('concrete_shell_thick',
 s.add(el_prop2)
 
 
+s.to_obj()
+
+
 # add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-field = 
+# field = 
 
 # load = HarmonicPressureFieldLoad()
 # s.add(load)
