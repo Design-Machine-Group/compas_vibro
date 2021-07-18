@@ -178,3 +178,4 @@ def write_freq_displacements(structure, path, filename):
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
+

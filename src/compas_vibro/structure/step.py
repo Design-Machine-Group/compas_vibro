@@ -196,3 +196,17 @@ class HarmonicStep(Step):
         self.type          = type
         self.attr_list.extend(['freq_list', 'displacements', 'loads', 'factor', 'damping', 'type'])
 
+
+class HarmonicFieldStep(HarmonicStep):
+
+    """
+    """
+
+    def __init__(self, name, freq_list, index, displacements=None, loads=None, factor=1.0, 
+                 damping=None, type='harmonic_field'):
+        
+        HarmonicStep.__init__(self, name=name, freq_list=freq_list, displacements=displacements,
+                              loads=loads, factor=factor)
+        self.__name__       = 'HarmonicFieldStep'
+        self.index          = index
+

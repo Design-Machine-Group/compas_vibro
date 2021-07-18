@@ -52,9 +52,9 @@ def write_loads(structure, step_type, output_path, filename):
             write_combined_point_loads(pload, output_path, filename)
         
 
-def write_fields_loads(structure, load, output_path, filename):
-    fields = load.fields
-    freq = list(fields.keys())[0]
+def write_fields_loads(structure, index, output_path, filename):
+    fields = structure.loads[list(structure.loads.keys())[0]].fields
+    freq = list(fields.keys())[index]
     field = fields[freq]
     elements = field.keys()
 

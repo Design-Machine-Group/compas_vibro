@@ -255,6 +255,11 @@ class ObjectMixins(object):
         elif step.__name__ == 'StaticStep':
             step.index = 0
             self.step['static'] = step
+        elif step.__name__ == 'HarmonicFieldStep':
+            if 'harmonic_field' not in self.step.keys():
+                self.step['harmonic_field'] = {}
+            self.step['harmonic_field'][step.index] = step
+            
         else:
             raise NameError('This type of step is not implemented yet')
 

@@ -12,3 +12,4 @@ __email__      = 'tmendeze@uw.edu'
 from .ansys_modal import *
 from .ansys_harmonic import *
 from .ansys_harmonic_super import *
+from .ansys_harmonic_field import *

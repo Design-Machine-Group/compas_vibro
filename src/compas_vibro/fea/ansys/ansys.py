@@ -10,10 +10,12 @@ from compas_vibro.structure.result import Result
 
 from compas_vibro.structure.step import ModalStep
 from compas_vibro.structure.step import HarmonicStep
+from compas_vibro.structure.step import HarmonicFieldStep
 
 from compas_vibro.fea.ansys.write import write_command_file_modal
 from compas_vibro.fea.ansys.write import write_command_file_harmonic
 from compas_vibro.fea.ansys.write import write_command_file_harmonic_super
+from compas_vibro.fea.ansys.write import write_command_file_harmonic_field
 
 from compas_vibro.fea.ansys.read import read_modal_freq
 from compas_vibro.fea.ansys.read import read_participation_factor
@@ -101,24 +103,25 @@ def ansys_harmonic_field(structure, num_modes, freq_list, fields='all', damping=
                      modes=num_modes)
     structure.add(step)
 
-    structure.steps_order = []
-    fields = structure.loads[list(structure.loads.keys())[0]].fields
-    for fk in fields:
+    # structure.steps_order = []
+    field = structure.loads[list(structure.loads.keys())[0]].fields
+    for i, fk in enumerate(field):
         # add harmonic step --------------------------------------------------------
         loads = [structure.loads[lk].name for lk in structure.loads]
-        step = HarmonicStep(name='{}_f_{}'.format(structure.name, fk),
-                            displacements=[list(structure.displacements.keys())[0]],
-                            loads=loads,
-                            freq_list=[fk],
-                            damping=damping)
+        step = HarmonicFieldStep(name='{}_f_{}'.format(structure.name, fk),
+                                 freq_list=[fk],
+                                 index=i,
+                                 displacements=[list(structure.displacements.keys())[0]],
+                                 loads=loads,
+                                 damping=damping)
         structure.add(step)
-        structure.steps_order.append('{}_f_{}'.format(structure.name, fk))
+        # structure.steps_order.append('{}_f_{}'.format(structure.name, fk))
 
     # # analyse and extraxt results ----------------------------------------------
-    write_command_file_harmonic_super(structure, fields)
-    # ansys_launch_process(structure, cpus=4, license=license, delete=True)
+    write_command_file_harmonic_field(structure, fields)
+    ansys_launch_process(structure, cpus=4, license=license, delete=True)
     # extract_data(structure, fields, 'harmonic_s')
-    # return structure
+    return structure
 
 def extract_data(structure, fields, results_type):
     path = structure.path

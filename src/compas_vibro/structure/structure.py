@@ -251,7 +251,6 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             centers.append(centroid_points(pl))
         return centers
 
-
     def radiating_center(self):
         centers = self.radiating_face_centers()
         cpt = centroid_points(centers)
