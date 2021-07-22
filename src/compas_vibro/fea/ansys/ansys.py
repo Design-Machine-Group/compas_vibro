@@ -153,7 +153,11 @@ def extract_data(structure, fields, results_type):
                 structure.results['modal'][fk].displacements = d
     
     if results_type == 'harmonic' or results_type == 'harmonic_s':
-        freq_list = structure.step['harmonic'].freq_list
+        if results_type == 'harmonic':
+            freq_list = structure.step['harmonic'].freq_list 
+        # elif results_type == 'harmonic_field':
+        #     skeys = structure.step['harmonic_field'].keys()
+        #     freq_list = [structure.step['harmonic_field'][k].freq_list[0] for k in skeys]
         fdict = {i:freq_list[i] for i in range(len(freq_list))}
         rdict = {fk: Result(fdict[fk], name='VibroResult_{}'.format(fk), type='harmonic') for fk in fdict}
         structure.results.update({'harmonic':rdict})

@@ -21,7 +21,6 @@ from compas_vibro.vibro.utilities import make_area_matrix
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np
 # from compas_vibro.vibro.utilities import from_W_to_dB
 from compas_vibro.vibro.utilities import radiating_faces
-from numpy import result_type
 
 
 

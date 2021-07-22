@@ -91,7 +91,7 @@ s.add(load)
 # analyze - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 num_modes = 20
 s.analyze_harmonic_field(num_modes, freq_list, fields=['u'], damping=.02, backend='ansys')
-# s.compute_rad_power()
-# s.to_obj()
+s.compute_rad_power()
+s.to_obj(name='ok')
 
 print(s.results['harmonic_field'][0].displacements)
