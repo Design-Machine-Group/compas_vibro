@@ -21,6 +21,7 @@ from compas_vibro.vibro.utilities import make_area_matrix
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np
 # from compas_vibro.vibro.utilities import from_W_to_dB
 from compas_vibro.vibro.utilities import radiating_faces
+from numpy import result_type
 
 
 
@@ -38,12 +39,16 @@ __email__      = 'tmendeze@uw.edu'
 
 def compute_structure_face_velocities(structure, rkey):
     eks = radiating_faces(structure)
-    structure.results['harmonic'][rkey].compute_node_velocities()
+    if structure.step['harmonic']:
+        result_type = 'harmonic'
+    else:
+        result_type = 'harmonic_field'
+    structure.results[result_type][rkey].compute_node_velocities()
     velocities = []
     for ek in eks:
         nkeys = structure.elements[ek].nodes
-        vr = [structure.results['harmonic'][rkey].velocities[nkey].real for nkey in nkeys]
-        vi = [structure.results['harmonic'][rkey].velocities[nkey].imag for nkey in nkeys]
+        vr = [structure.results[result_type][rkey].velocities[nkey].real for nkey in nkeys]
+        vi = [structure.results[result_type][rkey].velocities[nkey].imag for nkey in nkeys]
         real = np.average(vr, axis=0)
         imag = np.average(vi, axis=0)
         velocities.append(complex(real, imag))
@@ -51,13 +56,19 @@ def compute_structure_face_velocities(structure, rkey):
 
 
 def compute_rad_power_structure(structure):
+    
+    if structure.step['harmonic']:
+        result_type = 'harmonic'
+    else:
+        result_type = 'harmonic_field'
+
     eks = radiating_faces(structure)
     sareas = structure_face_surfaces(structure)
     face_centers = structure_face_centers(structure)
-    rkeys = list(structure.results['harmonic'].keys())
+    rkeys = structure.results[result_type].keys()
     structure.results['radiation'] = {}
     for rk in rkeys:
-        f = structure.results['harmonic'][rk].frequency
+        f = structure.results[result_type][rk].frequency
         structure.results['radiation'][rk] = Result(f) 
         wlen = structure.c / f
         k = (2. * np.pi) / wlen

@@ -4,6 +4,8 @@ from __future__ import print_function
 
 import os
 
+from numpy import result_type
+
 from compas.datastructures import Mesh
 
 import compas_vibro
@@ -79,7 +81,7 @@ s.add(el_prop2)
 
 # add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-freq_list = range(20, 350, 2)
+freq_list = range(20, 30, 2)
 waves = generate_uniform_waves_numpy()
 fields = compute_pressure_fields_structure(waves, s, freq_list, center=True)
 

@@ -15,12 +15,13 @@ __email__      = 'tmendeze@uw.edu'
 __all__ = ['read_harmonic_displacements',
            'read_modal_displacements',
            'read_modal_freq',
-           'read_modal_coordinates']
+           'read_modal_coordinates',
+           'read_harmonic_displacements_field']
 
 
-def read_harmonic_displacements(structure, path):
-    harmonic_disp = {}
-    hd = {i:{} for i in range(len(structure.step['harmonic'].freq_list))}
+def read_harmonic_displacements(structure, path, freq_list):
+    # harmonic_disp = {}
+    hd = {i:{} for i in range(len(freq_list))}
     for nkey in structure.nodes:
         filename  = 'node_real_{0}.txt'.format(nkey + 1)
         filename_ = 'node_imag_{0}.txt'.format(nkey + 1)
@@ -33,7 +34,7 @@ def read_harmonic_displacements(structure, path):
         dimag = fh.readlines()
         fh.close()
 
-        harmonic_disp[nkey] = {} 
+        # harmonic_disp[nkey] = {} 
         for j in range(len(dreal)):
             
             real_string = dreal[j].split(',')
@@ -43,10 +44,40 @@ def read_harmonic_displacements(structure, path):
             imag = list(map(float, imag_string))
             nd = {'real': {'x': real[1], 'y': real[2], 'z': real[3]},
                   'imag': {'x': imag[1], 'y': imag[2], 'z': imag[3]}}
-            harmonic_disp[nkey][j] = nd
+            # harmonic_disp[nkey][j] = nd
             # hd[j].update({'frequency':frequency})
             hd[j].update({nkey:nd})
 
+    return hd
+
+
+def read_harmonic_displacements_field(structure, path, freq_list):
+    # harmonic_disp = {}
+    hd = {i:{} for i in range(len(freq_list))}
+    for fk in hd:
+        path_ = os.path.join(path, 'freq_{}'.format(fk))
+        fd = {}
+        for nkey in structure.nodes:
+
+            filename  = 'node_real_{0}.txt'.format(nkey + 1)
+            filename_ = 'node_imag_{0}.txt'.format(nkey + 1)
+
+            fh = open(os.path.join(path_, filename), 'r')
+            dreal = fh.readlines()
+            fh.close()
+
+            fh = open(os.path.join(path_, filename_), 'r')
+            dimag = fh.readlines()
+            fh.close()
+
+            real_string = dreal[0].split(',')
+            imag_string = dimag[0].split(',')
+            real = list(map(float, real_string))
+            imag = list(map(float, imag_string))
+            nd = {'real': {'x': real[1], 'y': real[2], 'z': real[3]},
+                'imag': {'x': imag[1], 'y': imag[2], 'z': imag[3]}}
+            fd[nkey] = nd
+        hd[fk] = fd
     return hd
 
 

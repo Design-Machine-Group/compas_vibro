@@ -22,6 +22,7 @@ from compas_vibro.fea.ansys.read import read_participation_factor
 from compas_vibro.fea.ansys.read import read_effective_mass
 from compas_vibro.fea.ansys.read import read_modal_displacements
 from compas_vibro.fea.ansys.read import read_harmonic_displacements
+from compas_vibro.fea.ansys.read import read_harmonic_displacements_field
 from compas_vibro.fea.ansys.read import read_modal_coordinates
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
@@ -119,9 +120,10 @@ def ansys_harmonic_field(structure, num_modes, freq_list, fields='all', damping=
 
     # # analyse and extraxt results ----------------------------------------------
     write_command_file_harmonic_field(structure, fields)
-    ansys_launch_process(structure, cpus=4, license=license, delete=True)
-    # extract_data(structure, fields, 'harmonic_s')
+    ansys_launch_process(structure, cpus=4, license=license, delete=False)
+    extract_data(structure, fields, 'harmonic_field')
     return structure
+
 
 def extract_data(structure, fields, results_type):
     path = structure.path
@@ -158,10 +160,24 @@ def extract_data(structure, fields, results_type):
 
         if 'u' in fields or 'all' in fields:
             # this is still not great, frequencies are from structure, not files...
-            hd = read_harmonic_displacements(structure, out_path)
-            structure.tomas = hd
+            hd = read_harmonic_displacements(structure, out_path, freq_list)
+            # structure.tomas = hd
             for fkey in hd:
                 structure.results['harmonic'][fkey].displacements = hd[fkey]
+
+    if results_type == 'harmonic_field':
+        skeys = structure.step['harmonic_field'].keys()
+        freq_list = [structure.step['harmonic_field'][k].freq_list[0] for k in skeys]
+        fdict = {i:f for i, f in enumerate(freq_list)}
+        rdict = {fk: Result(fdict[fk], name='VibroResult_{}'.format(fk), type='harmonic_field') for fk in fdict}
+        structure.results.update({'harmonic_field':rdict})
+
+        if 'u' in fields or 'all' in fields:
+            # this is still not great, frequencies are from structure, not files...
+            hd = read_harmonic_displacements_field(structure, out_path, freq_list)
+            # structure.tomas = hd
+            for fkey in hd:
+                structure.results['harmonic_field'][fkey].displacements = hd[fkey]
     
     if results_type == 'harmonic_s':
         ncd = read_modal_coordinates(structure, out_path)

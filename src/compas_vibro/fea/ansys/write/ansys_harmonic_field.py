@@ -6,7 +6,7 @@ import os
 
 from .ansys_nodes import write_constraints
 from .ansys_nodes import write_nodes
-from .ansys_elements import write_elements
+from .ansys_elements import write_elements, write_surface_elements
 from .ansys_materials import write_materials
 from .ansys_process import write_preprocess
 from .ansys_loads import write_fields_loads
@@ -28,6 +28,7 @@ def write_command_file_harmonic_field(structure, fields):
     write_materials(structure, path, filename)
     write_nodes(structure, path, filename)
     write_elements(structure, path, filename)
+    write_surface_elements(structure, path, filename, structure.radiating_faces())
     write_modalsuper_solve(structure, path, filename)
     write_constraints(structure, 'modal', path, filename)
     write_super_solve_step(structure, path, filename)
@@ -116,7 +117,10 @@ def write_harmonic_field_results(structure, index, fields, path, filename):
 def write_freq_displacements_field(structure, index, path, filename):
     
     freq_list = structure.step['harmonic_field'][index].freq_list
-    out_path = os.path.join(path, structure.name + '_output')
+    out_path = os.path.join(path, '{}_output'.format(structure.name), 'freq_{}'.format(index))
+    
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
 
     cFile = open(os.path.join(path, filename), 'a')
 
@@ -148,7 +152,7 @@ def write_freq_displacements_field(structure, index, path, filename):
     cFile.write('vget,N%curr_n%_output_{0}(1,6),3,,1 ! put UY in array \n'.format(index))
     cFile.write('vget,N%curr_n%_output_{0}(1,7),4,,1 ! put UZ in array \n'.format(index))
 
-    cFile.write('*cfopen,' + out_path + '/node_real_%curr_n%,txt \n')
+    cFile.write('*cfopen,' + out_path + '\\node_real_%curr_n%,txt \n')
     cFile.write('*vwrite,N%curr_n%_output_{0}(1,1),\',\' ,N%curr_n%_output_{0}(1,2),\',\' ,'.format(index))
     cFile.write('N%curr_n%_output_{0}(1,3),\',\' ,N%curr_n%_output_{0}(1,4) \n'.format(index))
     cFile.write('(F8.0, A, E12.5, A, E12.5, A, E12.5, A, E12.5)  \n')

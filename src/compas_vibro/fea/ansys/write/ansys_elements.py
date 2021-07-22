@@ -152,7 +152,7 @@ def write_set_srf_realconstant(output_path, filename, rkey):
 
 
 def write_surface_elements(structure, output_path, filename, ekeys):
-    """ This function creates ANSYS shell 181 elements
+    """ This function creates ANSYS surf 154 elements
     in a given ansys input file. These shell elements require 4 nodes.
     """
     ekeys = sorted(ekeys, key=int)
@@ -162,7 +162,7 @@ def write_surface_elements(structure, output_path, filename, ekeys):
 
     cFile = open(os.path.join(output_path, filename), 'a')
     for ekey in ekeys:
-        element = structure.virtual_elements[ekey].nodes
+        element = structure.elements[ekey].nodes
         string = 'E,'
         if len(element) == 3:
             element.append(element[-1])
