@@ -87,9 +87,9 @@ def write_harmonic_field_solve(structure, path, filename, index):
     cFile.write('FINISH \n')
     cFile.write('/SOLU \n')
 
-    # cFile.write('ANTYPE,HARMIC            ! Harmonic analysis \n')
-    # cFile.write('HROPT,MSUP,,,YES,,YES             ! Mode-superposition method; number of modes to use \n')
-    # cFile.write('HROUT,,,,,                  ! Harmonic analysis output options; cluster option\n')
+    # cFile.write('ANTYPE,HARMIC                ! Harmonic analysis \n')
+    # cFile.write('HROPT,MSUP,,,YES,,YES        ! Mode-superposition method; number of modes to use \n')
+    # cFile.write('HROUT,,,,,                   ! Harmonic analysis output options; cluster option\n')
 
     cFile.write('ANTYPE,3            ! Harmonic analysis \n')
 
@@ -122,9 +122,6 @@ def write_freq_displacements_field(structure, index, path, filename):
     
     freq_list = structure.step['harmonic_field'][index].freq_list
     out_path = os.path.join(path, '{}_output'.format(structure.name), 'freq_{}'.format(index))
-    
-    # if not os.path.exists(out_path):
-    #     os.makedirs(out_path)
 
     cFile = open(os.path.join(path, filename), 'a')
 
@@ -134,7 +131,7 @@ def write_freq_displacements_field(structure, index, path, filename):
     cFile.write('*get,n_min,NODE,0,NUM,MIN ! get min node number \n')
 
     cFile.write('/POST26 \n')
-    # cFile.write('FILE,,RFRQ \n')  this should be back for modal super
+    # cFile.write('FILE,,RFRQ \n')  # this should be back for modal super
     cFile.write('PRCPLX, 0 \n')
     cFile.write('!\n')
     cFile.write('!\n')
