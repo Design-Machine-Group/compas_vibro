@@ -120,7 +120,7 @@ def ansys_harmonic_field(structure, num_modes, freq_list, fields='all', damping=
 
     # # analyse and extraxt results ----------------------------------------------
     write_command_file_harmonic_field(structure, fields)
-    ansys_launch_process(structure, cpus=4, license=license, delete=False)
+    ansys_launch_process(structure, cpus=4, license=license, delete=True)
     extract_data(structure, fields, 'harmonic_field')
     return structure
 
@@ -212,8 +212,8 @@ def ansys_launch_process(structure, cpus=2, license='introductory', delete=True)
     inp_path = os.path.join(path, name + '.txt')
     work_dir = os.path.join(path, name + '_output')
 
-    if not os.path.exists(work_dir):
-        os.makedirs(work_dir)
+    create_results_folders(structure, work_dir)
+
     out_path = os.path.join(work_dir, name + '.out')
 
     if license == 'research':
@@ -245,6 +245,18 @@ def delete_result_files(path, name):
     """
     out_path = os.path.join(path, name + '_output')
     shutil.rmtree(out_path)
+
+
+def create_results_folders(structure, work_dir):
+    if not os.path.exists(work_dir):
+        os.makedirs(work_dir)
+    if structure.step['harmonic_field']:
+        skeys = structure.step['harmonic_field'].keys()
+        for skey in skeys:
+            out_path = os.path.join(work_dir, 'freq_{}'.format(skey))
+            if not os.path.exists(out_path):
+                os.makedirs(out_path)
+
 
 
 if __name__ == '__main__':

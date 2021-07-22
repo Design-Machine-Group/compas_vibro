@@ -60,11 +60,13 @@ def write_fields_loads(structure, index, output_path, filename):
 
     cFile = open(os.path.join(output_path, filename), 'a')
     string = 'SFE, {0}, {1}, PRES, {2}, {3} \n'
-    for i, ekey in enumerate(elements):
+    add = structure.element_count() + 1
+
+    for ekey in elements:
         # ekey += add
-        string_ = string.format(ekey + 1, '', 1, field[ekey].real)
+        string_ = string.format(ekey + add, '', 1, field[ekey].real)
         cFile.write(string_)
-        string_ = string.format(ekey + 1, '', 2, field[ekey].imag)
+        string_ = string.format(ekey + add, '', 2, field[ekey].imag)
         cFile.write(string_)
     cFile.write('!\n')
     cFile.write('!\n')
@@ -160,7 +162,6 @@ def write_apply_harmonic_pressure_load(structure, output_path, filename, lkey):
         else:
             elements.append(element)
             add = 0
-
     pressure = structure.loads[lkey].components['pressure']
     phase = structure.loads[lkey].components['phase']
 
