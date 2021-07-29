@@ -153,8 +153,8 @@ def extract_data(structure, fields, results_type):
                 structure.results['modal'][fk].displacements = d
     
     if results_type == 'harmonic' or results_type == 'harmonic_s':
-        if results_type == 'harmonic':
-            freq_list = structure.step['harmonic'].freq_list 
+        # if results_type == 'harmonic':
+        freq_list = structure.step['harmonic'].freq_list 
         # elif results_type == 'harmonic_field':
         #     skeys = structure.step['harmonic_field'].keys()
         #     freq_list = [structure.step['harmonic_field'][k].freq_list[0] for k in skeys]
@@ -254,7 +254,7 @@ def delete_result_files(path, name):
 def create_results_folders(structure, work_dir):
     if not os.path.exists(work_dir):
         os.makedirs(work_dir)
-    if structure.step['harmonic_field']:
+    if 'harmonic_field' in structure.step:
         skeys = structure.step['harmonic_field'].keys()
         for skey in skeys:
             out_path = os.path.join(work_dir, 'freq_{}'.format(skey))
