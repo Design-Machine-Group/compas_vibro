@@ -28,7 +28,7 @@ for i in range(60):
     print()
 
 path = compas_vibro.TEMP
-geometry = 'mesh_flat_20x20'
+geometry = 'flat_mesh_20x20'
 name = 'opensees_{0}_harmonic'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
@@ -44,7 +44,7 @@ d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
 s.add(d)
 
 # add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-load = PointLoad(name='pload', nodes=[10, 15], x=0, y=0, z=1, xx=0, yy=0, zz=0)
+load = PointLoad(name='pload', nodes=[40, 205], x=0, y=0, z=1, xx=0, yy=0, zz=0)
 s.add(load)
 
 # add sections - - - - - - - - - - - - 
@@ -71,6 +71,4 @@ s.analyze_harmonic(freq_list, fields=['u'], backend='opensees')
 # save results - - - - - - 
 s.to_obj()
 
-v = HarmonicViewer(s)
-v.scale = 1e6
-v.show()
+#   

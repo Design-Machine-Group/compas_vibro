@@ -46,7 +46,7 @@ def write_modal_record(structure, path, filename):
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
     fh.write('record\n')
-    fh.write('#\n')
+    fh.write('#\n')    
     fh.close()
 
 def write_modal_solve(structure, path, filename):

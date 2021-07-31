@@ -76,7 +76,7 @@ def write_harmonic_step(structure, path, filename):
     fh.write('}\n')
     fh.write('#\n')
     fh.write('#\n')
-    fh.write('recorder Node -file {0}/harmonic_disp.out -time -nodeRange 1 {1} -dof 1 2 3 disp\n'.format(outpath, numnodes))
+    fh.write('recorder Node -file {0}/harmonic_disp.txt -time -nodeRange 1 {1} -dof 1 2 3 disp\n'.format(outpath, numnodes))
     fh.write('#\n')
     fh.write('#\n')
     fh.write('constraints Transformation\n')
@@ -87,5 +87,6 @@ def write_harmonic_step(structure, path, filename):
     fh.write('integrator LoadControl {}\n'.format(t / cycles))
     fh.write('analysis Static\n')
     fh.write('analyze {}\n'.format(int(cycles)))
+    fh.write('printB -file {}/tomas.txt\n'.format(outpath))
 
     fh.close()
