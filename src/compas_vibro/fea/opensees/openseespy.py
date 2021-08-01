@@ -1,11 +1,13 @@
+for i in range(100): print('')
+
 import os
 import compas_vibro
 from compas_vibro.structure import Structure
-import openseespymac.opensees as op
+import openseespywin.opensees as op
 import numpy as np
 import sys
 
-# TODO: Masses are zero, think is because they HAVE to be nodal masses...
+# TODO: Masses/Mmatrix are zero, think is because they HAVE to be nodal masses...
 
 
 def ModalAnalysis(numEigen, pflag=1, outname=None):
@@ -221,7 +223,9 @@ def ModalAnalysis(numEigen, pflag=1, outname=None):
 
 for i in range(50): print('')
 
-s = Structure.from_obj(os.path.join(compas_vibro.TEMP, 'opensees_flat_mesh_20x20_harmonic.obj'))
+
+s = Structure.from_obj(os.path.join(compas_vibro.TEMP, 'clt_1_remeshed_field.obj'))
+# s = Structure.from_obj(os.path.join(compas_vibro.TEMP, 'opensees_flat_mesh_20x20_harmonic.obj'))
 
 op.wipe()
 op.model('basic', '-ndm', 3, '-ndf', 6)
