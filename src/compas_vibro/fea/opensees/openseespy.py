@@ -68,6 +68,7 @@ def ModalAnalysis(numEigen, pflag=1, outname=None):
     Mmatrix = op.printA('-ret') # Or use op.printA('-file','M.out')
     Mmatrix = np.array(Mmatrix) # Convert the list to an array
     Mmatrix.shape = (N,N)       # Make the array an NxN matrix
+    print(Mmatrix)
     print( '\n************************************************************', \
           '\nExtracting the mass matrix, ignore the warnings...')
         
@@ -229,6 +230,7 @@ op.model('basic', '-ndm', 3, '-ndf', 6)
 for nk in s.nodes:
     x, y, z = s.nodes[nk].xyz()
     op.node(nk + 1, x, y, z)
+    op.mass(nk + 1, *[100,100,100,100,100,100])
 
 for dk in s.displacements:
     d = s.displacements[dk]
@@ -260,4 +262,4 @@ for ep in eps:
         op.element('ShellMITC4', ek + 1, *nodes, i)
 
 
-ModalAnalysis(50, outname=None)
+ModalAnalysis(5, outname=None)
