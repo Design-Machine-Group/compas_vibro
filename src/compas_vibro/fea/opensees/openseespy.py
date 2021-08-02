@@ -3,7 +3,7 @@ for i in range(100): print('')
 import os
 import compas_vibro
 from compas_vibro.structure import Structure
-import openseespywin.opensees as op
+import openseespymac.opensees as ops
 import numpy as np
 import sys
 
@@ -56,18 +56,18 @@ def ModalAnalysis(numEigen, pflag=1, outname=None):
         Total activated masses.
     """
 
-    op.wipeAnalysis()
-    op.numberer("Plain")
-    op.system('FullGeneral')
-    op.analysis('Transient')
+    ops.wipeAnalysis()
+    ops.numberer("Plain")
+    ops.system('FullGeneral')
+    ops.analysis('Transient')
 
     # Extract the Mass Matrix
     # Note that this is not the global mass matrix, but unrestrained part (Muu)
-    op.integrator('GimmeMCK',1.0,0.0,0.0)
-    op.analyze(1,0.0) 
+    ops.integrator('GimmeMCK',1.0,0.0,0.0)
+    ops.analyze(1,0.0) 
     # Number of equations in the model
-    N = op.systemSize()         # Has to be done after analyze
-    Mmatrix = op.printA('-ret') # Or use op.printA('-file','M.out')
+    N = ops.systemSize()         # Has to be done after analyze
+    Mmatrix = ops.printA('-ret') # Or use ops.printA('-file','M.out')
     Mmatrix = np.array(Mmatrix) # Convert the list to an array
     Mmatrix.shape = (N,N)       # Make the array an NxN matrix
     print(Mmatrix)
@@ -76,8 +76,8 @@ def ModalAnalysis(numEigen, pflag=1, outname=None):
         
     # Determine maximum number of DOFs/node used in the system
     NDF = 0
-    for node in op.getNodeTags():
-        temp = len(op.nodeDOFs(node))
+    for node in ops.getNodeTags():
+        temp = len(ops.nodeDOFs(node))
         if temp > NDF: NDF = temp
 
     DOFs = []       # List containing indices of unrestrained DOFs
@@ -94,11 +94,11 @@ def ModalAnalysis(numEigen, pflag=1, outname=None):
     # TODO -1: The influence vectors are not correct in case of rotational excitations
     # One typical approach is to use center of mass on plane
     idx = 0                                     # Counter for unrestrained DOFs
-    for node in op.getNodeTags():               # Start iterating over each node
+    for node in ops.getNodeTags():               # Start iterating over each node
         used[node] = []                         # Unrestrain local DOF ids
-        ndof = len(op.nodeDOFs(node))           # Total number of DOFs assigned
+        ndof = len(ops.nodeDOFs(node))           # Total number of DOFs assigned
         for j in range(ndof):                   # Iterate over each DOF
-            temp = op.nodeDOFs(node)[j]         # Get the global DOF id (-1 if restrained)
+            temp = ops.nodeDOFs(node)[j]         # Get the global DOF id (-1 if restrained)
             if temp not in DOFs and temp >= 0:  # Check if this DOF is unrestrained and is not known before
                 DOFs.append(temp)               # Save the global id of DOF 
                 used[node].append(j+1)          # Save the local id of DOF 
@@ -115,13 +115,13 @@ def ModalAnalysis(numEigen, pflag=1, outname=None):
         Mtots[i] = (ldict[i].T@Mmatrix@ldict[i])[0,0]
 
     # Perform eigenvalue analysis
-    op.wipeAnalysis()
+    ops.wipeAnalysis()
     listSolvers = ['-genBandArpack','-fullGenLapack','-symmBandLapack']
     ok = 1  
     for s in listSolvers:
         print("Using %s as solver..." % s[1:])
         try:
-            eigenValues = op.eigen(s,numEigen)
+            eigenValues = ops.eigen(s,numEigen)
             catchOK = 0
             ok = 0
         except: 
@@ -150,7 +150,7 @@ def ModalAnalysis(numEigen, pflag=1, outname=None):
         phi = np.zeros([N,1]) # Eigen vector
         for node in used:
             for dof in used[node]:
-                phi[idx,0]=op.nodeEigenvector(node,mode,dof)
+                phi[idx,0]=ops.nodeEigenvector(node,mode,dof)
                 idx += 1
                 
         phi = phi/(phi.T@Mmatrix@phi)**0.5  # Normalize the eigen vector by modal mass
@@ -221,20 +221,22 @@ def ModalAnalysis(numEigen, pflag=1, outname=None):
 
     return T, Mratios, Mfactors, Mtots
 
+
+
 for i in range(50): print('')
 
 
-s = Structure.from_obj(os.path.join(compas_vibro.TEMP, 'clt_1_remeshed_field.obj'))
-# s = Structure.from_obj(os.path.join(compas_vibro.TEMP, 'opensees_flat_mesh_20x20_harmonic.obj'))
+# s = Structure.from_obj(os.path.join(compas_vibro.TEMP, 'clt_1_remeshed_field.obj'))
+s = Structure.from_obj(os.path.join(compas_vibro.TEMP, 'opensees_flat_mesh_20x20_harmonic.obj'))
 
-op.wipe()
-op.model('basic', '-ndm', 3, '-ndf', 6)
-# op.logFile('error.txt')
+ops.wipe()
+ops.model('basic', '-ndm', 3, '-ndf', 6)
+# ops.logFile('error.txt')
 
 for nk in s.nodes:
     x, y, z = s.nodes[nk].xyz()
-    op.node(nk + 1, x, y, z)
-    op.mass(nk + 1, *[100,100,100,100,100,100])
+    ops.node(nk + 1, x, y, z)
+    ops.mass(nk + 1, *[100,100,100,100,100,100])
 
 for dk in s.displacements:
     d = s.displacements[dk]
@@ -244,7 +246,7 @@ for dk in s.displacements:
         vals = [1, 1, 1, 0, 0, 0]
     nodes = set(s.displacements[dk].nodes)
     for nk in nodes:
-        op.fix(nk + 1, *vals)
+        ops.fix(nk + 1, *vals)
 
 eps = s.element_properties
 for ep in eps:
@@ -256,14 +258,40 @@ for ep in eps:
     t = section.geometry['t']
     p = material.p
 
-    op.nDMaterial('ElasticIsotropic', i, *[e, v, p])
-    op.section('ElasticMembranePlateSection', i, *[e, v, t, p])
+    ops.nDMaterial('ElasticIsotropic', i, *[e, v, p])
+    ops.section('ElasticMembranePlateSection', i, *[e, v, t, p])
 
     elset = s.element_properties[ep].elset
     eks = s.sets[elset].selection
     for ek in eks:
         nodes = [n + 1 for n in s.elements[ek].nodes]
-        op.element('ShellMITC4', ek + 1, *nodes, i)
+        ops.element('ShellMITC4', ek + 1, *nodes, i)
 
 
-ModalAnalysis(5, outname=None)
+# ModalAnalysis(5, outname=None)
+
+# TODO: use real masses in the nodes, check data against Ansys
+
+
+for i in range(5): print('')
+
+#
+# Define your model
+#
+ndf = 6 # Nodal degrees of freedom
+
+N = 30 # Or whatever
+omega2 = ops.eigen(N)
+
+for n in range(N):
+   Mn = 0.0
+   Ln = 0.0
+   for nd in ops.getNodeTags():
+      ndMass = ops.nodeMass(nd)
+      ndEigen = ops.nodeEigenvector(nd,n+1)
+      Ln += ndEigen[0]*ndMass[0] # 0 for X, 1 for Y, 2 for Z excitation
+      for dof in range(ndf):
+         Mn += (ndEigen[dof]**2)*ndMass[dof]
+   Gamman = Ln/Mn
+   Tn = 2*3.14159/omega2[n]**0.5
+   print(f'Mode {n+1}, Tn = {Tn}, Mn = {Mn}, Gamma = {Gamman}')
