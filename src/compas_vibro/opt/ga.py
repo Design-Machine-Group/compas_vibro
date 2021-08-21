@@ -206,8 +206,29 @@ class GA(object):
         return ga_
 
 
-    def plot_generations():
-        pass
+    def plot_generations(self):
+        import matplotlib.pyplot as plt
+
+        minf = []
+        maxf = []
+        avgf = []
+        gen = []
+        for kgen in self.pop:
+            fitlist = [self.pop[kgen][kpop]['fitness'] for kpop in self.pop[kgen]]
+            minf.append(min(fitlist))
+            maxf.append(max(fitlist))
+            avgf.append(sum(fitlist) / len(fitlist))
+            gen.append(kgen)
+
+        plt.plot(gen, minf, color='black', linewidth=.8, label='Min. fitness')
+        plt.plot(gen, avgf, color='red', linewidth=.8, label='Avg. fitness')
+        plt.plot(gen, maxf, color='black', linewidth=.4, label='Max. fitness')
+        plt.grid(linestyle=':')
+        plt.xlabel('Generation')
+        plt.ylabel('Fitness')
+        plt.title('Optimization progress')
+        plt.legend()
+        plt.show()
 
 if __name__ == '__main__':
     for i in range(50): print('')
@@ -215,5 +236,6 @@ if __name__ == '__main__':
     def func(x):
         return sum(x)
 
-    ga = GA(func, 4, min_fit=0.)
+    ga = GA(func, 40, min_fit=0.)
     ga.optimize()
+    ga.plot_generations()
