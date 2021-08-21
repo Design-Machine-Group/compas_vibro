@@ -12,8 +12,8 @@ try:
 except:
     pass
 
-
-from compas_vibro.structure.result import Result
+import compas_vibro
+# from compas_vibro.structure.result import Result
 
 from compas_vibro.vibro.utilities import structure_face_surfaces
 from compas_vibro.vibro.utilities import structure_face_centers
@@ -68,7 +68,8 @@ def compute_rad_power_structure(structure):
     structure.results['radiation'] = {}
     for rk in rkeys:
         f = structure.results[result_type][rk].frequency
-        structure.results['radiation'][rk] = Result(f) 
+        res = compas_vibro.structure.result.Result
+        structure.results['radiation'][rk] = res(f) 
         wlen = structure.c / f
         k = (2. * np.pi) / wlen
         omega = k * structure.c
@@ -88,6 +89,30 @@ def compute_rad_power_structure(structure):
         W_ = {ek:W[ek] for ek in eks}
         structure.results['radiation'][rk].radiated_p_faces = W_
         structure.results['radiation'][rk].radiated_p = W_tot
+
+
+def compute_rad_power_mesh_vel(mesh, f, c, rho, S=None, D=None, Z=None):
+
+    sareas = [mesh.face_area(fk) for fk in mesh.faces()]
+    face_centers = [mesh.face_centroid(fk) for fk in mesh.faces()]
+    
+    
+    wlen = c / f
+    k = (2. * np.pi) / wlen
+    if S is None:
+        S = make_area_matrix(sareas)
+    if D is None:
+        D = calculate_distance_matrix_np(face_centers)
+
+    n = int(np.sqrt(np.shape(S)[0]))
+    v = [mesh.face_attribute(fk, 'velocity') for fk in mesh.faces()]
+
+    if Z is None:
+        Z = calculate_radiation_matrix_np(k, rho, c, S, D)
+    p = calculate_pressure_np(Z, v)
+    W, W_tot = calculate_rayleigh_rad_power_np(sareas, p, v, n, sum=True)
+
+    return W_tot
 
 
 def calculate_rayleigh_rad_power_np(s, p, v, n, sum=False):
