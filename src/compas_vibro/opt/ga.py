@@ -194,12 +194,14 @@ class GA(object):
 
     def to_obj(self):
         self.fit_func = self.fit_func.__name__
+        self.fitnesses = None
         with open(self.filepath, 'wb') as f:
             pickle.dump(self, f, protocol=2)
         print('***** GA saved to: {0} *****\n'.format(self.filepath))
 
     @staticmethod
     def from_obj(filepath):
+        #TODO: Get rid of useless data. 
         with open(filepath, 'rb') as f:
             ga_ = pickle.load(f)
         print('***** Structure loaded from: {0} *****'.format(filepath))
