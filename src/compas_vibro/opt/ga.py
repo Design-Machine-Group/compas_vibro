@@ -51,6 +51,7 @@ class GA(object):
         self.best_ind = {}
         self.best_fit = {}
         self.best_pop = {}
+        self.fit_min_max_avg = {}
 
     def optimize(self):
         self.pop = {i:{} for i in range(self.num_gen)}
@@ -131,9 +132,13 @@ class GA(object):
         fit_pop = [(kpop,self.pop[self.gen][kpop]['fitness']) for kpop in self.pop[self.gen]]
         sort = sorted(fit_pop, key = lambda x: x[1])
 
+        fit_pop = [self.pop[self.gen][kpop]['fitness'] for kpop in self.pop[self.gen]]
         self.best_ind[self.gen] = sort[0][0]
         self.best_fit[self.gen] = sort[0][1]
         self.best_pop[self.gen] = self.pop[self.gen][self.best_ind[self.gen]]
+        self.fit_min_max_avg[self.gen] = {'min':min(fit_pop),
+                                          'max': max(fit_pop),
+                                          'avg': sum(fit_pop) / float(len(fit_pop))}
         self.sort = [s[0] for s in sort]
 
     def tournament(self):
@@ -213,11 +218,10 @@ class GA(object):
         maxf = []
         avgf = []
         gen = []
-        for kgen in self.pop:
-            fitlist = [self.pop[kgen][kpop]['fitness'] for kpop in self.pop[kgen]]
-            minf.append(min(fitlist))
-            maxf.append(max(fitlist))
-            avgf.append(sum(fitlist) / len(fitlist))
+        for kgen in self.fit_min_max_avg:
+            minf.append(self.fit_min_max_avg[kgen]['min'])
+            maxf.append(self.fit_min_max_avg[kgen]['max'])
+            avgf.append(self.fit_min_max_avg[kgen]['avg'])
             gen.append(kgen)
 
         plt.plot(gen, minf, color='black', linewidth=.8, label='Min. fitness')
