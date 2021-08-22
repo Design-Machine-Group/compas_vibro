@@ -50,9 +50,9 @@ class GA(object):
         self.num_rpop = self.num_pop - self.num_elite
         self.best_ind = {}
         self.best_fit = {}
+        self.best_pop = {}
 
     def optimize(self):
-        # random.seed(10)  # this must eventually be deleted!!!!!!!!!!!!!!!!!!!!!!!!!!
         self.pop = {i:{} for i in range(self.num_gen)}
         self.random_pop()
         for gen in range(self.num_gen):
@@ -65,8 +65,6 @@ class GA(object):
             print('Generation {} - Best fit {} - Best Ind {}'.format(gen,
                                                                      self.best_fit[self.gen],
                                                                      self.best_ind[self.gen]))
-            # for k in self.pop[self.gen]:
-            #     print(k, self.pop[self.gen][k]['fitness'])
             if self.min_fit != None and self.best_fit[gen] <= self.min_fit:
                 break
             elif gen < self.num_gen - 1:
@@ -135,6 +133,7 @@ class GA(object):
 
         self.best_ind[self.gen] = sort[0][0]
         self.best_fit[self.gen] = sort[0][1]
+        self.best_pop[self.gen] = self.pop[self.gen][self.best_ind[self.gen]]
         self.sort = [s[0] for s in sort]
 
     def tournament(self):
@@ -195,18 +194,17 @@ class GA(object):
     def to_obj(self):
         self.fit_func = self.fit_func.__name__
         self.fitnesses = None
+        self.pop = {}
         with open(self.filepath, 'wb') as f:
             pickle.dump(self, f, protocol=2)
         print('***** GA saved to: {0} *****\n'.format(self.filepath))
 
     @staticmethod
     def from_obj(filepath):
-        #TODO: Get rid of useless data. 
         with open(filepath, 'rb') as f:
             ga_ = pickle.load(f)
         print('***** Structure loaded from: {0} *****'.format(filepath))
         return ga_
-
 
     def plot_generations(self):
         import matplotlib.pyplot as plt
