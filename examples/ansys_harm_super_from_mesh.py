@@ -29,7 +29,7 @@ for i in range(60):
     print()
 
 path = compas_vibro.TEMP
-geometry = 'mesh_flat_20x20'
+geometry = 'flat_mesh_20x20'
 name = 'ansys_{0}_harmonic_s'.format(geometry)
 
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
