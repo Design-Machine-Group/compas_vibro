@@ -109,27 +109,13 @@ if __name__ == '__main__':
     for i in range(50): print('')
 
 
-    filepath = os.path.join(compas_vibro.DATA, 'clt_1_remeshed_radiation.obj')
+    # filepath = os.path.join(compas_vibro.DATA, 'clt_1_remeshed_radiation.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'ansys_flat_mesh_20x20_harmonic_s.obj')
     s = Structure.from_obj(filepath)
     frequencies = range(20, 500, 10)
     waves = generate_uniform_waves_numpy()
     fields = compute_pressure_fields_structure(waves, s, frequencies, center=True)
 
     v = PressureFieldViewer(fields, structure=s)
-    v.real = True
-    v.show()
-
-
-    num_waves = 500
-
-    model = 'flat_mesh_20x20.json'
-    # model = 'clt_2.json'
-    mesh = Mesh.from_json(compas_vibro.get(model))
-    # waves = generate_random_waves_numpy(num_waves)
-    waves = generate_uniform_waves_numpy()
-    frequencies = range(20, 500, 10)
-    c = 340.0
-    fields = compute_pressure_fields_mesh(waves, mesh, frequencies, c, center=True)
-    v = PressureFieldViewer(fields, mesh=mesh)
     v.real = True
     v.show()

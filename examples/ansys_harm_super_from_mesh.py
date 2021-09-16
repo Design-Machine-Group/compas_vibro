@@ -74,6 +74,7 @@ s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
 s.to_obj()
 
 v = HarmonicViewer(s)
+v.scale = 1e8
 v.show()
 
 for k in s.results['harmonic']:
@@ -81,4 +82,3 @@ for k in s.results['harmonic']:
     print(s.results['harmonic'][k].modal_coordinates['f'])
     print(s.results['harmonic'][k].modal_coordinates)
     print('')
-

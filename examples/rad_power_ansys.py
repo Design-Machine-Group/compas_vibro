@@ -26,10 +26,14 @@ __version__ = "0.1.0"
 
 
 path = compas_vibro.TEMP
-geometry = 'clt_1_remeshed'
+geometry = 'flat_mesh_20x20'
 name = '{0}_radiation'.format(geometry)
 
+
+
 mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
+
+print(mesh.summary())
 
 # make an instance of the stucture object - - - - - - - - - - - - - - - - - - - 
 s = Structure(path, name) 
@@ -38,12 +42,12 @@ s = Structure(path, name)
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
 # add displacements - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-# d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
-# s.add(d)
-
-bv = {vk for fk in mesh.faces_where({'is_boundary': True}) for vk in mesh.face_vertices(fk)}
-d = FixedDisplacement('boundary', list(bv))
+d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
 s.add(d)
+
+# bv = {vk for fk in mesh.faces_where({'is_boundary': True}) for vk in mesh.face_vertices(fk)}
+# d = FixedDisplacement('boundary', list(bv))
+# s.add(d)
 
 
 # add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
