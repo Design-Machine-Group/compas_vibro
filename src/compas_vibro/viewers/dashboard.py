@@ -31,26 +31,25 @@ class Dashboard(object):
         app = dash.Dash(__name__)
 
         self.add_dropdown()
-        self.add_slider()
-        self.add_all_curves_fig()
+        self.add_fslider()
+        self.add_sslider()
+        
 
         graph1 = dcc.Graph(id='rad_curve',
-                           style={'display': 'inline-block', 'width':'70%'})
+                           style={'display': 'inline-block', 'width':'69%'})
 
         graph2 = dcc.Graph(id='rad_comparison',
-                           figure=self.all_curves_fig,
                            style={'display': 'inline-block', 'width':'30%'})
 
         graph3 = dcc.Graph(id='rad_shape',
-                        #    figure=self.rad_shape_fig,
-                           style={'display': 'inline-block', 'width':'69%'})
+                           style={'display': 'inline-block', 'width':'70%'})
 
         app.layout = html.Div([self.dropdown,
                                graph1,
-                               self.slider,
-                            #    self.slider_div,
                                graph2,
+                               html.Div([self.fslider],id='slider-div1', style={'display': 'inline-block', 'width':'65%'}),
                                graph3,
+                               html.Div([self.sslider],id='slider-div2', style={'display': 'inline-block', 'width':'65%'}),
                                ])
 
         @app.callback(
@@ -66,10 +65,21 @@ class Dashboard(object):
             Output('rad_shape', 'figure'),
             Input('slider_freq', 'value'),
             Input('structure', 'value'),
+            Input('slider_scale', 'value'),
             )
-        def update_graph2(freq, s_index):
-            fig = self.add_rad_shape_fig(freq, s_index)
+        def update_graph2(freq, s_index, scale):
+            fig = self.add_rad_shape_fig(freq, s_index, scale)
             return fig
+
+        @app.callback(
+            Output('rad_comparison', 'figure'),
+            Input('structure', 'value'),
+            )
+        def update_graph3(s_index):
+            fig = self.add_all_curves_fig(s_index)  
+            return fig
+
+        
 
         app.run_server(debug=True)
 
@@ -136,20 +146,32 @@ class Dashboard(object):
         fig.update_xaxes(range=(x1[0] - 5, x1[-1] + 5),)
         return fig
 
-    def add_slider(self):
+    def add_fslider(self):
         s = self.structures[self.current_structure]
         freqs = [s.results['radiation'][k].frequency for k in s.results['radiation']]
         f0 = min(freqs)
         fmax = max(freqs)
-        self.slider = dcc.Slider(id='slider_freq',
+        self.fslider = dcc.Slider(id='slider_freq',
                                  min=f0,
                                  max=fmax,
                                  step=None,
                                  value=f0,
-                                 marks={i:'' for i in freqs},
+                                 marks={i:{'label':'', 'style':{'dots':False}} for i in freqs},
                                  included=False,
+                                 tooltip={'always_visible':True},
                                  )
-        # self.slider_div = html.Div(id='slider-div', style={'display': 'inline-block', 'width':'70%'})
+
+    def add_sslider(self):
+        self.sslider = dcc.Slider(id='slider_scale',
+                                  min=1,
+                                  max=100,
+                                  step=10,
+                                  value=1,
+                                  marks={i:{'label':'', 'style':{'dots':False}} for i in range(1,100,10)},
+                                  included=False,
+                                  tooltip={'always_visible':True},
+                                 )
+
 
     def add_dropdown(self):
         div = html.Div([html.Label('Structure'),
@@ -163,20 +185,29 @@ class Dashboard(object):
                                'font-family':'open sans', 'font-size':'12px'})
         self.dropdown = div
 
-    def add_all_curves_fig(self):
+    def add_all_curves_fig(self, s_index):
 
         data = []
         for s in self.structures:
             x1 = [s.results['radiation'][k].frequency for k in s.results['radiation']]
             y1 = [s.results['radiation'][k].radiated_p for k in s.results['radiation']]
             y1 = [(10 * math.log10(w)) + 120 for w in y1]
+            if s.name == self.structures[s_index].name:
+                width = 3
+                opacity = .9
+                color = 'red'
+            else:
+                width = 1
+                opacity = .7
+                color = None
             curve = go.Scatter(x=x1,
-                            y=y1,
-                            mode='lines',
+                               y=y1,
+                               mode='lines',
                                name=s.name,
                                legendgroup=s.name,
-                               opacity=.8,
-                                    )
+                               opacity=opacity,
+                               line=dict(color=color, width=width)
+            )
             data.append(curve)
         
         fig  = go.Figure(data=data, layout=None)
@@ -186,11 +217,10 @@ class Dashboard(object):
         fig.update_layout(margin=dict(l=25, r=25, t=40, b=25), plot_bgcolor='rgb(255,255,255)')
         fig.update_xaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey', zerolinecolor='grey')
         fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey', zerolinecolor='grey')
-        self.all_curves_fig = fig
+        return fig
 
-    def add_rad_shape_fig(self, freq, s_index):
+    def add_rad_shape_fig(self, freq, s_index, scale):
         mode = self.freq_key[freq]
-        print(freq, mode)
         s = self.structures[s_index]
         eks = radiating_faces(s)
         faces = [s.elements[ek].nodes for ek in eks]
@@ -204,8 +234,8 @@ class Dashboard(object):
         f = s.results['harmonic'][mode].frequency
         vertices = []
         nodes = sorted(s.nodes.keys(), key=int)
-        scale = .5
-        scale *= 1e7
+        # scale = 1.
+        scale *= 1e8
         dm = []
         for vk in nodes:
             x, y, z = s.nodes[vk].xyz()
@@ -276,14 +306,42 @@ class Dashboard(object):
                            # contour={'show':True},
                            # vertexcolor=vcolor,
                            colorbar_title='Amplitude',
+                           colorbar_thickness=10,
                            colorscale= 'agsunset', # 'viridis'
                            intensity=intensity_,
                            intensitymode='cell',
                 )]
         data.extend(lines)
         data.extend(faces)
-        fig  = go.Figure(data=data, layout=None)
+        layout = self.make_layout(freq)
+        fig  = go.Figure(data=data, layout=layout)
         return fig
+
+    def make_layout(self, freq):
+        name = self.structures[self.current_structure].name
+        title = '{} - Radiated Sound Power {:.2f}Hz'.format(name, freq)
+
+        layout = go.Layout(title=title,
+                          scene=dict(aspectmode='data',
+                                    xaxis=dict(
+                                               gridcolor='rgb(255, 255, 255)',
+                                               zerolinecolor='rgb(255, 255, 255)',
+                                               showbackground=True,
+                                               backgroundcolor='rgb(230, 230,230)'),
+                                    yaxis=dict(
+                                               gridcolor='rgb(255, 255, 255)',
+                                               zerolinecolor='rgb(255, 255, 255)',
+                                               showbackground=True,
+                                               backgroundcolor='rgb(230, 230,230)'),
+                                    zaxis=dict(
+                                               gridcolor='rgb(255, 255, 255)',
+                                               zerolinecolor='rgb(255, 255, 255)',
+                                               showbackground=True,
+                                               backgroundcolor='rgb(230, 230,230)')
+                                    ),
+                          showlegend=False,
+                            )
+        return layout
 
 
 if __name__ == '__main__':
