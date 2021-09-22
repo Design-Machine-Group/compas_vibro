@@ -4,6 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output
+# import dash_bootstrap_components as dbc
 from plotly.subplots import make_subplots
 from compas_vibro.vibro.utilities import radiating_faces
 from compas.datastructures import Mesh
@@ -38,27 +39,44 @@ class Dashboard(object):
         
         
 
-        graph1 = dcc.Graph(id='rad_curve',
-                           style={'display': 'inline-block', 'width':'69%'})
+        rad_curve = dcc.Graph(id='rad_curve',
+                              style={'display': 'inline-block', 'width':'100%'})
 
-        graph2 = dcc.Graph(id='rad_comparison',
-                           style={'display': 'inline-block', 'width':'30%'})
+        rad_comp = dcc.Graph(id='rad_comparison',
+                             style={'display': 'inline-block', 'width':'100%'})
 
-        graph3 = dcc.Graph(id='rad_shape',
-                           style={'display': 'inline-block', 'width':'65%'})
+        rad_shape = dcc.Graph(id='rad_shape',
+                              style={'display': 'inline-block', 'width':'100%'})
 
-        graph4 = dcc.Graph(id='modal_shapes',
-                           style={'display': 'inline-block', 'width':'35%'})
+        mod_shape1 = dcc.Graph(id='modal_shape1',
+                               style={'display': 'inline-block', 'width':'33%'})
         
+        mod_shape2 = dcc.Graph(id='modal_shape2',
+                               style={'display': 'inline-block', 'width':'33%'})        
 
-        app.layout = html.Div([self.dropdown,
-                               graph1,
-                               graph2,
-                               html.Div([self.fslider],id='slider-div1', style={'display': 'inline-block', 'width':'65%'}),
-                               graph3,
-                               graph4,
-                               html.Div([self.sslider],id='slider-div2', style={'display': 'inline-block', 'width':'65%'}),
-                               ])
+        mod_shape3 = dcc.Graph(id='modal_shape3',
+                               style={'display': 'inline-block', 'width':'33%'})
+
+        app.layout = html.Div([
+            html.Div([
+            self.dropdown,
+            rad_curve,
+            self.fslider,
+            mod_shape1,
+            mod_shape2,
+            mod_shape3,
+            ],
+            style={'height': '300px', 'width': '60%', 'display': 'inline-block'}
+            ),
+            html.Div([
+            rad_comp,
+            rad_shape,
+            self.sslider,
+            ],
+            style={'height': '300px', 'width': '40%', 'display': 'inline-block'})
+        ])
+
+
 
         @app.callback(
             Output('rad_curve', 'figure'),
@@ -88,14 +106,32 @@ class Dashboard(object):
             return fig
 
         @app.callback(
-            Output('modal_shapes', 'figure'),
+            Output('modal_shape1', 'figure'),
             Input('slider_freq', 'value'),
             Input('structure', 'value'),
             )
         def update_graph4(freq, s_scale):
-            fig = self.add_modal_shapes(freq, s_scale)
+            fig = self.add_modal_shapes(freq, s_scale, 0)
             return fig
 
+        @app.callback(
+            Output('modal_shape2', 'figure'),
+            Input('slider_freq', 'value'),
+            Input('structure', 'value'),
+            )
+        def update_graph5(freq, s_scale):
+            fig = self.add_modal_shapes(freq, s_scale, 1)
+            return fig
+
+
+        @app.callback(
+            Output('modal_shape3', 'figure'),
+            Input('slider_freq', 'value'),
+            Input('structure', 'value'),
+            )
+        def update_graph6(freq, s_scale):
+            fig = self.add_modal_shapes(freq, s_scale, 2)
+            return fig
         
 
         app.run_server(debug=True)
@@ -109,33 +145,37 @@ class Dashboard(object):
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
         fig.add_trace(go.Scatter(x=x1,
-                                    y=y1,
-                                    mode='lines',
-                                    name=s.name,
-                                    legendgroup=s.name,
-                                    line={'color':'darkcyan'},
-                                    opacity=.8,
-                                    )
-                                    )
+                                 y=y1,
+                                 mode='lines',
+                                 name=s.name,
+                                 legendgroup=s.name,
+                                 line={'color':'darkcyan'},
+                                 opacity=.8,
+                                 )
+                                 )
 
         fig.update_layout(xaxis_title='Frequency (Hz)')
         fig.update_layout(yaxis_title='Radiated sound power (dB)')
 
         y2 = [s.results['modal'][k].efmass['z'] for k in s.results['modal']]
         mfreqs = [s.results['modal'][k].frequency for k in s.results['modal']]
-        for f in mfreqs:
+        font={'size':9, 'color':'red'}
+        for i, f in enumerate(mfreqs):
             fig.add_vline(x=f,line_width=.7, line_color='red', opacity=.5)
+            fig.add_annotation(x=f, y=max(y1), text='{}'.format(i),font=font, opacity=.5,arrowwidth=.25, arrowcolor='red')
         
         fig.add_trace(go.Scatter(x=mfreqs,
-                                y=y2,
-                                mode='markers',
-                                line={'color':'red'},
-                                opacity=.5,
-                                ),
-                                secondary_y=True,
-                                )
+                                 y=y2,
+                                 mode='markers',
+                                 line={'color':'red'},
+                                 opacity=.5,
+                                 ),
+                                 secondary_y=True,
+                                 )
 
-        fig.update_yaxes(type='log',secondary_y=True)
+        fig.update_yaxes(
+                        #  type='log',
+                         secondary_y=True)
         fig.update_yaxes(title_text='Effective mass (kg)',secondary_y=True)
         fig.update_layout(showlegend=False)
         fig.update_layout(margin=dict(l=25, r=25, t=40, b=25), plot_bgcolor='rgb(255,255,255)')
@@ -168,29 +208,31 @@ class Dashboard(object):
         freqs = [s.results['radiation'][k].frequency for k in s.results['radiation']]
         f0 = min(freqs)
         fmax = max(freqs)
-        self.fslider = dcc.Slider(id='slider_freq',
-                                 min=f0,
-                                 max=fmax,
-                                 step=None,
-                                 value=f0,
-                                 marks={i:{'label':'', 'style':{'dots':False}} for i in freqs},
-                                 included=False,
-                                 tooltip={'always_visible':True},
-                                 )
+        fslider = dcc.Slider(id='slider_freq',
+                             min=f0,
+                             max=fmax,
+                             step=None,
+                             value=f0,
+                             marks={i:{'label':'', 'style':{'dots':False}} for i in freqs},
+                             included=False,
+                             tooltip={'always_visible':True},
+                             )
+        self.fslider = html.Div(fslider,id='slider-div1', style={'display': 'inline-block', 'width':'100%'})
 
     def add_sslider(self):
         m = 0
         M = 20
         s = .2
-        self.sslider = dcc.Slider(id='slider_scale',
-                                  min=m,
-                                  max=M,
-                                  step=s,
-                                  value=1,
-                                  marks={i:{'label':'', 'style':{'dots':False}} for i in range(m, M)},
-                                  included=False,
-                                  tooltip={'always_visible':False},
-                                 )
+        sslider = dcc.Slider(id='slider_scale',
+                             min=m,
+                             max=M,
+                             step=s,
+                             value=1,
+                             marks={i:{'label':'', 'style':{'dots':False}} for i in range(m, M)},
+                             included=False,
+                             tooltip={'always_visible':False},
+                             )
+        self.sslider = html.Div(sslider,id='slider-div2', style={'display': 'inline-block', 'width':'100%'})
 
     def add_dropdown(self):
         div = html.Div([html.Label('Structure'),
@@ -200,8 +242,12 @@ class Dashboard(object):
                          value=self.current_structure,
                          ),
                          ],
-                         style={'width': '40%', 'display': 'inline-block',
-                               'font-family':'open sans', 'font-size':'12px'})
+                         style={
+                             'width': '50%',
+                             'display': 'inline-block',
+                             'font-family':'open sans',
+                             'font-size':'12px'},
+                        )
         self.dropdown = div
 
     def add_all_curves_fig(self, s_index):
@@ -212,9 +258,9 @@ class Dashboard(object):
             y1 = [s.results['radiation'][k].radiated_p for k in s.results['radiation']]
             y1 = [(10 * math.log10(w)) + 120 for w in y1]
             if s.name == self.structures[s_index].name:
-                width = 3
+                width = 4
                 opacity = .9
-                color = 'red'
+                color = None
             else:
                 width = 1
                 opacity = .7
@@ -329,6 +375,7 @@ class Dashboard(object):
                            colorscale= 'agsunset', # 'viridis'
                            intensity=intensity_,
                            intensitymode='cell',
+                           showscale=True,
                 )]
         data.extend(lines)
         data.extend(faces)
@@ -341,6 +388,12 @@ class Dashboard(object):
         title = '{} - Radiated Sound Power {:.2f}Hz'.format(name, freq)
 
         layout = go.Layout(title=title,
+                           margin=go.layout.Margin(
+                           l=2, #left margin
+                           r=2, #right margin
+                           b=2, #bottom margin
+                           t=30, #top margin
+                    ),
                           scene=dict(aspectmode='data',
                                     xaxis=dict(
                                                gridcolor='rgb(255, 255, 255)',
@@ -362,7 +415,41 @@ class Dashboard(object):
                             )
         return layout
 
-    def add_modal_shapes(self, freq, s_scale):
+    def make_layout2(self, mode, factor):
+        name = self.structures[self.current_structure].name
+        # title = '{} - Radiated Sound Power {:.2f}Hz'.format(name, mode)
+        title = 'Mode {} - Factor {:0.2f}'.format(mode, factor)
+
+        layout = go.Layout(title=title,
+                           title_font_size=12,
+                           margin=go.layout.Margin(
+                                  l=2, #left margin
+                                  r=2, #right margin
+                                  b=2, #bottom margin
+                                  t=30, #top margin
+                    ),
+                          scene=dict(aspectmode='data',
+                                    xaxis=dict(
+                                               gridcolor='rgb(255, 255, 255)',
+                                               zerolinecolor='rgb(255, 255, 255)',
+                                               showbackground=True,
+                                               backgroundcolor='rgb(230, 230,230)'),
+                                    yaxis=dict(
+                                               gridcolor='rgb(255, 255, 255)',
+                                               zerolinecolor='rgb(255, 255, 255)',
+                                               showbackground=True,
+                                               backgroundcolor='rgb(230, 230,230)'),
+                                    zaxis=dict(
+                                               gridcolor='rgb(255, 255, 255)',
+                                               zerolinecolor='rgb(255, 255, 255)',
+                                               showbackground=True,
+                                               backgroundcolor='rgb(230, 230,230)')
+                                    ),
+                          showlegend=False,
+                            )
+        return layout
+
+    def add_modal_shapes(self, freq, s_scale, mode_k):
         s = self.structures[s_scale]
         mode = self.freq_key[freq]
         ks = s.results['harmonic'][mode].modal_coordinates.keys()
@@ -374,92 +461,81 @@ class Dashboard(object):
 
         norm = sorted(norm)[::-1]
         
-        fig = make_subplots(rows=2,
-                            cols=2,
-                            specs=[[{"type": "scene"}, {"type": "scene"}],
-                                   [{"type": "scene"}, {"type": "scene"}]],)
-        traces = []
-        for factor, k in norm[:4]:
-            print(factor, k)
-            vertices = []
-            nodes = sorted(s.nodes.keys(), key=int)
-            scale = .1
-            scale *= 1
-            dm = []
-            for vk in nodes:
-                x, y, z = s.nodes[vk].xyz()
-                dx = s.results['modal'][k].displacements['ux'][vk]
-                dy = s.results['modal'][k].displacements['uy'][vk]
-                dz = s.results['modal'][k].displacements['uz'][vk]
-                
-                xyz = [x + dx * scale, y + dy * scale, z + dz * scale]
-                dm.append(length_vector([dx, dy, dz]))
-                vertices.append(xyz)
-
-            vertices_ = []
-            faces_ = []
-            count = 0
-            faces = [s.elements[ek].nodes for ek in s.elements]
-            for i, f in enumerate(faces):
-                face = []
-                for vk in f:
-                    vertices_.append(vertices[vk])
-                    face.append(count)
-                    count += 1
-                faces_.append(face)
-
-            mesh = Mesh.from_vertices_and_faces(vertices, faces)
-            edges = [[mesh.vertex_coordinates(u), mesh.vertex_coordinates(v)] for u,v in mesh.edges()]
-            line_marker = dict(color='rgb(0,0,0)', width=1.5)
-            lines = []
-            x, y, z = [], [],  []
-            for u, v in edges:
-                x.extend([u[0], v[0], [None]])
-                y.extend([u[1], v[1], [None]])
-                z.extend([u[2], v[2], [None]])
-
-            lines = go.Scatter3d(x=x, y=y, z=z, mode='lines', line=line_marker)
-            triangles = []
-            for face in faces:
-                triangles.append(face[:3])
-                if len(face) == 4:
-                    triangles.append([face[2], face[3], face[0]])
+        factor, k = norm[mode_k]
+        # for factor, k in norm[:3]:
+        vertices = []
+        nodes = sorted(s.nodes.keys(), key=int)
+        scale = 35
+        dm = []
+        for vk in nodes:
+            x, y, z = s.nodes[vk].xyz()
+            dx = s.results['modal'][k].displacements['ux'][vk]
+            dy = s.results['modal'][k].displacements['uy'][vk]
+            dz = s.results['modal'][k].displacements['uz'][vk]
             
-            i = [v[0] for v in triangles]
-            j = [v[1] for v in triangles]
-            k = [v[2] for v in triangles]
+            xyz = [x + dx * scale, y + dy * scale, z + dz * scale]
+            dm.append(length_vector([dx, dy, dz]))
+            vertices.append(xyz)
 
-            x = [v[0] for v in vertices]
-            y = [v[1] for v in vertices]
-            z = [v[2] for v in vertices]
+        vertices_ = []
+        faces_ = []
+        count = 0
+        faces = [s.elements[ek].nodes for ek in s.elements]
+        for i, f in enumerate(faces):
+            face = []
+            for vk in f:
+                vertices_.append(vertices[vk])
+                face.append(count)
+                count += 1
+            faces_.append(face)
 
-            # intensity_ = [d * 1e3 for d in dm]
-            m = min(dm)
-            M = max(dm)
-            colors = [i_to_rgb((z-m)/(M-m)) for z in dm]
-            colors = ['rgb({},{},{})'.format(r,g,b) for r,g,b in colors]
+        mesh = Mesh.from_vertices_and_faces(vertices, faces)
+        edges = [[mesh.vertex_coordinates(u), mesh.vertex_coordinates(v)] for u,v in mesh.edges()]
+        line_marker = dict(color='rgb(0,0,0)', width=1.5)
+        lines = []
+        x, y, z = [], [],  []
+        for u, v in edges:
+            x.extend([u[0], v[0], [None]])
+            y.extend([u[1], v[1], [None]])
+            z.extend([u[2], v[2], [None]])
 
-            faces = go.Mesh3d(x=x,
-                            y=y,
-                            z=z,
-                            i=i,
-                            j=j,
-                            k=k,
-                            opacity=1.,
-                            vertexcolor=colors,
-                    )
-            traces.append((lines, faces))
-        # layout = self.make_layout(freq)
-        fig.add_trace((traces[0][0]), row=1, col=1)
-        fig.add_trace((traces[0][1]), row=1, col=1)
-        fig.add_trace((traces[1][0]), row=2, col=1)
-        fig.add_trace((traces[1][1]), row=2, col=1)
-        fig.add_trace((traces[2][0]), row=1, col=2)
-        fig.add_trace((traces[2][1]), row=1, col=2)
-        fig.add_trace((traces[3][0]), row=2, col=2)
-        fig.add_trace((traces[3][1]), row=2, col=2)
+        lines = go.Scatter3d(x=x, y=y, z=z, mode='lines', line=line_marker)
+        triangles = []
+        for face in faces:
+            triangles.append(face[:3])
+            if len(face) == 4:
+                triangles.append([face[2], face[3], face[0]])
+        
+        i = [v[0] for v in triangles]
+        j = [v[1] for v in triangles]
+        l = [v[2] for v in triangles]
 
+        x = [v[0] for v in vertices]
+        y = [v[1] for v in vertices]
+        z = [v[2] for v in vertices]
 
+        intensity_ = [d * 1e3 for d in dm]
+        # m = min(dm)
+        # M = max(dm)
+        # colors = [i_to_rgb((z-m)/(M-m)) for z in dm]
+        # colors = ['rgb({},{},{})'.format(r,g,b) for r,g,b in colors]
+
+        faces = go.Mesh3d(x=x,
+                        y=y,
+                        z=z,
+                        i=i,
+                        j=j,
+                        k=l,
+                        opacity=1.,
+                        intensity=intensity_,
+                        colorscale= 'viridis',
+                        showscale=False,
+                )
+
+        data = [lines, faces]
+        layout = self.make_layout2(k, factor)
+        fig  = go.Figure(data=data, layout=layout)
+        fig.update_layout()
         return fig
 
 
