@@ -383,7 +383,7 @@ class Dashboard(object):
             print(factor, k)
             vertices = []
             nodes = sorted(s.nodes.keys(), key=int)
-            scale = 10.
+            scale = .1
             scale *= 1
             dm = []
             for vk in nodes:
