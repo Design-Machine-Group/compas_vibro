@@ -31,14 +31,16 @@ def plot_structure(structure):
                 if srf:
                     srfs.append(srf)
             rs.JoinSurfaces(srfs, delete_input=True)
-        
-        
+
+
 if __name__ == '__main__':
     import os
     import compas_vibro
     from compas_vibro.structure import Structure
-    
+
+
     rs.DeleteObjects(rs.ObjectsByLayer('Default'))
-    fpath = os.path.join(compas_vibro.TEMP, 'clt_1_remeshed_field.obj')
+    fpath = os.path.join(compas_vibro.DATA, 'flat_mesh_20x20_field.obj')
+    # fpath = '/Users/tmendeze/Documents/UW/01_research/02_vibro/02_mass_timber_floors/timber_vibro/timber_vibro/data/harmonic_superposition/ansys_CLT_1_harmonic_s.obj'
     s = Structure.from_obj(fpath)
     plot_structure(s)
