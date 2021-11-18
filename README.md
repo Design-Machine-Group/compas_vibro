@@ -27,7 +27,7 @@ To install `compas_vibro` from a local source repo, clone the repo onto your com
 Then navigate to the root of the `compas_vibro` repo and install using pip:
 
 ```bash
-cd compas_fea
+cd compas_vibro
 pip install -e .
 ```
 
