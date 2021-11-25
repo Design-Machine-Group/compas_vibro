@@ -40,7 +40,17 @@ def write_command_file_modal(structure, fields):
         write_modal_shape(structure, path, filename)
     if 'f' or 'all' in fields:
         write_modal_frequency(structure, path, filename)
+    if 'm' or 'all' in fields:
+        write_modal_masses(structure, path, filename)
     write_modal_record(structure, path, filename)    
+
+def write_modal_masses(structure, path, filename):
+    op = os.path.join(path, '{}_output'.format(structure.name), 'modal_masses.txt')
+    fh = open(os.path.join(path, filename), 'a')
+    fh.write('#\n')
+    fh.write('modalProperties -print -file \"{}\" -unorm\n'.format(op))
+    fh.write('#\n')    
+    fh.close()
 
 def write_modal_record(structure, path, filename):
     fh = open(os.path.join(path, filename), 'a')
