@@ -48,7 +48,7 @@ def write_modal_masses(structure, path, filename):
     op = os.path.join(path, '{}_output'.format(structure.name), 'modal_masses.txt')
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
-    fh.write('modalProperties -print -file \"{}\" -unorm\n'.format(op))
+    fh.write('modalProperties -file \"{}\" -unorm\n'.format(op))
     fh.write('#\n')    
     fh.close()
 

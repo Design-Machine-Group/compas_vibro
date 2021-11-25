@@ -16,7 +16,6 @@ __all__ = ['read_modal_displacements',
            'read_modal_frequencies',
            'read_harmonic_displacements']
 
-
 def read_modal_displacements(outpath, mode):
     disp_dict = {'ux': {}, 'uy': {}, 'uz': {}}
     filepath = os.path.join(outpath, 'mode{}.out'.format(mode + 1))
@@ -74,6 +73,33 @@ def read_static_displacements(outpath):
         sd['uz'][nkey] = a[2]
         nkey += 1
     return sd
+
+def read_modal_masses(outpath, num_modes):
+    filepath = os.path.join(outpath, 'modal_masses.txt')
+    fh = open(filepath, 'r')
+    lines = fh.readlines()
+    fh.close()
+    s1 = '* 9. MODAL PARTICIPATION MASS RATIOS (%):\n'
+    n1 = lines.index(s1) + 4
+    s2 = '* 7. MODAL PARTICIPATION MASSES:\n'
+    n2 = lines.index(s2) + 4
+    mod_mass = {}
+    mod_mass_r = {}
+    for i in range(num_modes):
+        line = lines[n1 + i]
+        line = " ".join(line.split())
+        m = line.split(' ')
+        mod_mass_r[i] = {'x': m[1], 'y':m[2], 'z':m[3],
+                        'xx':m[4], 'yy':m[5], 'zz':m[6]}
+        
+        line = lines[n2 + i]
+        line = " ".join(line.split())
+        m = line.split(' ')
+        mod_mass[i] = {'x': m[1], 'y':m[2], 'z':m[3],
+                        'xx':m[4], 'yy':m[5], 'zz':m[6]}
+
+    return mod_mass, mod_mass_r
+
 
 if __name__ == "__main__":
     pass

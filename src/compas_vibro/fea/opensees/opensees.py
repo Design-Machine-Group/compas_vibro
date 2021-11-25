@@ -22,6 +22,7 @@ from compas_vibro.fea.opensees.read import read_modal_displacements
 from compas_vibro.fea.opensees.read import read_modal_frequencies
 from compas_vibro.fea.opensees.read import read_harmonic_displacements
 from compas_vibro.fea.opensees.read import read_static_displacements
+from compas_vibro.fea.opensees.read import read_modal_masses
 
 
 from compas_vibro.structure.result import Result
@@ -91,6 +92,7 @@ def extract_data(structure, fields, results_type):
     path = structure.path
     name = structure.name
     out_path = os.path.join(path, name + '_output')
+    num_modes = structure.step['modal'].modes
 
     if results_type == 'modal':
         mfreq = read_modal_frequencies(out_path)
@@ -101,6 +103,11 @@ def extract_data(structure, fields, results_type):
             for fk in mfreq:
                 d = read_modal_displacements(out_path, fk)
                 structure.results['modal'][fk].displacements = d
+        if 'm' in fields or 'all' in fields:
+            mod_mass, mod_mass_r = read_modal_masses(out_path, num_modes)
+            for fk in mfreq:
+                structure.results['modal'][fk].efmass = mod_mass[fk]
+                structure.results['modal'][fk].efmass_r = mod_mass_r[fk]
 
     elif results_type == 'harmonic':
         # freq_list = structure.step.freq_list

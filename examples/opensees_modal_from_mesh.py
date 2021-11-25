@@ -54,10 +54,12 @@ s.add(el_prop)
 
 s.analyze_modal(backend='opensees', fields=['f', 'u', 'm'], num_modes=20)
 s.to_obj()
-v = ModalViewer(s)
-v.show()
+# v = ModalViewer(s)
+# v.show()
 
 modes = s.results['modal'].keys()
 for mode in modes:
     f = s.results['modal'][mode].frequency
-    print(mode, f)
+    m = s.results['modal'][mode].efmass['z']
+    mr = s.results['modal'][mode].efmass_r['z']
+    print(mode, f, m, mr)
