@@ -13,3 +13,4 @@ from .modal_viewer import *
 from .harmonic_viewer import *
 from .static_viewer import *
 from .pressure_field_viewer import *
+from .dashboard import *

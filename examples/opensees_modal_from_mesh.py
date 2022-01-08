@@ -55,9 +55,9 @@ s.add(el_prop)
 s.analyze_modal(backend='opensees', fields=['f', 'u', 'm'], num_modes=12)
 # s.analyze_modal(backend='opensees', fields=['m'], num_modes=12)
 
-# s.to_obj()
-# v = ModalViewer(s)
-# v.show()
+s.to_obj()
+v = ModalViewer(s)
+v.show()
 
 modes = s.results['modal'].keys()
 for mode in modes:
