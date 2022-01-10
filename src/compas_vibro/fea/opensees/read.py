@@ -89,12 +89,14 @@ def read_modal_masses(outpath, num_modes):
         line = lines[n1 + i]
         line = " ".join(line.split())
         m = line.split(' ')
+        m = [float(_) / 100. for _ in m]
         mod_mass_r[i] = {'x': m[1], 'y':m[2], 'z':m[3],
                         'xx':m[4], 'yy':m[5], 'zz':m[6]}
         
         line = lines[n2 + i]
         line = " ".join(line.split())
         m = line.split(' ')
+        m = [float(_) / 100. for _ in m]
         mod_mass[i] = {'x': m[1], 'y':m[2], 'z':m[3],
                         'xx':m[4], 'yy':m[5], 'zz':m[6]}
 
