@@ -163,17 +163,17 @@ class PlotlyViewer(object):
             intensity = [d * 1e3 for d in dm]
 
             faces = [go.Mesh3d(x=x,
-                            y=y,
-                            z=z,
-                            i=i,
-                            j=j,
-                            k=k,
-                            opacity=1.,
-                            # contour={'show':True},
-                            # vertexcolor=vcolor,
-                            colorbar_title='Displacements',
-                            colorscale= 'viridis', # 'jet', # 'viridis'
-                            intensity=intensity
+                               y=y,
+                               z=z,
+                               i=i,
+                               j=j,
+                               k=k,
+                               opacity=1.,
+                               # contour={'show':True},
+                               # vertexcolor=vcolor,
+                               colorbar_title='Displacements',
+                               colorscale= 'viridis', # 'jet', # 'viridis'
+                               intensity=intensity
                     )]
             self.data.extend(lines)
             self.data.extend(faces)
