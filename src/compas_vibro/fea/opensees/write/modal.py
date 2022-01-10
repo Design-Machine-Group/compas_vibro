@@ -46,6 +46,7 @@ def write_command_file_modal(structure, fields):
 
 def write_modal_masses(structure, path, filename):
     op = os.path.join(path, '{}_output'.format(structure.name), 'modal_masses.txt')
+    op.replace('\\', '/')
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
     fh.write('modalProperties -file \"{}\" -unorm\n'.format(op))
@@ -86,7 +87,9 @@ def write_modal_shape(structure, path, filename):
     fh.write('# Modal shape recorders\n')
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
-    op_= outpath.replace('\\', '/')
+    op_ = outpath
+    if os.name != 'nt':
+        op_= outpath.replace('\\', '/')
     string = 'recorder Node -file \"{0}/mode{1}.out\" -nodeRange 1 {2} -dof 1 2 3 "eigen {1}"\n'
     for i in range(modes):
         fh.write(string.format(op_, i + 1, num_nodes))
@@ -115,6 +118,8 @@ def write_modal_frequency(structure, path, filename):
     fh.write('#\n')
     # fh.write('puts "frequencies are $F"\n')
     fh.write('#\n')
+    op_ = outpath
+    # if os.name != 'nt':
     op_= outpath.replace('\\', '/')
     fh.write('set freq "{}/modal_frequencies.out"\n'.format(op_))
     fh.write('set Freq [open $freq "w"]\n')
