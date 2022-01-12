@@ -2,12 +2,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import os
-
 from compas.datastructures import Mesh
 
 import compas_vibro
-
 
 from compas_vibro.structure import Structure
 from compas_vibro.structure import FixedDisplacement
@@ -15,6 +12,8 @@ from compas_vibro.structure import PointLoad
 from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
+
+from compas_vibro.vibro import from_W_to_dB
 
 from compas_vibro.viewers import HarmonicViewer
 
@@ -77,4 +76,8 @@ num_modes = 25
 s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
 s.compute_rad_power()
 # s.to_obj()
-print(s.results.keys())
+for k in s.results['radiation']:
+    f = s.results['radiation'][k].frequency
+    p = s.results['radiation'][k].radiated_p
+    db = from_W_to_dB(p)
+    print(k, f, p, db)
