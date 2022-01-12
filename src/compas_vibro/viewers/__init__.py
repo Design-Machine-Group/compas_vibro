@@ -14,3 +14,4 @@ from .harmonic_viewer import *
 from .static_viewer import *
 from .pressure_field_viewer import *
 from .dashboard import *
+from .plotly_structure_viewer import *
