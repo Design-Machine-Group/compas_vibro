@@ -63,10 +63,10 @@ s.add(material)
 
 # add element properties - - - - - - - - -
 prop = ElementProperties('concrete_shell',
-                             material='concrete',
-                             section='sec',
-                             elset='shell',
-                             is_rad=True)
+                          material='concrete',
+                          section='sec',
+                          elset='shell',
+                          is_rad=True)
 s.add(prop)
 
 # add analysis frequencies - - - - - - - -
@@ -76,4 +76,5 @@ num_modes = 25
 # analyze - - - - 
 s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
 s.compute_rad_power()
-s.to_obj()
+# s.to_obj()
+print(s.results.keys())

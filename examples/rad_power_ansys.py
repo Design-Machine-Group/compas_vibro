@@ -94,4 +94,7 @@ num_modes = 25
 # analyze - - - - 
 s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
 s.compute_rad_power()
-s.to_obj()
+# s.to_obj()
+
+print(s.results.keys())
+
