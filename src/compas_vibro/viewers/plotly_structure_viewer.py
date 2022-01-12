@@ -14,6 +14,8 @@ from compas.datastructures import Mesh
 
 from compas.geometry import length_vector
 
+# TODO: Plot elements per property (colors, hover data with properties)
+
 class PlotlyStructureViewer(object):
     def __init__(self, structure):
         self.structure = structure
@@ -108,10 +110,23 @@ class PlotlyStructureViewer(object):
         self.data.extend(dots)
 
 
+    def plot_point_loads(self):
+        dots = []
+        for lk in self.structure.loads:
+            load = self.structure.loads[lk]
+            if load.__name__ == 'PointLoad':
+                nodes = load.nodes
+                x = [self.structure.nodes[nk].x for nk in nodes]
+                y = [self.structure.nodes[nk].y for nk in nodes]
+                z = [self.structure.nodes[nk].z for nk in nodes]
+                dots.append(go.Scatter3d(x=x, y=y, z=z, mode='markers'))
+        self.data.extend(dots)
+
     def show(self):
         self.make_layout()
         self.plot_shape()
         self.plot_supports()
+        self.plot_point_loads()
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()
 
@@ -121,10 +136,8 @@ if __name__ == '__main__':
     import os
     import compas_vibro
     from compas_vibro.structure import Structure
-    import timber_vibro
 
-    # fp = os.path.join(compas_vibro.DATA, 'flat_mesh_20x20_radiation_t10.obj')
-    fp = os.path
+    fp = os.path.join(compas_vibro.DATA, 'flat_mesh_20x20_radiation_t10.obj')
     s = Structure.from_obj(fp)
 
     v = PlotlyStructureViewer(s)

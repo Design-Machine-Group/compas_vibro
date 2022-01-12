@@ -113,10 +113,6 @@ if __name__ == "__main__":
 
     filepath = os.path.join(compas_vibro.TEMP, 'ansys_mesh_flat_20x20_harmonic.obj')
     s = Structure.from_obj(filepath)
-    # print(s.results['harmonic'].keys())
-    # print(s.results['harmonic'][20].displacements)  #[mode].displacements['ux'][vk]
     v = HarmonicViewer(s)
     v.scale = 1e8
     v.show()
-
-
