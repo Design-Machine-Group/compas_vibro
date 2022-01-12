@@ -32,12 +32,9 @@ class Dashboard(object):
 
     def show(self):
         app = dash.Dash(__name__)
-
         self.add_dropdown()
         self.add_fslider()
         self.add_sslider()
-        
-        
 
         rad_curve = dcc.Graph(id='rad_curve',
                               style={'display': 'inline-block', 'width':'100%'})
@@ -75,7 +72,6 @@ class Dashboard(object):
             ],
             style={'height': '300px', 'width': '40%', 'display': 'inline-block'})
         ])
-
 
 
         @app.callback(
@@ -133,7 +129,6 @@ class Dashboard(object):
             fig = self.add_modal_shapes(freq, s_scale, 2)
             return fig
         
-
         app.run_server(debug=True)
 
     def add_rad_curve_fig(self, freq, s_index):
