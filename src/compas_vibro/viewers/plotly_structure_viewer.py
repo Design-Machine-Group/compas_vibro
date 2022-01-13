@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from compas_vibro.structure import material
+
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -15,6 +17,7 @@ from compas.datastructures import Mesh
 from compas.geometry import length_vector
 
 # TODO: Plot elements per property (colors, hover data with properties)
+# TODO: hoverdata for nodes should show node key
 
 class PlotlyStructureViewer(object):
     def __init__(self, structure):
@@ -84,6 +87,30 @@ class PlotlyStructureViewer(object):
         y = [v[1] for v in vertices]
         z = [v[2] for v in vertices]
 
+
+        attrs = ['elset', 'is_rad', 'material', 'thickess']
+        intensity_ = []
+        text = []
+        for ek in self.structure.elements:
+            ep = self.structure.elements[ek].element_property
+            ep = self.structure.element_properties[ep]
+            intensity_.append(int(ep.is_rad) + .1)
+            string = 'ekey:{}<br>'.format(ek)
+            for att in attrs:
+                if att == 'elset':
+                    val = ep.elset
+                elif att == 'is_rad':
+                    val = ep.is_rad
+                elif att == 'material':
+                    val = ep.material
+                elif att == 'thickess':
+                    val = self.structure.sections[ep.section].geometry['t']
+                string += '{}: {}<br>'.format(att, val)
+            text.append(string)
+            if len(self.structure.elements[ek].nodes) == 4:
+                intensity_.append(int(ep.is_rad) + .1)
+                text.append(string)
+
         faces = [go.Mesh3d(x=x,
                             y=y,
                             z=z,
@@ -91,10 +118,14 @@ class PlotlyStructureViewer(object):
                             j=j,
                             k=k,
                             opacity=1.,
-                            # contour={'show':True},
-                            # vertexcolor=vcolor,
-                            colorbar_title='Displacements',
-                            colorscale= 'viridis', # 'jet', # 'viridis'
+                            colorbar_title='is_rad',
+                            colorbar_thickness=10,
+                            colorscale='Emrld_r',
+                            intensity=intensity_,
+                            intensitymode='cell',
+                            text=text,
+                            hoverinfo='text',
+                            showscale=False,
                 )]
         self.data.extend(lines)
         self.data.extend(faces)
@@ -108,7 +139,6 @@ class PlotlyStructureViewer(object):
             z = [self.structure.nodes[nk].z for nk in nodes]
             dots.append(go.Scatter3d(x=x, y=y, z=z, mode='markers'))
         self.data.extend(dots)
-
 
     def plot_point_loads(self):
         dots = []
@@ -139,6 +169,11 @@ if __name__ == '__main__':
 
     fp = os.path.join(compas_vibro.DATA, 'flat_mesh_20x20_radiation_t10.obj')
     s = Structure.from_obj(fp)
+
+    # for ek in s.elements:
+    #     pass
+    # ek = s.elements[ek].element_property
+    # print(dir(s.element_properties[ek]))
 
     v = PlotlyStructureViewer(s)
     v.show()
