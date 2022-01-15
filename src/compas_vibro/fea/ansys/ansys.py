@@ -248,7 +248,7 @@ def delete_result_files(path, name):
         None
     """
     out_path = os.path.join(path, name + '_output')
-    shutil.rmtree(out_path)
+    shutil.rmtree(out_path, ignore_errors=True)
 
 
 def create_results_folders(structure, work_dir):
