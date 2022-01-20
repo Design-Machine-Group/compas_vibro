@@ -27,6 +27,7 @@ from compas_vibro.structure.load import PointLoad
 from compas_vibro.vibro.rayleigh import compute_rad_power_structure
 
 from compas.geometry import centroid_points
+from compas.geometry import distance_point_point
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -199,17 +200,33 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
     def compute_mass(self):
         mass = 0
-        for epk in self.element_properties:
-            mat = self.element_properties[epk].material
-            section = self.element_properties[epk].section
-            thick = self.sections[section].geometry['t']
-            density = self.materials[mat].p
-            elset = self.element_properties[epk].elset
-            ekeys = self.sets[elset].selection
-            for ek in ekeys:
-                pl = [self.nodes[nk].xyz() for nk in self.elements[ek].nodes]
-                mass += area_polygon(pl) * thick * density
+        for ek in self.elements:
+            mass += self.compute_element_mass(ek)
         self.mass = mass
+
+    def compute_element_mass(self, element_key):
+        epk = self.elements[element_key].element_property
+        el_prop = self.element_properties[epk]
+        material = el_prop.material
+        section = el_prop.section
+        density = self.materials[material].p
+        if self.sections[section].__name__ == 'ShellSection':
+            thick = self.sections[section].geometry['t']
+            polygon = [self.nodes[nk].xyz() for nk in self.elements[element_key].nodes]
+            area = area_polygon(polygon)
+            mass = area * thick * density
+        elif self.sections[section].__name__ == 'ISection':
+            b = self.sections[section].geometry['b']
+            h = self.sections[section].geometry['h']
+            wt = self.sections[section].geometry['tw']
+            ft = self.sections[section].geometry['tf']
+            area = (2 * b * ft) * (wt * (h - (2 * ft)))
+            u, v = self.elements[element_key].nodes
+            length = distance_point_point(self.node_xyz(u), self.node_xyz(v))
+            mass = area * length * density
+        return mass
+
+
 
     def compute_rad_power(self):
         compute_rad_power_structure(self)

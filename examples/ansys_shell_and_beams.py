@@ -86,14 +86,14 @@ s.add(el_prop_beams)
 
 ## Visualize structure--------------------------------------------------------------------
 
-v = PlotlyStructureViewer(s)
-# v.show_node_labels = True
-v.show()
+# v = PlotlyStructureViewer(s)
+# # v.show_node_labels = True
+# v.show()
 
 
 ## Analyze model -------------------------------------------------------------------------
 
-# s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
+s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 
 
 ## Plot results --------------------------------------------------------------------------
