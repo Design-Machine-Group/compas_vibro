@@ -56,28 +56,83 @@ class PlotlyStructureViewer(object):
                             )
         self.layout = layout
 
-    def plot_shell_shape(self):
-        
+    def plot_beams(self):
+        sec_names = ['ISection']
         elements = []
         for epk in self.structure.element_properties:
-            print('epk', epk)
             section = self.structure.element_properties[epk].section
             sec_name = self.structure.sections[section].__name__
-            if  sec_name == 'ShellSection':
-                print('sec_name', sec_name)
-                
+            if  sec_name in sec_names:
                 el_keys = self.structure.element_properties[epk].elements
                 if el_keys == None:
                     elset = self.structure.element_properties[epk].elset
                     el_keys = self.structure.sets[elset].selection
-                elements.extend(elements)
+                elements.extend(el_keys)
+
+        attrs = ['elset', 'is_rad', 'material', 'section', 'base', 'height']
+        lines = []
+        x, y, z = [], [],  []
+        text = []
+        for ek in elements:
+            u, v = self.structure.elements[ek].nodes
+            u = self.structure.node_xyz(u)
+            v = self.structure.node_xyz(v)
+            x.extend([u[0], v[0], [None]])
+            y.extend([u[1], v[1], [None]])
+            z.extend([u[2], v[2], [None]])
+
+            ep = self.structure.elements[ek].element_property
+            ep = self.structure.element_properties[ep]
+
+            string = 'ekey:{}<br>'.format(ek)
+            for att in attrs:
+                val = 'None'
+                if att == 'elset':
+                    val = ep.elset
+                elif att == 'is_rad':
+                    val = ep.is_rad
+                elif att == 'material':
+                    val = ep.material
+                elif att == 'section':
+                    val = self.structure.sections[ep.section].__name__
+                elif att == 'base':
+                    val = self.structure.sections[ep.section].geometry['b']
+                elif att == 'height':
+                    val = self.structure.sections[ep.section].geometry['h']
+                string += '{}: {}<br>'.format(att, val)
+            text.append(string)
+
+        line_marker = dict(color='rgb(0,0,200)', width=20)
+        lines = [go.Scatter3d(x=x,
+                              y=y,
+                              z=z,
+                              mode='lines',
+                              text=text,
+                              hoverinfo='text',
+                              line=line_marker,
+                              )]
+        self.data.extend(lines)
+
+
+    def plot_shell_shape(self):
+        
+        elements = []
+        for epk in self.structure.element_properties:
+            section = self.structure.element_properties[epk].section
+            sec_name = self.structure.sections[section].__name__
+            if  sec_name == 'ShellSection':
+                el_keys = self.structure.element_properties[epk].elements
+                if el_keys == None:
+                    elset = self.structure.element_properties[epk].elset
+                    el_keys = self.structure.sets[elset].selection
+                elements.extend(el_keys)
 
         vertices = []
 
         nodes = sorted(self.structure.nodes.keys(), key=int)
         vertices = [self.structure.nodes[vk].xyz() for vk in nodes]
 
-        faces = [self.structure.elements[ek].nodes for ek in el_keys]
+        faces = [self.structure.elements[ek].nodes for ek in elements]
 
         mesh = Mesh.from_vertices_and_faces(vertices, faces)
         edges = [[mesh.vertex_coordinates(u), mesh.vertex_coordinates(v)] for u,v in mesh.edges()]
@@ -108,7 +163,7 @@ class PlotlyStructureViewer(object):
         attrs = ['elset', 'is_rad', 'material', 'thickess']
         intensity_ = []
         text = []
-        for ek in el_keys:
+        for ek in elements:
             ep = self.structure.elements[ek].element_property
             ep = self.structure.element_properties[ep]
             intensity_.append(int(ep.is_rad) + .1)
@@ -183,6 +238,7 @@ class PlotlyStructureViewer(object):
     def show(self):
         self.make_layout()
         self.plot_shell_shape()
+        self.plot_beams()
         
         if self.show_point_loads:
             self.plot_point_loads()

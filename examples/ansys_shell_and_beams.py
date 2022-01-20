@@ -57,30 +57,32 @@ s.add_nodes_elements_from_lines(lines, 'BeamElement', elset='beams')
 shell_section = ShellSection('shell_sec', t=.1)
 s.add(shell_section)
 
-# beam_section = ISection('beam_sec', b=.2, h=.2, tw=.01, tf=.01)
-# s.add(beam_section)
+beam_section = ISection('beam_sec', b=.2, h=.2, tw=.01, tf=.01)
+s.add(beam_section)
 
 ## Add materials -------------------------------------------------------------------------
 
 shell_material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
 s.add(shell_material)
 
-# beam_material = ElasticIsotropic('steel', E=210e9, v=.3, p=7500)
-# s.add(beam_material)
+beam_material = ElasticIsotropic('steel', E=210e9, v=.3, p=7500)
+s.add(beam_material)
 
 ## Add element properties ----------------------------------------------------------------
 
 el_prop_shell = ElementProperties('concrete_shell',
                                   material='concrete',
                                   section='shell_sec',
-                                  elset='shell')
+                                  elset='shell',
+                                  is_rad=True)
 s.add(el_prop_shell)
 
-# el_prop_beams = ElementProperties('steel_beams',
-#                                   material='steel',
-#                                   section='beam_sec',
-#                                   elset='beams')
-# s.add(el_prop_beams)
+el_prop_beams = ElementProperties('steel_beams',
+                                  material='steel',
+                                  section='beam_sec',
+                                  elset='beams',
+                                  is_rad=False)
+s.add(el_prop_beams)
 
 ## Visualize structure--------------------------------------------------------------------
 
