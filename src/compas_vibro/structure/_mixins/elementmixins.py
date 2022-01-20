@@ -7,6 +7,7 @@ from compas.geometry import centroid_points
 from compas.utilities import geometric_key
 
 from compas_vibro.structure.element import ShellElement
+from compas_vibro.structure.element import BeamElement
 
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
@@ -18,7 +19,7 @@ __all__ = [
     'ElementMixins',
 ]
 
-func_dict = {'ShellElement': ShellElement}
+func_dict = {'ShellElement': ShellElement, 'BeamElement': BeamElement}
 
 
 class ElementMixins(object):

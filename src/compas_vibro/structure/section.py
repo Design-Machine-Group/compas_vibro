@@ -14,6 +14,7 @@ __all__ = [
     'ShellSection',
     'SolidSection',
     'SpringSection',
+    'ISection',
 ]
 
 
@@ -61,6 +62,38 @@ class Section(object):
 # ==============================================================================
 # 1D
 # ==============================================================================
+
+
+class ISection(Section):
+
+    """ Equal flanged I-section for beam elements.
+
+    Parameters
+    ----------
+    name : str
+        Section name.
+    b : float
+        Width.
+    h : float
+        Height.
+    tw : float
+        Web thickness.
+    tf : float
+        Flange thickness.
+
+    """
+
+    def __init__(self, name, b, h, tw, tf):
+        Section.__init__(self, name=name)
+
+        A   = 2 * b * tf + (h - 2 * tf) * tw
+        Ixx = (tw * (h - 2 * tf)**3) / 12. + 2 * ((tf**3) * b / 12. + b * tf * (h / 2. - tf / 2.)**2)
+        Iyy = ((h - 2 * tf) * tw**3) / 12. + 2 * ((b**3) * tf / 12.)
+        J   = (1. / 3) * (2 * b * tf**3 + (h - tf) * tw**3)
+
+        self.__name__ = 'ISection'
+        self.name     = name
+        self.geometry = {'b': b, 'h': h, 'tw': tw, 'tf': tf, 'c': h/2., 'A': A, 'J': J, 'Ixx': Ixx, 'Iyy': Iyy, 'Ixy': 0}
 
 
 class SpringSection(Section):
@@ -143,3 +176,4 @@ class SolidSection(Section):
         self.__name__ = 'SolidSection'
         self.name     = name
         self.geometry = None
+

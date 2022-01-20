@@ -56,14 +56,29 @@ class PlotlyStructureViewer(object):
                             )
         self.layout = layout
 
-    def plot_shape(self):
+    def plot_shell_shape(self):
+        
+        elements = []
+        for epk in self.structure.element_properties:
+            print('epk', epk)
+            section = self.structure.element_properties[epk].section
+            sec_name = self.structure.sections[section].__name__
+            if  sec_name == 'ShellSection':
+                print('sec_name', sec_name)
+                
+                el_keys = self.structure.element_properties[epk].elements
+                if el_keys == None:
+                    elset = self.structure.element_properties[epk].elset
+                    el_keys = self.structure.sets[elset].selection
+                elements.extend(elements)
 
         vertices = []
+
         nodes = sorted(self.structure.nodes.keys(), key=int)
         vertices = [self.structure.nodes[vk].xyz() for vk in nodes]
 
-        faces = [self.structure.elements[ek].nodes for ek in self.structure.elements]
-        
+        faces = [self.structure.elements[ek].nodes for ek in el_keys]
+
         mesh = Mesh.from_vertices_and_faces(vertices, faces)
         edges = [[mesh.vertex_coordinates(u), mesh.vertex_coordinates(v)] for u,v in mesh.edges()]
         line_marker = dict(color='rgb(0,0,0)', width=1.5)
@@ -93,7 +108,7 @@ class PlotlyStructureViewer(object):
         attrs = ['elset', 'is_rad', 'material', 'thickess']
         intensity_ = []
         text = []
-        for ek in self.structure.elements:
+        for ek in el_keys:
             ep = self.structure.elements[ek].element_property
             ep = self.structure.element_properties[ep]
             intensity_.append(int(ep.is_rad) + .1)
@@ -167,7 +182,7 @@ class PlotlyStructureViewer(object):
 
     def show(self):
         self.make_layout()
-        self.plot_shape()
+        self.plot_shell_shape()
         
         if self.show_point_loads:
             self.plot_point_loads()

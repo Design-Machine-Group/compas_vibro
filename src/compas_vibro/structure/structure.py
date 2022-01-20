@@ -114,6 +114,17 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         return ekeys
 
+    def add_nodes_elements_from_lines(self, lines, element_type='BeamElement', elset=None):
+        ekeys = []
+        for u, v in lines:
+            uk = self.add_node(u)
+            vk = self.add_node(v)
+            ekeys.append(self.add_element(nodes =[uk, vk], type=element_type))
+        if elset:
+            self.add_set(name= elset, type='element', selection=ekeys)
+        
+        return ekeys
+        
     def add_gravity_from_mesh(self, mesh, thickness, density):
         for vk in mesh.vertices():
             area = mesh.vertex_area(vk)

@@ -8,7 +8,7 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
-__all__ = ['ShellElement']
+__all__ = ['ShellElement', 'BeamElement']
 
 
 class Element(object):
@@ -67,6 +67,22 @@ class ShellElement(Element):
         Element.__init__(self)
 
         self.__name__ = 'ShellElement'
+
+
+class BeamElement(Element):
+
+    """ A 1D element that resists axial, shear, bending and torsion.
+
+    Parameters
+    ----------
+    None
+
+    """
+
+    def __init__(self):
+        Element.__init__(self)
+
+        self.__name__ = 'BeamElement'
 
 
 if __name__ == "__main__":
