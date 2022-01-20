@@ -21,10 +21,12 @@ from compas.geometry import length_vector
 
 class PlotlyStructureViewer(object):
     def __init__(self, structure):
-        self.structure = structure
-        self.data       = []
-        self.layout     = None
-
+        self.structure          = structure
+        self.data               = []
+        self.layout             = None
+        self.show_point_loads   = True
+        self.show_supports      = True
+        self.show_node_labels   = False
 
     def make_layout(self):
         name = self.structure.name
@@ -152,11 +154,30 @@ class PlotlyStructureViewer(object):
                 dots.append(go.Scatter3d(x=x, y=y, z=z, mode='markers'))
         self.data.extend(dots)
 
+    def plot_node_labels(self):
+        dots = []
+        # for dk in self.structure.nodes:
+        nodes = self.structure.nodes.keys()
+        x = [self.structure.nodes[nk].x for nk in nodes]
+        y = [self.structure.nodes[nk].y for nk in nodes]
+        z = [self.structure.nodes[nk].z for nk in nodes]
+        text = [nk for nk in nodes]
+        dots = [go.Scatter3d(x=x, y=y, z=z, text=text, mode='markers+text')]
+        self.data.extend(dots)
+
     def show(self):
         self.make_layout()
         self.plot_shape()
-        self.plot_supports()
-        self.plot_point_loads()
+        
+        if self.show_point_loads:
+            self.plot_point_loads()
+        
+        if self.show_node_labels:
+            self.plot_node_labels()
+        
+        if self.show_supports:
+            self.plot_supports()
+        
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()
 
@@ -176,6 +197,7 @@ if __name__ == '__main__':
     # print(dir(s.element_properties[ek]))
 
     v = PlotlyStructureViewer(s)
+    v.show_node_labels = True
     v.show()
 
     
