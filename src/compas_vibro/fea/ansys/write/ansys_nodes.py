@@ -62,27 +62,6 @@ def write_request_node_displacements(structure, step_index, mode=None):
     cFile.write('!\n')
     cFile.close()
 
-    # fh = open(os.path.join(path, filename), 'a')
-    # fh.write('*get, nnodes, node,, count \n')
-    # fh.write('*dim, u, array, nnodes, 5 \n')
-    # fh.write('! \n')
-
-    # fh.write('*do, i, 1, nnodes \n')
-    # fh.write('u(i,1) = i                         !Collumn 1 is node number \n')
-    # fh.write('*get, u(i,2), NODE, u(i,1), U, X   !Collumn 2 is Ux \n')
-    # fh.write('*get, u(i,3), NODE, u(i,1), U, Y   !Collumn 3 is Uy \n')
-    # fh.write('*get, u(i,4), NODE, u(i,1), U, Z   !Collumn 4 is Uz \n')
-    # fh.write('*get, u(i,5), NODE, u(i,1), U, SUM !Collumn 5 is Um \n')
-    # fh.write('*Enddo \n')
-    # fh.write('! \n')
-
-    # fh.write('*cfopen,' + out_path + '/' + fname + ',txt \n')
-    # fh.write('*CFWRITE, node U, num, ux, uy, uz, uSUM \n')
-    # fh.write('*do,i,1,nnodes \n')
-    # fh.write('*CFWRITE, node U, u(i,1), u(i,2), u(i,3), u(i,4), u(i,5) \n')
-    # fh.write('*Enddo \n')
-    # fh.close()
-
 
 def write_constraints(structure, step_type, output_path, filename):
 

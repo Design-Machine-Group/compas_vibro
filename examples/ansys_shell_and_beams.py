@@ -39,17 +39,21 @@ s = Structure(path, name)
 
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
-## Add fixed nodes from mesh boundary ----------------------------------------------------
-
-d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
-s.add(d)
-
 ## Add beam elements ---------------------------------------------------------------------
 
 sp = s.node_xyz(266)
 ep = [sp[0], sp[1], sp[2] - 3]
 lines =[[sp, ep]]
-s.add_nodes_elements_from_lines(lines, 'BeamElement', elset='beams')
+beam_k = s.add_nodes_elements_from_lines(lines, 'BeamElement', elset='beams')[0]
+
+## Add fixed nodes from mesh boundary and beams ------------------------------------------
+
+d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
+s.add(d)
+
+beam_end = s.elements[beam_k].nodes[-1]
+d = FixedDisplacement('beam_ends', [beam_end])
+s.add(d)
 
 
 ## Add sections --------------------------------------------------------------------------
@@ -90,19 +94,22 @@ s.add(el_prop_beams)
 # # v.show_node_labels = True
 # v.show()
 
-
-## Analyze model -------------------------------------------------------------------------
+# ## Analyze model -------------------------------------------------------------------------
 
 s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 
 
-## Plot results --------------------------------------------------------------------------
-# v = ModalViewer(s)
-# v.show()
+# ## Plot results --------------------------------------------------------------------------
+# # v = ModalViewer(s)
+# # v.show()
 
-# modes = s.results['modal'].keys()
-# for mode in modes:
-#     f = s.results['modal'][mode].frequency
-#     pf = s.results['modal'][mode].pfact['z']
-#     em = s.results['modal'][mode].efmass['z']
-#     print(mode, f, pf, em)
+print(' N | Freq.   | P.fac   | Eff.mass | Eff.M.R  | Cum EMR')
+modes = s.results['modal'].keys()
+cemr = 0
+for mode in modes:
+    f = s.results['modal'][mode].frequency
+    pf = s.results['modal'][mode].pfact['z']
+    em = s.results['modal'][mode].efmass['z']
+    emr = s.results['modal'][mode].efmass_r['z']
+    cemr += emr
+    print('{:2d} | {:7.3F} | {:7.3F} | {:8.3F} | {:8.3F} | {:8.3F}'.format(mode, f, pf, em, emr, cemr))

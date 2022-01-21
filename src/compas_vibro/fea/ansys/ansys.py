@@ -41,7 +41,7 @@ def ansys_modal(structure, fields, num_modes, license='introductory'):
 
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
-                     displacements=[list(structure.displacements.keys())[0]],
+                     displacements=list(structure.displacements.keys()),
                      modes=num_modes)
     structure.add(step)
 

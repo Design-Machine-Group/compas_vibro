@@ -3,7 +3,6 @@ import os
 from compas.geometry import add_vectors
 from compas.geometry import normalize_vector
 
-
 # Author(s): Tomas Mendez Echenagucia (github.com/tmsmendez)
 
 
@@ -232,7 +231,9 @@ def write_beam_elements(structure, output_path, filename, ekeys, section, materi
     for ekey in ekeys:
         element = list(structure.elements[ekey].nodes)
         # print structure.elements[ekey]
-        axis = structure.elements[ekey].axes['ex']
+        # axis = structure.elements[ekey].axes['ex']
+        u, v = structure.elements[ekey].nodes
+        axis = add_vectors(structure.node_xyz(u), structure.node_xyz(v))
         if not axis:
             enode = structure.nodes[element[-1]]
             axis = [0, 1, 0]
@@ -279,7 +280,7 @@ def write_i_section(output_path, filename, height, base, thickness_w, thickness_
     cFile.write('SECOFFSET, CENT \n')
     cFile.write('SECDATA,' + str(base) + ',' + str(base) + ',' + str(height) + ',')
     cFile.write(str(thickness_f) + ',' + str(thickness_f) + ',' + str(thickness_w) + '\n')
-    cFile.write('SECNUM, ' + str(sec_index) + ' \n')
+    cFile.write('SECNUM, ' + str(sec_index + 1) + ' \n')
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()

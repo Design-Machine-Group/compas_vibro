@@ -71,6 +71,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.name                   = name
         self.nodes                  = {}
         self.node_index             = {}
+        self.virtual_node_index     = {}
         self.path                   = path
         self.results                = {}
         self.sections               = {}
@@ -225,8 +226,6 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             length = distance_point_point(self.node_xyz(u), self.node_xyz(v))
             mass = area * length * density
         return mass
-
-
 
     def compute_rad_power(self):
         compute_rad_power_structure(self)

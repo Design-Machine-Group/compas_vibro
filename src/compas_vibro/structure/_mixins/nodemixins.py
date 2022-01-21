@@ -20,7 +20,7 @@ __all__ = [
 
 class NodeMixins(object):
 
-    def add_node(self, xyz):
+    def add_node(self, xyz, virtual=False):
 
         """ Adds a node to structure.nodes at co-ordinates xyz.
 
@@ -46,7 +46,7 @@ class NodeMixins(object):
         if key is None:
             key = self.node_count()
             self.nodes[key] = Node(key=key, xyz=xyz)
-            self.add_node_to_node_index(key, xyz)
+            self.add_node_to_node_index(key, xyz, virtual=virtual)
         return key
 
     def add_node_to_node_index(self, key, xyz, virtual=False):
