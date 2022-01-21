@@ -57,7 +57,7 @@ def ansys_harmonic(structure, freq_list, fields='all', damping=0.02):
     # # add harmonic step --------------------------------------------------------
     loads = [structure.loads[lk].name for lk in structure.loads]
     step = HarmonicStep(name=structure.name + '_harmonic',
-                        displacements=[list(structure.displacements.keys())[0]],
+                        displacements=list(structure.displacements.keys()),
                         loads=loads,
                         freq_list=freq_list,
                         damping=damping)
