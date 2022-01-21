@@ -44,7 +44,7 @@ s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 sp = s.node_xyz(266)
 ep = [sp[0], sp[1], sp[2] - 3]
 lines =[[sp, ep]]
-beam_k = s.add_nodes_elements_from_lines(lines, 'BeamElement', elset='beams', normal=[0,1,0])[0]
+beam_k = s.add_nodes_elements_from_lines(lines, 'BeamElement', elset='beams', normal=[1,0, 0])[0]
 
 ## Add fixed nodes from mesh boundary and beams ------------------------------------------
 
@@ -90,11 +90,10 @@ s.add(el_prop_beams)
 
 ## Visualize structure--------------------------------------------------------------------
 
-# v = PlotlyStructureViewer(s)
-# # v.show_node_labels = True
-# v.show()
+v = PlotlyStructureViewer(s)
+v.show()
 
-## Analyze model -------------------------------------------------------------------------
+# Analyze model -------------------------------------------------------------------------
 
 s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 
