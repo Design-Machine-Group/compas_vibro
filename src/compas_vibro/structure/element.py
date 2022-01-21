@@ -31,11 +31,12 @@ class Element(object):
 
     """
 
-    def __init__(self, nodes=None, number=None, thermal=None, axes={}):
+    def __init__(self, nodes=None, number=None, axes={}):
 
-        self.__name__         = 'Element'
-        self.nodes            = nodes
-        self.number           = number
+        self.__name__   = 'Element'
+        self.nodes      = nodes
+        self.number     = number
+        self.axes       = axes        
 
     def __str__(self):
 

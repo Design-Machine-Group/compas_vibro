@@ -28,6 +28,8 @@ from compas_vibro.vibro.rayleigh import compute_rad_power_structure
 
 from compas.geometry import centroid_points
 from compas.geometry import distance_point_point
+from compas.geometry import rotate_points
+from compas.geometry import subtract_vectors
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -116,15 +118,15 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         return ekeys
 
-    def add_nodes_elements_from_lines(self, lines, element_type='BeamElement', elset=None):
+    def add_nodes_elements_from_lines(self, lines, element_type='BeamElement', elset=None, normal=[0,0,1]):
         ekeys = []
         for u, v in lines:
             uk = self.add_node(u)
             vk = self.add_node(v)
-            ekeys.append(self.add_element(nodes =[uk, vk], type=element_type))
+            x = rotate_points([subtract_vectors(u, v)], 1.5708, axis=normal)[0]
+            ekeys.append(self.add_element(nodes =[uk, vk], type=element_type, axes={'x':x}))
         if elset:
             self.add_set(name= elset, type='element', selection=ekeys)
-        
         return ekeys
         
     def add_gravity_from_mesh(self, mesh, thickness, density):

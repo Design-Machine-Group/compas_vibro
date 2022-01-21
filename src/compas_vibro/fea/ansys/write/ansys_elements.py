@@ -229,27 +229,25 @@ def write_beam_elements(structure, output_path, filename, ekeys, section, materi
     cFile = open(os.path.join(output_path, filename), 'a')
 
     for ekey in ekeys:
-        element = list(structure.elements[ekey].nodes)
-        # print structure.elements[ekey]
-        # axis = structure.elements[ekey].axes['ex']
-        u, v = structure.elements[ekey].nodes
-        axis = add_vectors(structure.node_xyz(u), structure.node_xyz(v))
-        if not axis:
-            enode = structure.nodes[element[-1]]
+        beam_nodes = list(structure.elements[ekey].nodes)
+        axes = structure.elements[ekey].axes
+        if axes:
+            axis = axes['x']
+        else:
             axis = [0, 1, 0]
         axis = normalize_vector(axis)
-        enode = structure.nodes[element[-1]]
-        onode = add_vectors([enode.x, enode.y, enode.z], axis)
+        enode = structure.nodes[beam_nodes[-1]]
+        onode = add_vectors([enode.x, enode.y, enode.z], axis)  # orientation node
         nkey = structure.add_node(onode, virtual=True)
         string = 'N,' + str(nkey + 1) + ',' + str(onode[0]) + ',' + str(onode[1])
         string += ',' + str(onode[2]) + ',0,0,0 \n'
         cFile.write(string)
 
-        element.append(nkey)
+        beam_nodes.append(nkey)
         string = 'E, '
-        for i in range(len(element)):
-            string += str(int(element[i]) + 1)
-            if i < len(element) - 1:
+        for i in range(len(beam_nodes)):
+            string += str(int(beam_nodes[i]) + 1)
+            if i < len(beam_nodes) - 1:
                 string += ','
         string += '\n'
         cFile.write(string)
