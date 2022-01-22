@@ -33,13 +33,7 @@ path = os.path.join(compas_vibro.TEMP)
 name = 'shell_beams_modal'
 
 
-mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', 'before_remesh.json'))
-add_fins(mesh, .1)
-mesh = remesh_face_by_face(mesh, .3)
-
-# v = PlotlyMeshViewer(mesh)
-# v.node_labels = True
-# v.show()
+mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', 'pattern1_fins.json'))
 
 ## Add shell geometry from mesh-----------------------------------------------------------
 
@@ -137,7 +131,7 @@ v.show()
 
 s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 
-s.to_obj(path=os.path.join(timber_vibro.DATA, 'experiment_rig'), name=name)
+s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures', name), name=name)
 
 ## Plot results --------------------------------------------------------------------------
 
