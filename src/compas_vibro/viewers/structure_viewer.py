@@ -11,6 +11,7 @@ __email__      = 'tmendeze@uw.edu'
 
 import plotly.graph_objects as go
 
+# from compas_vibro.structure import Mesh
 from compas.datastructures import Mesh
 
 from compas.geometry import subtract_vectors
@@ -19,11 +20,13 @@ from compas.geometry import cross_vectors
 from compas.geometry import scale_vector
 from compas.geometry import add_vectors
 
-# TODO: hoverdata for nodes should show node key
-# TODO: color contraints according to axis data
+# TODO: color constraints according to axis data
 # TODO: hoverdata for constraints shouls show axix data
+# TODO: Modal
+# TODO: Harmonic
 
-class PlotlyStructureViewer(object):
+class StructureViewer(object):
+
     def __init__(self, structure):
         self.structure          = structure
         self.data               = []
@@ -32,24 +35,51 @@ class PlotlyStructureViewer(object):
         self.show_supports      = True
         self.show_beam_sections = True
         self.show_node_labels   = False
-        self.contains_shells    = False
-        self.contains_beams     = False
         self.contains_supports  = False
-        self.beam_sec_names = ['ISection']
+        self.beam_sec_names     = ['ISection']
 
-    def check_contents(self):
-        etypes = []
+        self.shell_elements     = []
+        self.beam_elements      = []
+        self.mesh               = None
+
+        self.modal_scale        = 2
+
+    def separate_element_types(self):
         for epk in self.structure.element_properties:
             section = self.structure.element_properties[epk].section
             sec_name = self.structure.sections[section].__name__
-            etypes.append(sec_name)
-        if 'ShellSection' in etypes:
-            self.contains_shells = True
-        if any(x in etypes for x in self.beam_sec_names):
-            self.contains_beams = True
-        
-        if self.structure.displacements:
-            self.contains_supports = True
+            if  sec_name == 'ShellSection':
+                el_keys = self.structure.element_properties[epk].elements
+                if el_keys == None:
+                    elset = self.structure.element_properties[epk].elset
+                    el_keys = self.structure.sets[elset].selection
+                self.shell_elements.extend(el_keys)        
+
+            elif  sec_name in self.beam_sec_names:
+                el_keys = self.structure.element_properties[epk].elements
+                if el_keys == None:
+                    elset = self.structure.element_properties[epk].elset
+                    el_keys = self.structure.sets[elset].selection
+                self.beam_elements.extend(el_keys)
+
+    def make_shell_mesh(self, mode=None, frequency=None):
+
+        elements = self.shell_elements
+        nodes = sorted(self.structure.nodes.keys(), key=int)
+
+        if mode:
+            s = self.modal_scale
+            vertices = []
+            for vk in nodes:
+                x, y, z = self.structure.nodes[vk].xyz()
+                dx = self.structure.results['modal'][mode].displacements['ux'][vk]
+                dy = self.structure.results['modal'][mode].displacements['uy'][vk]
+                dz = self.structure.results['modal'][mode].displacements['uz'][vk]
+                vertices.append([x + dx * s, y + dy * s, z + dz * s])
+        else:
+            vertices = [self.structure.nodes[vk].xyz() for vk in nodes]
+        faces = [self.structure.elements[ek].nodes for ek in elements]
+        self.mesh = Mesh.from_vertices_and_faces(vertices, faces)
 
     def make_layout(self):
         name = self.structure.name
@@ -77,19 +107,10 @@ class PlotlyStructureViewer(object):
         self.layout = layout
 
     def plot_3d_beams(self):
-        elements = []
-        for epk in self.structure.element_properties:
-            section = self.structure.element_properties[epk].section
-            sec_name = self.structure.sections[section].__name__
-            if  sec_name in self.beam_sec_names:
-                el_keys = self.structure.element_properties[epk].elements
-                if el_keys == None:
-                    elset = self.structure.element_properties[epk].elset
-                    el_keys = self.structure.sets[elset].selection
-                elements.extend(el_keys)
-
+        elements = self.beam_elements
         mesh = Mesh()
-        for ek in el_keys:
+        for ek in elements:
+            epk = self.structure.elements[ek].element_property
             section = self.structure.element_properties[epk].section
             sec_name = self.structure.sections[section].__name__
             if sec_name == 'ISection':
@@ -243,24 +264,11 @@ class PlotlyStructureViewer(object):
         self.data.extend(lines)
 
     def plot_shell_shape(self):
-        
-        elements = []
-        for epk in self.structure.element_properties:
-            section = self.structure.element_properties[epk].section
-            sec_name = self.structure.sections[section].__name__
-            if  sec_name == 'ShellSection':
-                el_keys = self.structure.element_properties[epk].elements
-                if el_keys == None:
-                    elset = self.structure.element_properties[epk].elset
-                    el_keys = self.structure.sets[elset].selection
-                elements.extend(el_keys)
 
-        nodes = sorted(self.structure.nodes.keys(), key=int)
-        vertices = [self.structure.nodes[vk].xyz() for vk in nodes]
+        mesh = self.mesh
+        vertices, faces = mesh.to_vertices_and_faces()
+        elements = self.shell_elements
 
-        faces = [self.structure.elements[ek].nodes for ek in elements]
-
-        mesh = Mesh.from_vertices_and_faces(vertices, faces)
         edges = [[mesh.vertex_coordinates(u), mesh.vertex_coordinates(v)] for u,v in mesh.edges()]
         line_marker = dict(color='rgb(0,0,0)', width=1.5)
         lines = []
@@ -362,13 +370,12 @@ class PlotlyStructureViewer(object):
         dots = [go.Scatter3d(x=x, y=y, z=z, text=text, mode='markers+text')]
         self.data.extend(dots)
 
-    def show(self):
-        self.check_contents()
-        self.make_layout()
-        if self.contains_shells:
+    def show_structure(self):
+        self.make_shell_mesh()
+        if self.shell_elements:
             self.plot_shell_shape()
         
-        if self.contains_beams:
+        if self.beam_elements:
             if self.show_beam_sections:
                 self.plot_3d_beams()
             else:
@@ -381,21 +388,52 @@ class PlotlyStructureViewer(object):
             self.plot_node_labels()
         
         if self.show_supports:
-            if self.contains_supports:
-                self.plot_supports()
+            self.plot_supports()
         
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()
 
+    def show_modal(self):
+        modes = sorted(self.structure.results['modal'].keys())
+        for mode in modes:
+            self.make_shell_mesh(mode=mode)
+            if self.shell_elements:
+                self.plot_shell_shape()
+            # if self.beam_elements:
+            #     if self.show_beam_sections:
+            #         self.plot_3d_beams()
+            #     else:
+            #         self.plot_beam_lines()  
+
+        if self.show_supports:
+            self.plot_supports()
+
+        fig = go.Figure(data=self.data, layout=self.layout)
+        fig.show()
+
+    def show(self, result=None):
+        
+        self.separate_element_types()
+        self.make_layout()
+
+        if result == None:
+            self.show_structure()
+        elif result == 'modal' or result == 'Modal':
+            self.show_modal()
+        else:
+            raise ValueError('This type of result plot has not been implemented')
+        
 if __name__ == '__main__':
+
     import os
     import compas_vibro
     from compas_vibro.structure import Structure
 
-    fp = os.path.join(compas_vibro.TEMP, 'shell_beam.obj')
+    fp = os.path.join(compas_vibro.DATA, 'structures', 'shell_beams_modal.obj')
     s = Structure.from_obj(fp)
 
-    v = PlotlyStructureViewer(s)
-    v.show()
+    v = StructureViewer(s)
+    # v.show()
+    v.show('modal')
 
     
