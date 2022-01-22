@@ -79,7 +79,7 @@ class StructureViewer(object):
         elements = self.shell_elements
         nodes = sorted(self.structure.nodes.keys(), key=int)
 
-        if mode:
+        if mode != None:
             s = self.modal_scale
             vertices = []
             for vk in nodes:
@@ -216,7 +216,7 @@ class StructureViewer(object):
     def add_beam_to_mesh(self, beam_mesh, sec_pts, ek, mode=None, frequency=None):
         
         u, v = self.structure.elements[ek].nodes
-        if mode:
+        if mode != None:
             u_ = self.move_node(u, mode=mode)
             v_ = self.move_node(v, mode=mode)
         else:
@@ -233,7 +233,7 @@ class StructureViewer(object):
 
     def make_isection(self, ek, section, mode=None, frequency=None):
         u, v = self.structure.elements[ek].nodes
-        if mode:
+        if mode != None:
             u_ = self.move_node(u, mode=mode)
             v_ = self.move_node(v, mode=mode)
         else:
@@ -272,7 +272,7 @@ class StructureViewer(object):
         return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p0]
 
     def move_node(self, nk, mode=None, frequency=None):
-        if mode:
+        if mode != None:
             s = self.modal_scale
             x, y, z = self.structure.nodes[nk].xyz()
             dx = self.structure.results['modal'][mode].displacements['ux'][nk]
