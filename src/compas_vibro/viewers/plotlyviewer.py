@@ -38,7 +38,7 @@ class PlotlyViewer(object):
         elif plot_type == 'static':
             title = '{0} - Analysis'.format(name)
         else:
-            raise NameError('PLot type {} does not exist yet'.format(plot_type))
+            raise NameError('Plot type {} does not exist yet'.format(plot_type))
         
         layout = go.Layout(title=title,
                           scene=dict(aspectmode='data',
