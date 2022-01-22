@@ -14,7 +14,7 @@ from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 from compas_vibro.structure import Mesh
 
-from compas_vibro.viewers import PlotlyStructureViewer
+from compas_vibro.viewers import StructureViewer
 
 from compas.geometry import is_point_on_polyline_xy
 from compas.geometry import is_point_on_line_xy
@@ -124,7 +124,7 @@ s.add(el_prop_beams)
 
 # ## Visualize structure--------------------------------------------------------------------
 
-v = PlotlyStructureViewer(s)
+v = StructureViewer(s)
 v.show()
 
 # # Analyze model -------------------------------------------------------------------------
