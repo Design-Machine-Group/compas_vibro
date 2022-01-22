@@ -22,8 +22,7 @@ from compas.geometry import add_vectors
 
 # TODO: color constraints according to axis data
 # TODO: hoverdata for constraints shouls show axix data
-# TODO: Why is mode 0 not deformed?
-# TODO: Harmonic
+# TODO: Add harmonic scale slider
 # TODO: Add trace on/off toggles
 
 class StructureViewer(object):
@@ -45,7 +44,7 @@ class StructureViewer(object):
         self.mesh               = None
 
         self.modal_scale        = 4.
-        self.harmonic_scale     = 1000.
+        self.harmonic_scale     = 2e7
 
     @property
     def num_traces(self):
@@ -84,6 +83,11 @@ class StructureViewer(object):
             vertices = []
             for vk in nodes:
                 vertices.append(self.move_node(vk, mode=mode))
+        elif frequency != None:
+            s = self.harmonic_scale
+            vertices = []
+            for vk in nodes:
+                vertices.append(self.move_node(vk, frequency=frequency))
         else:
             vertices = [self.structure.nodes[vk].xyz() for vk in nodes]
         faces = [self.structure.elements[ek].nodes for ek in elements]
@@ -219,6 +223,9 @@ class StructureViewer(object):
         if mode != None:
             u_ = self.move_node(u, mode=mode)
             v_ = self.move_node(v, mode=mode)
+        elif frequency != None:
+            u_ = self.move_node(u, frequency=frequency)
+            v_ = self.move_node(v, frequency=frequency)     
         else:
             u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
 
@@ -236,6 +243,9 @@ class StructureViewer(object):
         if mode != None:
             u_ = self.move_node(u, mode=mode)
             v_ = self.move_node(v, mode=mode)
+        elif frequency != None:
+            u_ = self.move_node(u, frequency=frequency)
+            v_ = self.move_node(v, frequency=frequency) 
         else:
             u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
         z = subtract_vectors(u_, v_)
@@ -272,13 +282,21 @@ class StructureViewer(object):
         return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p0]
 
     def move_node(self, nk, mode=None, frequency=None):
+        x, y, z = self.structure.nodes[nk].xyz()
         if mode != None:
             s = self.modal_scale
-            x, y, z = self.structure.nodes[nk].xyz()
-            dx = self.structure.results['modal'][mode].displacements['ux'][nk]
-            dy = self.structure.results['modal'][mode].displacements['uy'][nk]
-            dz = self.structure.results['modal'][mode].displacements['uz'][nk]
-            return [x + dx * s, y + dy * s, z + dz * s]
+            plot_type = 'modal'
+            dx = self.structure.results[plot_type][mode].displacements['ux'][nk]
+            dy = self.structure.results[plot_type][mode].displacements['uy'][nk]
+            dz = self.structure.results[plot_type][mode].displacements['uz'][nk]
+
+        elif frequency != None:
+            s = self.harmonic_scale
+            plot_type = 'harmonic'
+            dx = self.structure.results[plot_type][frequency].displacements[nk]['real']['x']
+            dy = self.structure.results[plot_type][frequency].displacements[nk]['real']['y']
+            dz = self.structure.results[plot_type][frequency].displacements[nk]['real']['z']
+        return [x + dx * s, y + dy * s, z + dz * s]
 
     def plot_beam_lines(self):
         elements = []
@@ -492,6 +510,32 @@ class StructureViewer(object):
         fig.update_layout(sliders=self.sliders)
         fig.show()
 
+    def show_harmonic(self):
+        frqs = sorted(self.structure.results['harmonic'].keys())
+        for f in frqs:
+            self.make_shell_mesh(frequency=f)
+            
+            if self.shell_elements:
+                self.plot_shell_shape()
+            
+            if self.beam_elements:
+                if self.show_beam_sections:
+                    self.plot_3d_beams(frequency=f)
+                else:
+                    self.plot_beam_lines()  
+
+        if self.show_supports:
+            self.plot_supports()
+
+        self.add_sliders(frequencies=frqs)
+        fig = go.Figure(data=self.data, layout=self.layout)
+
+        for i in range(self.num_traces, len(frqs) * self.num_traces):
+            fig.data[i].visible = False
+
+        fig.update_layout(sliders=self.sliders)
+        fig.show()
+
     def show(self, result=None):
         
         self.separate_element_types()
@@ -501,6 +545,8 @@ class StructureViewer(object):
             self.show_structure()
         elif result == 'modal' or result == 'Modal':
             self.show_modal()
+        elif result == 'harmonic' or result == 'Harmonic':
+            self.show_harmonic()
         else:
             raise ValueError('This type of result plot has not been implemented')
         
@@ -510,11 +556,13 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
 
-    fp = os.path.join(compas_vibro.DATA, 'structures', 'shell_beams_modal.obj')
+    # file = 'shell_beams_modal.obj'
+    file = 'shell_beams_harmonic.obj'
+    fp = os.path.join(compas_vibro.DATA, 'structures', file)
     s = Structure.from_obj(fp)
 
     v = StructureViewer(s)
     # v.show()
-    v.show('modal')
+    v.show('harmonic')
 
     
