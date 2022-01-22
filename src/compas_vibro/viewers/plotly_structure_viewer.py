@@ -2,13 +2,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from compas_vibro.structure import material
-
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
+
 
 import plotly.graph_objects as go
 
@@ -31,14 +30,30 @@ class PlotlyStructureViewer(object):
         self.layout             = None
         self.show_point_loads   = True
         self.show_supports      = True
+        self.show_beam_sections = True
         self.show_node_labels   = False
+        self.contains_shells    = False
+        self.contains_beams     = False
+        self.contains_supports  = False
+        self.beam_sec_names = ['ISection']
+
+    def check_contents(self):
+        etypes = []
+        for epk in self.structure.element_properties:
+            section = self.structure.element_properties[epk].section
+            sec_name = self.structure.sections[section].__name__
+            etypes.append(sec_name)
+        if 'ShellSection' in etypes:
+            self.contains_shells = True
+        if any(x in etypes for x in self.beam_sec_names):
+            self.contains_beams = True
+        
+        if self.structure.displacements:
+            self.contains_supports = True
 
     def make_layout(self):
         name = self.structure.name
-
         title = '{0} - Structure'.format(name)
-
-        
         layout = go.Layout(title=title,
                           scene=dict(aspectmode='data',
                                     xaxis=dict(
@@ -62,12 +77,11 @@ class PlotlyStructureViewer(object):
         self.layout = layout
 
     def plot_3d_beams(self):
-        sec_names = ['ISection']
         elements = []
         for epk in self.structure.element_properties:
             section = self.structure.element_properties[epk].section
             sec_name = self.structure.sections[section].__name__
-            if  sec_name in sec_names:
+            if  sec_name in self.beam_sec_names:
                 el_keys = self.structure.element_properties[epk].elements
                 if el_keys == None:
                     elset = self.structure.element_properties[epk].elset
@@ -173,12 +187,11 @@ class PlotlyStructureViewer(object):
         return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p0]
 
     def plot_beam_lines(self):
-        sec_names = ['ISection']
         elements = []
         for epk in self.structure.element_properties:
             section = self.structure.element_properties[epk].section
             sec_name = self.structure.sections[section].__name__
-            if  sec_name in sec_names:
+            if  sec_name in self.beam_sec_names:
                 el_keys = self.structure.element_properties[epk].elements
                 if el_keys == None:
                     elset = self.structure.element_properties[epk].elset
@@ -241,8 +254,6 @@ class PlotlyStructureViewer(object):
                     elset = self.structure.element_properties[epk].elset
                     el_keys = self.structure.sets[elset].selection
                 elements.extend(el_keys)
-
-        vertices = []
 
         nodes = sorted(self.structure.nodes.keys(), key=int)
         vertices = [self.structure.nodes[vk].xyz() for vk in nodes]
@@ -352,10 +363,16 @@ class PlotlyStructureViewer(object):
         self.data.extend(dots)
 
     def show(self):
+        self.check_contents()
         self.make_layout()
-        self.plot_shell_shape()
-        # self.plot_beam_lines()
-        self.plot_3d_beams()
+        if self.contains_shells:
+            self.plot_shell_shape()
+        
+        if self.contains_beams:
+            if self.show_beam_sections:
+                self.plot_3d_beams()
+            else:
+                self.plot_beam_lines()    
         
         if self.show_point_loads:
             self.plot_point_loads()
@@ -364,7 +381,8 @@ class PlotlyStructureViewer(object):
             self.plot_node_labels()
         
         if self.show_supports:
-            self.plot_supports()
+            if self.contains_supports:
+                self.plot_supports()
         
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()

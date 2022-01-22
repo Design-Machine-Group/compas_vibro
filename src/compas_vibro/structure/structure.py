@@ -121,6 +121,12 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
     def add_nodes_elements_from_lines(self, lines, element_type='BeamElement', elset=None, normal=[0,0,1]):
         ekeys = []
         for u, v in lines:
+            # uk = self.check_node_exists(u)
+            # vk = self.check_node_exists(v)
+            # if not uk:
+            #     uk = self.add_node(u)
+            # if not vk:
+            #     vk = self.add_node(v)
             uk = self.add_node(u)
             vk = self.add_node(v)
             x = rotate_points([subtract_vectors(u, v)], 1.5708, axis=normal)[0]
