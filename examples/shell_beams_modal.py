@@ -79,7 +79,7 @@ s.add(d)
 shell_section = ShellSection('shell_sec', t=.1)
 s.add(shell_section)
 
-beam_section = ISection('beam_sec', b=.2, h=.2, tw=.01, tf=.02)
+beam_section = ISection('beam_sec', b=.2, h=.2, tw=.01, tf=.01)
 s.add(beam_section)
 
 # ## Add materials -----------------------------------------------------------------------
@@ -131,7 +131,7 @@ v.show()
 
 s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 
-s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures', name), name=name)
+s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'), name=name)
 
 ## Plot results --------------------------------------------------------------------------
 
