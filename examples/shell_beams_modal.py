@@ -126,8 +126,8 @@ s.add(el_prop_beams)
 
 # ## Visualize structure--------------------------------------------------------------------
 
-v = StructureViewer(s)
-v.show()
+# v = StructureViewer(s)
+# v.show()
 
 # # Analyze model -------------------------------------------------------------------------
 
@@ -138,6 +138,11 @@ s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 
 ## Plot results --------------------------------------------------------------------------
 
+
+# ## Visualize structure--------------------------------------------------------------------
+
+v = StructureViewer(s)
+v.show('modal')
 
 print(' N | Freq.   | P.fac   | Eff.mass | Eff.M.R  | Cum EMR')
 modes = s.results['modal'].keys()

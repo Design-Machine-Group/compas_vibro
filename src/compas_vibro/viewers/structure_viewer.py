@@ -22,7 +22,8 @@ from compas.geometry import add_vectors
 
 # TODO: color constraints according to axis data
 # TODO: hoverdata for constraints shouls show axix data
-# TODO: Add harmonic scale slider
+# TODO: Add harmonic mode participation factors
+# TODO: Add modal effective masses
 # TODO: Add trace on/off toggles
 
 class StructureViewer(object):
