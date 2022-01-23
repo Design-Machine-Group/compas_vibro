@@ -311,7 +311,7 @@ class StructureViewer(object):
         p2 = add_vectors(u_, add_vectors(h2, b2))
         p3 = add_vectors(u_, add_vectors(h2, b2_))
 
-        return [p0, p1, p2, p3]
+        return [p0, p1, p2, p3, p0]
 
     def make_boxsection(self, ek, section, mode=None, frequency=None):
         u, v = self.structure.elements[ek].nodes
@@ -350,7 +350,7 @@ class StructureViewer(object):
         p6 = add_vectors(p2, add_vectors(twv_, tfv_))
         p7 = add_vectors(p3, add_vectors(twv, tfv_))
 
-        return [p0, p1, p2, p3, p4, p5, p6, p7]
+        return [p0, p1, p2, p3, p4, p5, p6, p7, p0]
 
     def move_node(self, nk, mode=None, frequency=None):
         x, y, z = self.structure.nodes[nk].xyz()

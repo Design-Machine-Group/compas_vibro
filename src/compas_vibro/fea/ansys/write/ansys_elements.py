@@ -326,7 +326,7 @@ def write_hollow_rect_section(output_path, filename,b, h, tw, tf, sec_index):
     cFile = open(os.path.join(output_path, filename), 'a')
     cFile.write('SECTYPE, ' + str(sec_index + 1) + ', BEAM, HREC, , 0 \n')
     cFile.write('SECOFFSET, CENT \n')
-    cFile.write('SECDATA, {0}, {1}, {2}, {2}, {3}, {3}\n'.format(b, h,  tw, tf))
+    cFile.write('SECDATA, {0}, {1}, {2}, {2}, {3}, {3}\n'.format(h, b,  tw, tf))
     cFile.write('SECNUM, ' + str(sec_index + 1) + '\n')
     cFile.write('!\n')
     cFile.write('!\n')

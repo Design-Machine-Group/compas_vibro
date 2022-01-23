@@ -80,8 +80,8 @@ shell_section = ShellSection('shell_sec', t=.1)
 s.add(shell_section)
 
 # beam_section = ISection('beam_sec', b=.2, h=.2, tw=.01, tf=.01)
-# beam_section = BoxSection('beam_sec',  b=.25, h=.15, tw=.01, tf=.01)
-beam_section = RectangularSection('beam_sec', b=.25, h=.15)
+beam_section = BoxSection('beam_sec',  b=.15, h=.25, tw=.03, tf=.01)
+# beam_section = RectangularSection('beam_sec', b=.15, h=.25)
 s.add(beam_section)
 
 # ## Add materials -----------------------------------------------------------------------
@@ -126,28 +126,28 @@ s.add(el_prop_beams)
 
 # ## Visualize structure--------------------------------------------------------------------
 
-# v = StructureViewer(s)
-# v.show()
+v = StructureViewer(s)
+v.show()
 
 # # Analyze model -------------------------------------------------------------------------
 
-# s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
+s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 
 # s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'), name=name)
-s.to_obj(path=compas_vibro.TEMP, name=name)
+# s.to_obj(path=compas_vibro.TEMP, name=name)
 
 ## Plot results --------------------------------------------------------------------------
 
 
-# print(' N | Freq.   | P.fac   | Eff.mass | Eff.M.R  | Cum EMR')
-# modes = s.results['modal'].keys()
-# cemr = 0
-# for mode in modes:
-#     f = s.results['modal'][mode].frequency
-#     pf = s.results['modal'][mode].pfact['z']
-#     em = s.results['modal'][mode].efmass['z']
-#     emr = s.results['modal'][mode].efmass_r['z']
-#     cemr += emr
-#     print('{:2d} | {:7.3F} | {:7.3F} | {:8.3F} | {:8.3F} | {:8.3F}'.format(mode, f, pf, em, emr, cemr))
+print(' N | Freq.   | P.fac   | Eff.mass | Eff.M.R  | Cum EMR')
+modes = s.results['modal'].keys()
+cemr = 0
+for mode in modes:
+    f = s.results['modal'][mode].frequency
+    pf = s.results['modal'][mode].pfact['z']
+    em = s.results['modal'][mode].efmass['z']
+    emr = s.results['modal'][mode].efmass_r['z']
+    cemr += emr
+    print('{:2d} | {:7.3F} | {:7.3F} | {:8.3F} | {:8.3F} | {:8.3F}'.format(mode, f, pf, em, emr, cemr))
 
 
