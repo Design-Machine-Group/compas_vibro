@@ -212,6 +212,12 @@ def write_beam_elements(structure, output_path, filename, ekeys, section, materi
         height = structure.sections[section].geometry['h']
         thickness = structure.sections[section].geometry['t']
         write_angle_section(output_path, filename, height, base, thickness, sec_index)
+    elif sec_type == 'BoxSection':
+        b = structure.sections[section].geometry['b']
+        h = structure.sections[section].geometry['h']
+        tw = structure.sections[section].geometry['tf']
+        tf = structure.sections[section].geometry['tw']
+        write_hollow_rect_section(output_path, filename,b, h, tw, tf, sec_index)
     elif sec_type == 'ISection':
         base = structure.sections[section].geometry['b']
         height = structure.sections[section].geometry['h']
@@ -224,7 +230,7 @@ def write_beam_elements(structure, output_path, filename, ekeys, section, materi
         h  = structure.sections[section].geometry['h']
         write_trapezoidal_section(output_path, filename, b1, b2, h, sec_index)
     else:
-        raise ValueError(sec_type + ' Type of section is not yet implemented for Ansys')
+        raise ValueError('The {} type of section is not yet implemented for Ansys'.format(sec_type))
 
     cFile = open(os.path.join(output_path, filename), 'a')
 
@@ -311,6 +317,16 @@ def write_pipe_section(output_path, filename, in_radius, thickness, sec_index):
     cFile.write('SECTYPE, ' + str(sec_index + 1) + ', BEAM, CTUBE, , 0 \n')
     cFile.write('SECOFFSET, CENT \n')
     cFile.write('SECDATA,' + str(in_radius) + ',' + str(in_radius + thickness) + ',8\n')
+    cFile.write('SECNUM, ' + str(sec_index + 1) + '\n')
+    cFile.write('!\n')
+    cFile.write('!\n')
+    cFile.close()
+
+def write_hollow_rect_section(output_path, filename,b, h, tw, tf, sec_index):
+    cFile = open(os.path.join(output_path, filename), 'a')
+    cFile.write('SECTYPE, ' + str(sec_index + 1) + ', BEAM, HREC, , 0 \n')
+    cFile.write('SECOFFSET, CENT \n')
+    cFile.write('SECDATA, {0}, {1}, {2}, {2}, {3}, {3}\n'.format(b, h,  tw, tf))
     cFile.write('SECNUM, ' + str(sec_index + 1) + '\n')
     cFile.write('!\n')
     cFile.write('!\n')

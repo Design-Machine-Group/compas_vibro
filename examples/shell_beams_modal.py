@@ -9,7 +9,7 @@ from compas_vibro.structure import Structure
 from compas_vibro.structure import FixedDisplacement
 from compas_vibro.structure import PointLoad
 from compas_vibro.structure import ShellSection
-from compas_vibro.structure import ISection
+from compas_vibro.structure import ISection, BoxSection, RectangularSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 from compas_vibro.structure import Mesh
@@ -79,7 +79,9 @@ s.add(d)
 shell_section = ShellSection('shell_sec', t=.1)
 s.add(shell_section)
 
-beam_section = ISection('beam_sec', b=.2, h=.2, tw=.01, tf=.01)
+# beam_section = ISection('beam_sec', b=.2, h=.2, tw=.01, tf=.01)
+# beam_section = BoxSection('beam_sec',  b=.25, h=.15, tw=.01, tf=.01)
+beam_section = RectangularSection('beam_sec', b=.25, h=.15)
 s.add(beam_section)
 
 # ## Add materials -----------------------------------------------------------------------
@@ -124,8 +126,8 @@ s.add(el_prop_beams)
 
 # ## Visualize structure--------------------------------------------------------------------
 
-v = StructureViewer(s)
-v.show()
+# v = StructureViewer(s)
+# v.show()
 
 # # Analyze model -------------------------------------------------------------------------
 

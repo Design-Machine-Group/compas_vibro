@@ -83,6 +83,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.mass                   = None
         self.c                      = 340.0
         self.rho                    = 1.225
+        self.beam_sections          = ['ISection','BoxSection','RectangularSection']
 
     def __str__(self):
         return TPL.format(self.name, self.node_count(), self.element_count())
@@ -224,12 +225,8 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             polygon = [self.nodes[nk].xyz() for nk in self.elements[element_key].nodes]
             area = area_polygon(polygon)
             mass = area * thick * density
-        elif self.sections[section].__name__ == 'ISection':
-            b = self.sections[section].geometry['b']
-            h = self.sections[section].geometry['h']
-            wt = self.sections[section].geometry['tw']
-            ft = self.sections[section].geometry['tf']
-            area = (2 * b * ft) * (wt * (h - (2 * ft)))
+        elif self.sections[section].__name__  in self.beam_sections:
+            area = self.sections[section].geometry['A']
             u, v = self.elements[element_key].nodes
             length = distance_point_point(self.node_xyz(u), self.node_xyz(v))
             mass = area * length * density

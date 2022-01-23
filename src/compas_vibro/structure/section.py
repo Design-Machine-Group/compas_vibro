@@ -15,6 +15,8 @@ __all__ = [
     'SolidSection',
     'SpringSection',
     'ISection',
+    'BoxSection',
+    'RectangularSection',
 ]
 
 
@@ -129,6 +131,71 @@ class SpringSection(Section):
         self.displacements = displacements
         self.stiffness     = stiffness
 
+
+class RectangularSection(Section):
+
+    """ Solid rectangular cross-section for beam elements.
+
+    Parameters
+    ----------
+    name : str
+        Section name.
+    b : float
+        Width.
+    h : float
+        Height.
+
+    """
+
+    def __init__(self, name, b, h):
+        Section.__init__(self, name=name)
+
+        A   = b * h
+        Ixx = (1 / 12.) * b * h**3
+        Iyy = (1 / 12.) * h * b**3
+        l1  = max([b, h])
+        l2  = min([b, h])
+        # Avy = 0.833 * A
+        # Avx = 0.833 * A
+        J   = (l1 * l2**3) * (0.33333 - 0.21 * (l2 / l1) * (1 - (l2**4) / (12 * l1**4)))
+
+        self.__name__ = 'RectangularSection'
+        self.name     = name
+        self.geometry = {'b': b, 'h': h, 'A': A, 'J': J, 'Ixx': Ixx, 'Iyy': Iyy, 'Ixy': 0}
+
+
+class BoxSection(Section):
+
+    """ Hollow rectangular box cross-section for beam elements.
+
+    Parameters
+    ----------
+    name : str
+        Section name.
+    b : float
+        Width.
+    h : float
+        Height.
+    tw : float
+        Web thickness.
+    tf : float
+        Flange thickness.
+
+    """
+
+    def __init__(self, name, b, h, tw, tf):
+        Section.__init__(self, name=name)
+
+        A   = b * h - (b - 2 * tw) * (h - 2 * tf)
+        Ap  = (h - tf) * (b - tw)
+        Ixx = (b * h**3) / 12. - ((b - 2 * tw) * (h - 2 * tf)**3) / 12.
+        Iyy = (h * b**3) / 12. - ((h - 2 * tf) * (b - 2 * tw)**3) / 12.
+        p   = 2 * ((h - tf) / tw + (b - tw) / tf)
+        J   = 4 * (Ap**2) / p
+
+        self.__name__ = 'BoxSection'
+        self.name     = name
+        self.geometry = {'b': b, 'h': h, 'tw': tw, 'tf': tf, 'A': A, 'J': J, 'Ixx': Ixx, 'Iyy': Iyy, 'Ixy': 0}
 
 # ==============================================================================
 # 2D
