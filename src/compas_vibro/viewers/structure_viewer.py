@@ -37,7 +37,7 @@ class StructureViewer(object):
         self.show_beam_sections = True
         self.show_node_labels   = False
         self.contains_supports  = False
-        self.beam_sec_names     = ['ISection']
+        self.beam_sec_names     = structure.beam_sections
 
         self.shell_elements     = []
         self.beam_elements      = []
@@ -173,6 +173,10 @@ class StructureViewer(object):
             sec_name = self.structure.sections[section].__name__
             if sec_name == 'ISection':
                 sec_pts = self.make_isection(ek, section, mode=mode, frequency=frequency)
+            elif sec_name == 'RectangularSection':
+                sec_pts = self.make_recsection(ek, section, mode=mode, frequency=frequency)
+            elif sec_name == 'BoxSection':
+                sec_pts = self.make_boxsection(ek, section, mode=mode, frequency=frequency)
             self.add_beam_to_mesh(beam_mesh, sec_pts, ek, mode, frequency)
         self.add_beams_mesh(beam_mesh)
 
@@ -280,6 +284,73 @@ class StructureViewer(object):
         p9 = add_vectors(p8, subtract_vectors(twv_, b2_))
 
         return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p0]
+
+    def make_recsection(self, ek, section, mode=None, frequency=None):
+        u, v = self.structure.elements[ek].nodes
+        if mode != None:
+            u_ = self.move_node(u, mode=mode)
+            v_ = self.move_node(v, mode=mode)
+        elif frequency != None:
+            u_ = self.move_node(u, frequency=frequency)
+            v_ = self.move_node(v, frequency=frequency) 
+        else:
+            u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
+        z = subtract_vectors(u_, v_)
+        x = normalize_vector(self.structure.elements[ek].axes['x'])
+        y = normalize_vector(cross_vectors(x, z))
+        b = self.structure.sections[section].geometry['b']
+        h = self.structure.sections[section].geometry['h']
+
+        h2 = scale_vector(y, h / 2.)
+        b2 = scale_vector(x, b /2.)
+        h2_ = scale_vector(y, -h / 2.)
+        b2_ = scale_vector(x, -b /2.)
+
+        p0 = add_vectors(u_, add_vectors(h2_, b2_))
+        p1 = add_vectors(u_, add_vectors(h2_, b2))
+        p2 = add_vectors(u_, add_vectors(h2, b2))
+        p3 = add_vectors(u_, add_vectors(h2, b2_))
+
+        return [p0, p1, p2, p3]
+
+    def make_boxsection(self, ek, section, mode=None, frequency=None):
+        u, v = self.structure.elements[ek].nodes
+        if mode != None:
+            u_ = self.move_node(u, mode=mode)
+            v_ = self.move_node(v, mode=mode)
+        elif frequency != None:
+            u_ = self.move_node(u, frequency=frequency)
+            v_ = self.move_node(v, frequency=frequency) 
+        else:
+            u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
+        z = subtract_vectors(u_, v_)
+        x = normalize_vector(self.structure.elements[ek].axes['x'])
+        y = normalize_vector(cross_vectors(x, z))
+        b = self.structure.sections[section].geometry['b']
+        h = self.structure.sections[section].geometry['h']
+        tf = self.structure.sections[section].geometry['tf']
+        tw = self.structure.sections[section].geometry['tw']
+
+        h2 = scale_vector(y, h / 2.)
+        b2 = scale_vector(x, b /2.)
+        h2_ = scale_vector(y, -h / 2.)
+        b2_ = scale_vector(x, -b /2.)
+        tfv = scale_vector(y, tf)
+        tfv_ = scale_vector(y, -tf)
+        twv = scale_vector(x, tw / 2.)
+        twv_ = scale_vector(x, -tw / 2.)
+
+        p0 = add_vectors(u_, add_vectors(h2_, b2_))
+        p1 = add_vectors(u_, add_vectors(h2_, b2))
+        p2 = add_vectors(u_, add_vectors(h2, b2))
+        p3 = add_vectors(u_, add_vectors(h2, b2_))
+
+        p4 = add_vectors(p0, add_vectors(twv, tfv))
+        p5 = add_vectors(p1, add_vectors(twv_, tfv))
+        p6 = add_vectors(p2, add_vectors(twv_, tfv_))
+        p7 = add_vectors(p3, add_vectors(twv, tfv_))
+
+        return [p0, p1, p2, p3, p4, p5, p6, p7]
 
     def move_node(self, nk, mode=None, frequency=None):
         x, y, z = self.structure.nodes[nk].xyz()
@@ -557,12 +628,14 @@ if __name__ == '__main__':
     from compas_vibro.structure import Structure
 
     # file = 'shell_beams_modal.obj'
-    file = 'shell_beams_harmonic.obj'
-    fp = os.path.join(compas_vibro.DATA, 'structures', file)
+    # file = 'shell_beams_harmonic.obj'
+    file = 'shell_boxbeams_modal.obj'
+    # fp = os.path.join(compas_vibro.DATA, 'structures', file)
+    fp = os.path.join(compas_vibro.TEMP, file)
     s = Structure.from_obj(fp)
 
     v = StructureViewer(s)
-    # v.show()
-    v.show('harmonic')
+    v.show()
+    # v.show('harmonic')
 
     

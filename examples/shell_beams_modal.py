@@ -30,7 +30,7 @@ __version__ = "0.1.0"
 for i in range(60): print('')
 
 path = os.path.join(compas_vibro.TEMP)
-name = 'shell_beams_modal'
+name = 'shell_recbeams_modal'
 
 
 mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', 'pattern1_fins.json'))
@@ -131,22 +131,23 @@ s.add(el_prop_beams)
 
 # # Analyze model -------------------------------------------------------------------------
 
-s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
+# s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 
-s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'), name=name)
+# s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'), name=name)
+s.to_obj(path=compas_vibro.TEMP, name=name)
 
 ## Plot results --------------------------------------------------------------------------
 
 
-print(' N | Freq.   | P.fac   | Eff.mass | Eff.M.R  | Cum EMR')
-modes = s.results['modal'].keys()
-cemr = 0
-for mode in modes:
-    f = s.results['modal'][mode].frequency
-    pf = s.results['modal'][mode].pfact['z']
-    em = s.results['modal'][mode].efmass['z']
-    emr = s.results['modal'][mode].efmass_r['z']
-    cemr += emr
-    print('{:2d} | {:7.3F} | {:7.3F} | {:8.3F} | {:8.3F} | {:8.3F}'.format(mode, f, pf, em, emr, cemr))
+# print(' N | Freq.   | P.fac   | Eff.mass | Eff.M.R  | Cum EMR')
+# modes = s.results['modal'].keys()
+# cemr = 0
+# for mode in modes:
+#     f = s.results['modal'][mode].frequency
+#     pf = s.results['modal'][mode].pfact['z']
+#     em = s.results['modal'][mode].efmass['z']
+#     emr = s.results['modal'][mode].efmass_r['z']
+#     cemr += emr
+#     print('{:2d} | {:7.3F} | {:7.3F} | {:8.3F} | {:8.3F} | {:8.3F}'.format(mode, f, pf, em, emr, cemr))
 
 
