@@ -222,7 +222,7 @@ class StructureViewer(object):
         self.data.extend(lines)
         self.data.extend(faces)
 
-    def add_beam_to_mesh(self, beam_mesh, sec_pts, ek, mode=None, frequency=None):
+    def add_beam_to_mesh(self, beam_mesh, sec_pts_list, ek, mode=None, frequency=None):
         
         u, v = self.structure.elements[ek].nodes
         if mode != None:
@@ -235,13 +235,14 @@ class StructureViewer(object):
             u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
 
         z = subtract_vectors(v_, u_)
-        sk = [beam_mesh.add_vertex(attr_dict={'x':p[0], 'y':p[1], 'z':p[2]}) for p in sec_pts]
-        sec_pts_ = [add_vectors(u, z) for u in sec_pts]
-        sk_ = [beam_mesh.add_vertex(attr_dict={'x':p[0], 'y':p[1], 'z':p[2]}) for p in sec_pts_]
-        
-        for i in range(len(sec_pts) -1):
-            # mesh.add_face([sk[i], sk[i + 1], sk_[i]])
-            beam_mesh.add_face([sk[i], sk[i + 1], sk_[i + 1], sk_[i]])
+        for sec_pts in sec_pts_list:
+            sk = [beam_mesh.add_vertex(attr_dict={'x':p[0], 'y':p[1], 'z':p[2]}) for p in sec_pts]
+            sec_pts_ = [add_vectors(u, z) for u in sec_pts]
+            sk_ = [beam_mesh.add_vertex(attr_dict={'x':p[0], 'y':p[1], 'z':p[2]}) for p in sec_pts_]
+            
+            for i in range(len(sec_pts) -1):
+                # mesh.add_face([sk[i], sk[i + 1], sk_[i]])
+                beam_mesh.add_face([sk[i], sk[i + 1], sk_[i + 1], sk_[i]])
 
     def make_isection(self, ek, section, mode=None, frequency=None):
         u, v = self.structure.elements[ek].nodes
@@ -284,7 +285,7 @@ class StructureViewer(object):
         p8 = add_vectors(p7, tfv_)
         p9 = add_vectors(p8, subtract_vectors(twv_, b2_))
 
-        return [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p0]
+        return [[p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p0]]
 
     def make_recsection(self, ek, section, mode=None, frequency=None):
         u, v = self.structure.elements[ek].nodes
@@ -312,7 +313,7 @@ class StructureViewer(object):
         p2 = add_vectors(u_, add_vectors(h2, b2))
         p3 = add_vectors(u_, add_vectors(h2, b2_))
 
-        return [p0, p1, p2, p3, p0]
+        return [[p0, p1, p2, p3, p0]]
 
     def make_boxsection(self, ek, section, mode=None, frequency=None):
         u, v = self.structure.elements[ek].nodes
@@ -338,8 +339,8 @@ class StructureViewer(object):
         b2_ = scale_vector(x, -b /2.)
         tfv = scale_vector(y, tf)
         tfv_ = scale_vector(y, -tf)
-        twv = scale_vector(x, tw / 2.)
-        twv_ = scale_vector(x, -tw / 2.)
+        twv = scale_vector(x, tw)
+        twv_ = scale_vector(x, -tw)
 
         p0 = add_vectors(u_, add_vectors(h2_, b2_))
         p1 = add_vectors(u_, add_vectors(h2_, b2))
@@ -351,7 +352,7 @@ class StructureViewer(object):
         p6 = add_vectors(p2, add_vectors(twv_, tfv_))
         p7 = add_vectors(p3, add_vectors(twv, tfv_))
 
-        return [p0, p1, p2, p3, p4, p5, p6, p7, p0]
+        return [[p0, p1, p2, p3, p0], [p4, p5, p6, p7, p4]]
 
     def move_node(self, nk, mode=None, frequency=None):
         x, y, z = self.structure.nodes[nk].xyz()
@@ -524,7 +525,6 @@ class StructureViewer(object):
 
     def plot_node_labels(self):
         dots = []
-        # for dk in self.structure.nodes:
         nodes = self.structure.nodes.keys()
         x = [self.structure.nodes[nk].x for nk in nodes]
         y = [self.structure.nodes[nk].y for nk in nodes]
