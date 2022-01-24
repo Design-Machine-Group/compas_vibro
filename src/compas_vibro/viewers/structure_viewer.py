@@ -146,11 +146,13 @@ class StructureViewer(object):
                 args=[{"visible": [False] * len(self.data)},
                     {"title": title}],
                 label=step_label)
-            
+
             step["args"][0]["visible"][i * nt] = True
             step["args"][0]["visible"][i * nt + 1] = True
-            step["args"][0]["visible"][i * nt + 2] = True
-            step["args"][0]["visible"][i * nt + 3] = True
+            
+            if nt > 2:
+                step["args"][0]["visible"][i * nt + 2] = True
+                step["args"][0]["visible"][i * nt + 3] = True
             step["args"][0]["visible"][-1] = True
             steps.append(step)
 
@@ -650,15 +652,18 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
 
-    file = 'shell_beams_modal.obj'
-    # file = 'shell_beams_harmonic.obj'
-    # file = 'shell_boxbeams_modal.obj'
-    fp = os.path.join(compas_vibro.DATA, 'structures', file)
-    # fp = os.path.join(compas_vibro.TEMP, file)
-    s = Structure.from_obj(fp)
+    # file = 'shell_beams_modal.obj'
+    # # file = 'shell_beams_harmonic.obj'
+    # # file = 'shell_boxbeams_modal.obj'
+    # fp = os.path.join(compas_vibro.DATA, 'structures', file)
+    # # fp = os.path.join(compas_vibro.TEMP, file)
+    # s = Structure.from_obj(fp)
 
+    import timber_vibro
+    fp = os.path.join(timber_vibro.DATA, 'experiment_rig', 'rig_pattern1_ibeams.obj')
+    s = Structure.from_obj(fp)
     v = StructureViewer(s)
     # v.show()
-    v.show('modal')
+    v.show('harmonic')
 
     
