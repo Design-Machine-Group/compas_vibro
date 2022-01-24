@@ -20,11 +20,9 @@ from compas.geometry import cross_vectors
 from compas.geometry import scale_vector
 from compas.geometry import add_vectors
 
-# TODO: color constraints according to axis data
-# TODO: hoverdata for constraints shouls show axix data
 # TODO: Add harmonic mode participation factors
 # TODO: Add modal effective masses
-# TODO: Add trace on/off toggles
+# TODO: Plot forces with cones?
 
 class StructureViewer(object):
 
@@ -115,7 +113,7 @@ class StructureViewer(object):
                                                showbackground=True,
                                                backgroundcolor='rgb(230, 230,230)')
                                     ),
-                          showlegend=False,
+                          showlegend=True,
                             )
         self.layout = layout
 
@@ -191,7 +189,14 @@ class StructureViewer(object):
             y.extend([u[1], v[1], [None]])
             z.extend([u[2], v[2], [None]])
 
-        lines = [go.Scatter3d(x=x, y=y, z=z, mode='lines', line=line_marker)]
+        lines = [go.Scatter3d(name='Beam elements',
+                              x=x,
+                              y=y,
+                              z=z,
+                              mode='lines',
+                              line=line_marker,
+                              legendgroup='Beam Elements',
+                              )]
 
         vertices, faces = beam_mesh.to_vertices_and_faces()
 
@@ -209,15 +214,17 @@ class StructureViewer(object):
         y = [v[1] for v in vertices]
         z = [v[2] for v in vertices]
 
-        faces = [go.Mesh3d(x=x,
-                            y=y,
-                            z=z,
-                            i=i,
-                            j=j,
-                            k=k,
-                            opacity=1.,
-                            color='#1F77B4',
-                            showscale=False,
+        faces = [go.Mesh3d(name='Beam elements',
+                           x=x,
+                           y=y,
+                           z=z,
+                           i=i,
+                           j=j,
+                           k=k,
+                           opacity=1.,
+                           color='#1F77B4',
+                           showscale=False,
+                           legendgroup='Beam Elements',
                 )]
         self.data.extend(lines)
         self.data.extend(faces)
@@ -442,7 +449,14 @@ class StructureViewer(object):
             y.extend([u[1], v[1], [None]])
             z.extend([u[2], v[2], [None]])
 
-        lines = [go.Scatter3d(x=x, y=y, z=z, mode='lines', line=line_marker)]
+        lines = [go.Scatter3d(name='Shell elements',
+                              x=x,
+                              y=y,
+                              z=z,
+                              mode='lines',
+                              line=line_marker,
+                              legendgroup='Shell elements',
+                              )]
         triangles = []
         for face in faces:
             triangles.append(face[:3])
@@ -481,21 +495,23 @@ class StructureViewer(object):
                 intensity_.append(int(ep.is_rad) + .1)
                 text.append(string)
 
-        faces = [go.Mesh3d(x=x,
-                            y=y,
-                            z=z,
-                            i=i,
-                            j=j,
-                            k=k,
-                            opacity=1.,
-                            colorbar_title='is_rad',
-                            colorbar_thickness=10,
-                            colorscale='Emrld_r',
-                            intensity=intensity_,
-                            intensitymode='cell',
-                            text=text,
-                            hoverinfo='text',
-                            showscale=False,
+        faces = [go.Mesh3d(name='Shell elements',
+                           x=x,
+                           y=y,
+                           z=z,
+                           i=i,
+                           j=j,
+                           k=k,
+                           opacity=1.,
+                           colorbar_title='is_rad',
+                           colorbar_thickness=10,
+                           colorscale='Emrld_r',
+                           intensity=intensity_,
+                           intensitymode='cell',
+                           text=text,
+                           hoverinfo='text',
+                           showscale=False,
+                           legendgroup='Shell elements',
                 )]
         self.data.extend(lines)
         self.data.extend(faces)
@@ -503,12 +519,18 @@ class StructureViewer(object):
     def plot_supports(self):
         dots = []
         red = 'rgb(255, 0, 0)'
+        green = 'rgb(0, 255, 0)'
         for dk in self.structure.displacements:
             nodes = self.structure.displacements[dk].nodes
             x = [self.structure.nodes[nk].x for nk in nodes]
             y = [self.structure.nodes[nk].y for nk in nodes]
             z = [self.structure.nodes[nk].z for nk in nodes]
-            dots.append(go.Scatter3d(x=x, y=y, z=z, mode='markers', marker_color=red))
+            n = self.structure.displacements[dk].__name__
+            if n == 'FixedDisplacement':
+                color = red
+            else:
+                color = green
+            dots.append(go.Scatter3d(name=n, x=x, y=y, z=z, mode='markers', marker_color=color))
         self.data.extend(dots)
 
     def plot_point_loads(self):
@@ -628,15 +650,15 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
 
-    # file = 'shell_beams_modal.obj'
+    file = 'shell_beams_modal.obj'
     # file = 'shell_beams_harmonic.obj'
-    file = 'shell_boxbeams_modal.obj'
-    # fp = os.path.join(compas_vibro.DATA, 'structures', file)
-    fp = os.path.join(compas_vibro.TEMP, file)
+    # file = 'shell_boxbeams_modal.obj'
+    fp = os.path.join(compas_vibro.DATA, 'structures', file)
+    # fp = os.path.join(compas_vibro.TEMP, file)
     s = Structure.from_obj(fp)
 
     v = StructureViewer(s)
-    v.show()
-    # v.show('harmonic')
+    # v.show()
+    v.show('modal')
 
     
