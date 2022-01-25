@@ -549,7 +549,7 @@ class StructureViewer(object):
                 px = [load.components['x'] for _ in range(len(x))]
                 py = [load.components['y'] for _ in range(len(x))]
                 pz = [load.components['z'] for _ in range(len(x))]
-                dots.append(go.Cone(x=x, y=y, z=z, u=px, v=py, w=pz, showscale=False, sizemode='scaled', sizeref=.12))
+                dots.append(go.Cone(name=n, x=x, y=y, z=z, u=px, v=py, w=pz, showscale=False, sizemode='scaled', sizeref=.12))
                 # dots.append(go.Scatter3d(name=n, x=x, y=y, z=z, mode='markers',marker_color=color))
         self.data.extend(dots)
 
