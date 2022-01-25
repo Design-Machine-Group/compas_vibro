@@ -537,14 +537,20 @@ class StructureViewer(object):
 
     def plot_point_loads(self):
         dots = []
+        color = 'rgb(255, 215, 0)'  # orange
         for lk in self.structure.loads:
             load = self.structure.loads[lk]
+            n = load.__name__
             if load.__name__ == 'PointLoad':
                 nodes = load.nodes
                 x = [self.structure.nodes[nk].x for nk in nodes]
                 y = [self.structure.nodes[nk].y for nk in nodes]
                 z = [self.structure.nodes[nk].z for nk in nodes]
-                dots.append(go.Scatter3d(x=x, y=y, z=z, mode='markers'))
+                px = [load.components['x'] for _ in range(len(x))]
+                py = [load.components['y'] for _ in range(len(x))]
+                pz = [load.components['z'] for _ in range(len(x))]
+                dots.append(go.Cone(x=x, y=y, z=z, u=px, v=py, w=pz, showscale=False, sizemode='scaled', sizeref=.12))
+                # dots.append(go.Scatter3d(name=n, x=x, y=y, z=z, mode='markers',marker_color=color))
         self.data.extend(dots)
 
     def plot_node_labels(self):
@@ -653,17 +659,13 @@ if __name__ == '__main__':
     from compas_vibro.structure import Structure
 
     # file = 'shell_beams_modal.obj'
-    # # file = 'shell_beams_harmonic.obj'
-    # # file = 'shell_boxbeams_modal.obj'
-    # fp = os.path.join(compas_vibro.DATA, 'structures', file)
-    # # fp = os.path.join(compas_vibro.TEMP, file)
-    # s = Structure.from_obj(fp)
-
-    import timber_vibro
-    fp = os.path.join(timber_vibro.DATA, 'experiment_rig', 'rig_pattern1_ibeams.obj')
+    file = 'shell_beams_harmonic.obj'
+    # file = 'shell_boxbeams_modal.obj'
+    fp = os.path.join(compas_vibro.DATA, 'structures', file)
+    # fp = os.path.join(compas_vibro.TEMP, file)
     s = Structure.from_obj(fp)
+
     v = StructureViewer(s)
-    # v.show()
-    v.show('harmonic')
+    v.show()
 
     
