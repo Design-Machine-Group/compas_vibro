@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import os
 import pickle
+import json
 
 from compas.geometry import area_polygon
 
@@ -25,6 +26,7 @@ from compas_vibro.fea.opensees.opensees import opensees_static
 from compas_vibro.structure.load import PointLoad
 
 from compas_vibro.vibro.rayleigh import compute_rad_power_structure
+from compas_vibro.vibro import from_W_to_dB
 
 from compas.geometry import centroid_points
 from compas.geometry import distance_point_point
@@ -38,9 +40,9 @@ __email__      = 'tmendeze@uw.edu'
 
 
 TPL = """
-################################################################################
+
 compas_vibro Structure: {}
-################################################################################
+----------------------
 
 Number of Nodes ------------- {}
 Number of Elements ---------- {}
@@ -311,6 +313,41 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         mesh.cull_vertices()
         return mesh
 
+    @property
+    def results_data(self):
+        data = {'modal':{},
+                # 'harmonic':{},
+                'radiation': {},
+                }
+
+        if 'modal' in self.results:
+            for mode in self.results['modal']:
+                mr = self.results['modal'][mode]
+                f = mr.frequency
+                mass = mr.efmass
+                md = {'frequency': f, 'eff_mass': mass}
+                data['modal'][mode] = md
+        
+        if 'radiation' in self.results:
+            for fkey in self.results['radiation']:
+                r = self.results['radiation'][fkey]
+                f = r.frequency
+                rad = r.radiated_p
+                rad_db = from_W_to_dB(rad)
+                rd = {'frequency': f, 'radiated_p': rad, 'radiated_p_db': rad_db}
+                data['radiation'][fkey] =rd
+
+        return data
+
+    def to_results_json(self, path=None, name=None):
+        if not path:
+            path = self.path
+        if not name:
+            name = self.name
+        filepath = os.path.join(path, name + '_results.json')
+
+        with open(filepath, 'w+') as fp:
+            json.dump(self.results_data, fp)
 
 
 if __name__ == '__main__':
@@ -318,5 +355,5 @@ if __name__ == '__main__':
 
     fp = os.path.join(compas_vibro.DATA, 'structures', 'shell_beams_harmonic.obj')
     s = Structure.from_obj(fp)
-
+    s.to_results_json(path=compas_vibro.TEMP)
     print(s)
