@@ -42,13 +42,11 @@ TPL = """
 compas_vibro Structure: {}
 ################################################################################
 
-Nodes
------
-{}
-
-Elements
---------
-{}
+Number of Nodes ------------- {}
+Number of Elements ---------- {}
+Number of Modes ------------- {}
+Number of Harmonic Freqs. --- {}
+Number of Rad. Pow. Freqs. -- {}
 """
 
 
@@ -86,7 +84,22 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.beam_sections          = ['ISection','BoxSection','RectangularSection']
 
     def __str__(self):
-        return TPL.format(self.name, self.node_count(), self.element_count())
+        string = ''
+        num_modes = 0
+        num_freq = 0
+        num_rpf = 0
+        if 'modal' in self.results:
+            num_modes = len(self.results['modal'])
+        if 'harmonic' in self.results:
+            num_freq = len(self.results['harmonic'])
+        if 'radiation' in self.results:
+            num_rpf = len(self.results['radiation'])
+        return TPL.format(self.name,
+                          self.node_count(),
+                          self.element_count(),
+                          num_modes,
+                          num_freq,
+                          num_rpf)
 
     def add_nodes_elements_from_mesh(self, mesh, element_type='ShellElement', elset=None):
 
@@ -301,4 +314,9 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
 
 if __name__ == '__main__':
-    pass
+    import compas_vibro
+
+    fp = os.path.join(compas_vibro.DATA, 'structures', 'shell_beams_harmonic.obj')
+    s = Structure.from_obj(fp)
+
+    print(s)
