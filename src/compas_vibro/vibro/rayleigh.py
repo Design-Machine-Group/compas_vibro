@@ -20,7 +20,6 @@ from compas_vibro.vibro.utilities import structure_face_centers
 from compas_vibro.vibro.utilities import make_area_matrix
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np
 # from compas_vibro.vibro.utilities import from_W_to_dB
-from compas_vibro.vibro.utilities import radiating_faces
 
 
 
@@ -37,7 +36,7 @@ __email__      = 'tmendeze@uw.edu'
 
 
 def compute_structure_face_velocities(structure, rkey):
-    eks = radiating_faces(structure)
+    eks = structure.radiating_faces()
     if structure.step['harmonic']:
         result_type = 'harmonic'
     else:
@@ -61,7 +60,7 @@ def compute_rad_power_structure(structure):
     else:
         result_type = 'harmonic_field'
 
-    eks = radiating_faces(structure)
+    eks = structure.radiating_faces()
     sareas = structure_face_surfaces(structure)
     face_centers = structure_face_centers(structure)
     rkeys = structure.results[result_type].keys()

@@ -22,8 +22,8 @@ all = ['calculate_distance_matrix_np',
        'make_area_matrix',
        'frequency_key',
        'structure_face_surfaces',
-       'radiating_faces',
-       'structure_face_centers']
+       'structure_face_centers',
+       ]
 
 
 def calculate_distance_matrix_np(face_centers):
@@ -84,20 +84,6 @@ def make_area_matrix(face_areas):
 
 def frequency_key(frequency, tol='3f'):
     return '{0:.{1}}'.format(float(frequency), tol)
-
-
-def radiating_faces(structure):
-    eps = sorted(list(structure.element_properties.keys()))
-    eks = []
-    for ep in eps:
-        if structure.element_properties[ep].is_rad:
-            elements = structure.element_properties[ep].elements
-            elset = structure.element_properties[ep].elset
-            if elements:
-                eks.extend(elements)
-            elif elset:
-                eks.extend(structure.sets[elset].selection)
-    return eks
 
 
 def structure_face_surfaces(structure):
