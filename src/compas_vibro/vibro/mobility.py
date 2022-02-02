@@ -17,11 +17,9 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
     rad_nks = structure.radiating_nodes()
     inc_nks = structure.incident_nodes()
 
-    mm = [[]] * len(freq_list)
-
+    mm = [[] for _ in range(len(freq_list))]
 
     for ink in inc_nks:
-        print('ink', ink)
         load = PointLoad(name='pload', nodes=[ink], x=fx, y=fy, z=fz, xx=0, yy=0, zz=0)
         structure.add(load)
         structure.analyze_harmonic(freq_list,
@@ -30,18 +28,20 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
                                    damping=damping)
         fkeys = structure.results['harmonic']
         for fkey in fkeys:
-            print('fkey', fkey)
             structure.results['harmonic'][fkey].compute_node_velocities()
             vr = [structure.results['harmonic'][fkey].velocities[nkey].real for nkey in rad_nks]
             vi = [structure.results['harmonic'][fkey].velocities[nkey].imag for nkey in rad_nks]
             v = [complex(vr[i], vi[i]) for i in range(len(vr))]
             #TODO: the force component is still missing, should it be the vector magnitude? XYZ?
             #TODO: the force should be transformed into a pressure (using the area matrix). Where to do this?
-
+            
             mm[fkey].append(v)
-        print('')
-    mm = np.array(mm)
-    return mm
+
+    mob_mats = []
+    for a in mm:
+        mob_mats.append(np.array(a))
+    return mob_mats
+
 
 
 if __name__ == '__main__':
@@ -50,14 +50,14 @@ if __name__ == '__main__':
     from compas_vibro.structure import Structure
 
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'flat_10x10.obj'))
-    freq_list = list(range(20, 50, 5))
+
+    freq_list = list(range(20, 200, 5))
     damping=.02
     fx = 0
     fy = 0
     fz = 1
-    mm = compute_mobility_matrices(s, freq_list, fx, fy, fz, damping=damping)
+    mob_mats = compute_mobility_matrices(s, freq_list, fx, fy, fz, damping=damping)
 
-    print(mm)
-    print(mm.shape)
-
-    # The redsulting mesh has a shape of (6, 486, 81). Is this the correct shape???
+    print(len(mob_mats))
+    for mm in mob_mats:
+        print(mm.shape)
