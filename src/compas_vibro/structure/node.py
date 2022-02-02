@@ -36,11 +36,13 @@ class Node(object):
 
     def __init__(self, key, xyz):
 
-        self.__name__ = 'Node'
-        self.key      = key
-        self.x        = xyz[0]
-        self.y        = xyz[1]
-        self.z        = xyz[2]
+        self.__name__       = 'Node'
+        self.key            = key
+        self.x              = xyz[0]
+        self.y              = xyz[1]
+        self.z              = xyz[2]
+        self.is_rad         = None
+        self.is_incident    = None
 
     def __str__(self):
 

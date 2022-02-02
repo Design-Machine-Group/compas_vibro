@@ -10,3 +10,4 @@ __email__      = 'tmendeze@uw.edu'
 from .rayleigh import *
 from .loads import *
 from .utilities import *
+from .mobility import *

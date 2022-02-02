@@ -35,6 +35,7 @@ class StructureViewer(object):
         self.show_supports      = True
         self.show_beam_sections = True
         self.show_node_labels   = False
+        self.show_rad_nodes     = False
         self.contains_supports  = False
         self.beam_sec_names     = structure.beam_sections
 
@@ -563,6 +564,19 @@ class StructureViewer(object):
         dots = [go.Scatter3d(x=x, y=y, z=z, text=text, mode='markers+text')]
         self.data.extend(dots)
 
+    def plot_rad_nodes(self):
+        dots = []
+        color = 'rgb(100, 100, 0)'
+        color = '#CCFF00'
+        nodes = self.structure.radiating_nodes()
+
+        x = [self.structure.nodes[nk].x for nk in nodes]
+        y = [self.structure.nodes[nk].y for nk in nodes]
+        z = [self.structure.nodes[nk].z for nk in nodes]
+
+        dots.append(go.Scatter3d(name='radiading_nodes', x=x, y=y, z=z, mode='markers', marker_color=color))
+        self.data.extend(dots)
+
     def show_structure(self):
         self.make_shell_mesh()
         if self.shell_elements:
@@ -582,6 +596,8 @@ class StructureViewer(object):
         
         if self.show_supports:
             self.plot_supports()
+        if self.show_rad_nodes:
+            self.plot_rad_nodes()
         
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()

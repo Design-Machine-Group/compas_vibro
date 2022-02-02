@@ -277,6 +277,23 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         return structure
 
+    def support_nodes(self):
+        nks = []
+        for dk in self.displacements:
+            nks.extend(self.displacements[dk].nodes)
+        return nks
+
+    def radiating_nodes(self):
+        snks = self.support_nodes()
+        eks = self.radiating_faces()
+        nks = []
+        for ek in eks:
+            nks_ = self.elements[ek].nodes
+            for nk in nks_:
+                if nk not in snks and nk not in nks:
+                    nks.append(nk)
+        return nks
+
     def radiating_faces(self):
         eps = sorted(list(self.element_properties.keys()))
         eks = []
@@ -352,8 +369,19 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
 if __name__ == '__main__':
     import compas_vibro
+    from compas_vibro.viewers import StructureViewer
 
-    fp = os.path.join(compas_vibro.DATA, 'structures', 'shell_beams_harmonic.obj')
-    s = Structure.from_obj(fp)
-    s.to_results_json(path=compas_vibro.TEMP)
-    print(s)
+    # fp = os.path.join(compas_vibro.DATA, 'structures', 'shell_beams_harmonic.obj')
+    # s = Structure.from_obj(fp)
+    # s.to_results_json(path=compas_vibro.TEMP)
+    # print(s)
+    
+    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'flat_10x10.obj'))
+
+    print(s.radiating_nodes())
+
+    v = StructureViewer(s)
+    v.show_rad_nodes = True
+    v.show()
+
+    
