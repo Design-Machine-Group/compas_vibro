@@ -68,7 +68,8 @@ el_prop1 = ElementProperties('concrete_shell_thin',
                              material='concrete',
                              section='sec',
                              elset='shell',
-                             is_rad=True)
+                             is_rad=True,
+                             is_incident=True)
 s.add(el_prop1)
 
 

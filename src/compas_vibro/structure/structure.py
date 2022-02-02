@@ -283,6 +283,17 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             nks.extend(self.displacements[dk].nodes)
         return nks
 
+    def incident_nodes(self):
+        snks = self.support_nodes()
+        eks = self.incident_faces()
+        nks = []
+        for ek in eks:
+            nks_ = self.elements[ek].nodes
+            for nk in nks_:
+                if nk not in snks and nk not in nks:
+                    nks.append(nk)
+        return nks
+
     def radiating_nodes(self):
         snks = self.support_nodes()
         eks = self.radiating_faces()
@@ -299,6 +310,19 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         eks = []
         for ep in eps:
             if self.element_properties[ep].is_rad:
+                elements = self.element_properties[ep].elements
+                elset = self.element_properties[ep].elset
+                if elements:
+                    eks.extend(elements)
+                elif elset:
+                    eks.extend(self.sets[elset].selection)
+        return eks
+
+    def incident_faces(self):
+        eps = sorted(list(self.element_properties.keys()))
+        eks = []
+        for ep in eps:
+            if self.element_properties[ep].is_incident:
                 elements = self.element_properties[ep].elements
                 elset = self.element_properties[ep].elset
                 if elements:
@@ -382,6 +406,7 @@ if __name__ == '__main__':
 
     v = StructureViewer(s)
     v.show_rad_nodes = True
+    v.show_incident_nodes = True
     v.show()
 
     

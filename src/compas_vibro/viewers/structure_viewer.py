@@ -27,24 +27,25 @@ from compas.geometry import add_vectors
 class StructureViewer(object):
 
     def __init__(self, structure):
-        self.structure          = structure
-        self.data               = []
-        self.layout             = None
-        self.sliders            = None
-        self.show_point_loads   = True
-        self.show_supports      = True
-        self.show_beam_sections = True
-        self.show_node_labels   = False
-        self.show_rad_nodes     = False
-        self.contains_supports  = False
-        self.beam_sec_names     = structure.beam_sections
+        self.structure              = structure
+        self.data                   = []
+        self.layout                 = None
+        self.sliders                = None
+        self.show_point_loads       = True
+        self.show_supports          = True
+        self.show_beam_sections     = True
+        self.show_node_labels       = False
+        self.show_rad_nodes         = False
+        self.show_incident_nodes    = False
+        self.contains_supports      = False
+        self.beam_sec_names         = structure.beam_sections
 
-        self.shell_elements     = []
-        self.beam_elements      = []
-        self.mesh               = None
+        self.shell_elements         = []
+        self.beam_elements          = []
+        self.mesh                   = None
 
-        self.modal_scale        = 4.
-        self.harmonic_scale     = 2e7
+        self.modal_scale            = 4.
+        self.harmonic_scale         = 2e7
 
     @property
     def num_traces(self):
@@ -566,7 +567,6 @@ class StructureViewer(object):
 
     def plot_rad_nodes(self):
         dots = []
-        color = 'rgb(100, 100, 0)'
         color = '#CCFF00'
         nodes = self.structure.radiating_nodes()
 
@@ -575,6 +575,18 @@ class StructureViewer(object):
         z = [self.structure.nodes[nk].z for nk in nodes]
 
         dots.append(go.Scatter3d(name='radiading_nodes', x=x, y=y, z=z, mode='markers', marker_color=color))
+        self.data.extend(dots)
+
+    def plot_incident_nodes(self):
+        dots = []
+        color = '#CA38A8'
+        nodes = self.structure.incident_nodes()
+
+        x = [self.structure.nodes[nk].x for nk in nodes]
+        y = [self.structure.nodes[nk].y for nk in nodes]
+        z = [self.structure.nodes[nk].z for nk in nodes]
+
+        dots.append(go.Scatter3d(name='incident_nodes', x=x, y=y, z=z, mode='markers', marker_color=color))
         self.data.extend(dots)
 
     def show_structure(self):
@@ -596,8 +608,12 @@ class StructureViewer(object):
         
         if self.show_supports:
             self.plot_supports()
+
         if self.show_rad_nodes:
             self.plot_rad_nodes()
+
+        if self.show_incident_nodes:
+            self.plot_incident_nodes()
         
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()
