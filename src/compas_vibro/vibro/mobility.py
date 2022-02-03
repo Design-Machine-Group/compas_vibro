@@ -10,6 +10,10 @@ except:
     pass
 
 from compas_vibro.structure.load import PointLoad
+from compas.geometry import length_vector
+
+#TODO: the force component is still missing, should it be the vector magnitude? XYZ?
+
 
 
 def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, backend='ansys'):
@@ -18,6 +22,8 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
     inc_nks = structure.incident_nodes()
 
     mm = [[] for _ in range(len(freq_list))]
+
+    fvl = length_vector([fx, fy, fz])
 
     for ink in inc_nks:
         load = PointLoad(name='pload', nodes=[ink], x=fx, y=fy, z=fz, xx=0, yy=0, zz=0)
@@ -32,8 +38,7 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
             vr = [structure.results['harmonic'][fkey].velocities[nkey].real for nkey in rad_nks]
             vi = [structure.results['harmonic'][fkey].velocities[nkey].imag for nkey in rad_nks]
             v = [complex(vr[i], vi[i]) for i in range(len(vr))]
-            #TODO: the force component is still missing, should it be the vector magnitude? XYZ?
-            #TODO: the force should be transformed into a pressure (using the area matrix). Where to do this?
+            v = [vi / fvl for vi in v]
             
             mm[fkey].append(v)
 
