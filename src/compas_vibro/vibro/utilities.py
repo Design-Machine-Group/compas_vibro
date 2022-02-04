@@ -1,4 +1,3 @@
-
 from compas.geometry import area_polygon
 from compas.geometry import centroid_points
 
@@ -87,7 +86,7 @@ def frequency_key(frequency, tol='3f'):
 
 
 def structure_face_surfaces(structure):
-    eks = radiating_faces(structure)
+    eks = structure.radiating_faces()
     areas = []
     for ek in eks:
         pl = [structure.nodes[nk].xyz() for nk in structure.elements[ek].nodes]
@@ -96,7 +95,7 @@ def structure_face_surfaces(structure):
 
 
 def structure_face_centers(structure):
-    eks = radiating_faces(structure)
+    eks = structure.radiating_faces()
     centers = []
     for ek in eks:
         pl = [structure.nodes[nk].xyz() for nk in structure.elements[ek].nodes]

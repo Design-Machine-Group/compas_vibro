@@ -4,9 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objects as go
 from dash.dependencies import Input, Output
-# import dash_bootstrap_components as dbc
 from plotly.subplots import make_subplots
-from compas_vibro.vibro.utilities import radiating_faces
 from compas.datastructures import Mesh
 from compas.geometry import length_vector
 from compas.utilities import i_to_rgb
