@@ -67,17 +67,18 @@ def compute_radiation_matrices(structure):
     return rms
 
 def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
-    # mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
-    # rad_mats = compute_radiation_matrices(structure)
+    mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
+    rad_mats = compute_radiation_matrices(structure)
     mesh = structure.radiating_mesh()
     rad_nks = structure.radiating_nodes()
     areas = [mesh.vertex_area(nk) for nk in rad_nks]
     dS = make_diagonal_area_matrix(areas)
-    print(np.trace(dS))
-    # for i, fkey in enumerate(structure.results['harmonic']):
-    #     f = structure.results['harmonic'][fkey].frequency
-    #     H = mob_mats[i]
-    #     Z = rad_mats[i]
+    # print(np.trace(dS))
+    for i, fkey in enumerate(structure.results['harmonic']):
+        f = structure.results['harmonic'][fkey].frequency
+        H = mob_mats[i]
+        Z = rad_mats[i]
+        R = np.dot(H, Z)
 
 
 if __name__ == '__main__':
