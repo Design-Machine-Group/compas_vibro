@@ -54,7 +54,7 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
 
-    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'flat_10x10.obj'))
+    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'flat_5x5.obj'))
 
     freq_list = list(range(20, 200, 5))
     damping=.02
