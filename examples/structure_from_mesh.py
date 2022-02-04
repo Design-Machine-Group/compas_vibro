@@ -25,7 +25,7 @@ __version__ = "0.1.0"
 
 
 path = compas_vibro.TEMP
-geometry = 'flat_mesh_10x10'
+geometry = 'flat_mesh_5x5'
 name = '{}'.format(geometry)
 
 
@@ -75,7 +75,7 @@ s.add(el_prop1)
 
 
 path = os.path.join(compas_vibro.DATA, 'structures')
-s.to_obj(path=path, name='flat_10x10')
+s.to_obj(path=path, name=geometry)
 
 v = StructureViewer(s)
 v.show()
