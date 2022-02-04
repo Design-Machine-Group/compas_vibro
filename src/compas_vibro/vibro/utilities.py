@@ -26,10 +26,18 @@ all = ['calculate_distance_matrix_np',
 
 
 def calculate_distance_matrix_np(face_centers):
-    XY = [[pt[0], pt[1]] for pt in face_centers]
-    np.array(XY, dtype=np.float64)
-    D = sp.squareform(sp.pdist(XY, metric='euclidean'))
+    
+    # this is the 2d XY version - - - - - - - - - - - - - - - - 
+    # XY = [[pt[0], pt[1]] for pt in face_centers]
+    # np.array(XY, dtype=np.float64)
+    # D = sp.squareform(sp.pdist(XY, metric='euclidean'))
+    # np.fill_diagonal(D, 1)
+
+    # this is a 3D XYZ version - - - - - - - - - - - - - - - - -
+    np.array(face_centers, dtype=np.float64)
+    D = sp.squareform(sp.pdist(face_centers, metric='euclidean'))
     np.fill_diagonal(D, 1)
+
     return D.astype(np.float64)
 
 
@@ -78,6 +86,10 @@ def make_area_matrix(face_areas):
     s = np.array(face_areas, dtype=np.float64)
     n = np.shape(s)[0]
     S = s * np.ones((n, n))
+    return S
+
+def make_diagonal_area_matrix(face_areas):
+    S = np.diag(face_areas)
     return S
 
 

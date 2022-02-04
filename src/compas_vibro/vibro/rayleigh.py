@@ -65,16 +65,20 @@ def compute_rad_power_structure(structure):
     face_centers = structure_face_centers(structure)
     rkeys = structure.results[result_type].keys()
     structure.results['radiation'] = {}
+
+    S = make_area_matrix(sareas)
+    D = calculate_distance_matrix_np(face_centers)
+
     for rk in rkeys:
         f = structure.results[result_type][rk].frequency
         res = compas_vibro.structure.result.Result
         structure.results['radiation'][rk] = res(f) 
         wlen = structure.c / f
         k = (2. * np.pi) / wlen
-        omega = k * structure.c
+        # omega = k * structure.c
 
-        S = make_area_matrix(sareas)
-        D = calculate_distance_matrix_np(face_centers)
+        # S = make_area_matrix(sareas)
+        # D = calculate_distance_matrix_np(face_centers)
         n = int(np.sqrt(np.shape(S)[0]))
         v = compute_structure_face_velocities(structure, rk)
         # vr = np.real(v)

@@ -303,8 +303,8 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             for nk in nks_:
                 if nk not in snks and nk not in nks:
                     nks.append(nk)
-        return nks
-
+        return nks 
+ 
     def radiating_faces(self):
         eps = sorted(list(self.element_properties.keys()))
         eks = []
@@ -344,11 +344,8 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         cpt = centroid_points(centers)
         return cpt
 
-    def to_radiating_mesh(self):
-        # faces = self.radiating_faces()
+    def radiating_mesh(self):
         faces = [self.elements[fk].nodes for fk in self.radiating_faces()]
-        # nodes = {nk for fk in faces for nk in self.elements[fk].nodes}
-        # print(nodes)
         vertices = [self.nodes[k].xyz() for k in self.nodes]
         mesh = Mesh.from_vertices_and_faces(vertices, faces)
         mesh.cull_vertices()
