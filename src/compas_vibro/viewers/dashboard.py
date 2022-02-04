@@ -282,7 +282,7 @@ class Dashboard(object):
     def add_rad_shape_fig(self, freq, s_index, scale):
         mode = self.freq_key[freq]
         s = self.structures[s_index]
-        eks = radiating_faces(s)
+        eks = s.radiating_faces()
         faces = [s.elements[ek].nodes for ek in eks]
 
         f = s.results['radiation'][mode].frequency
