@@ -353,9 +353,11 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
     @property
     def results_data(self):
+        self.compute_mass()
         data = {'modal':{},
                 # 'harmonic':{},
                 'radiation': {},
+                'structure_mass': self.mass,
                 }
 
         if 'modal' in self.results:
