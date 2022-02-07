@@ -377,15 +377,17 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         return data
 
-    def to_results_json(self, path=None, name=None):
+    def to_results_json(self, path=None, name=None, add_data=None):
         if not path:
             path = self.path
         if not name:
             name = self.name
         filepath = os.path.join(path, name + '_results.json')
-
+        data = self.results_data
+        if add_data:
+            data.update(add_data)
         with open(filepath, 'w+') as fp:
-            json.dump(self.results_data, fp)
+            json.dump(data, fp)
 
 
 if __name__ == '__main__':
