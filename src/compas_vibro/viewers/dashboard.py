@@ -26,6 +26,7 @@ class Dashboard(object):
         self.dropdown = None
         self.all_curves_fig = None
         s = structures[0]
+        self.modal_scale = 20
         self.freq_key = {s.results['radiation'][k].frequency: k for k in s.results['radiation']}
 
     def show(self):
@@ -464,7 +465,7 @@ class Dashboard(object):
             # for factor, k in norm[:3]:
             vertices = []
             nodes = sorted(s.nodes.keys(), key=int)
-            scale = 35
+            scale = self.modal_scale
             dm = []
             for vk in nodes:
                 x, y, z = s.nodes[vk].xyz()
