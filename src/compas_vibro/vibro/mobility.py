@@ -66,6 +66,7 @@ def compute_radiation_matrices(structure):
         rms.append(Z)
     return rms
 
+
 def compute_cross_spectral_matrices(structure):
     rad_nks = structure.radiating_nodes()
     node_xyz = [structure.node_xyz(nk) for nk in rad_nks]
@@ -80,6 +81,7 @@ def compute_cross_spectral_matrices(structure):
         csm.append(Gd)
     return csm
 
+
 def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
     mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
     rad_mats = compute_radiation_matrices(structure)
@@ -93,11 +95,11 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
     rho = structure.rho
     c = structure.c
     
-    mbr = {}
     freqs = []
     rs = []
     rs_ = []
     rs__ = []
+    structure.results['radiation'] = {}
     for i, fkey in enumerate(structure.results['harmonic']):
         f = structure.results['harmonic'][fkey].frequency
         H = mob_mats[i]
@@ -128,19 +130,16 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
         rs_.append(R_)
         rs__.append(R__)
 
-        # mbr[fkey] = {'frequency': f, 'rad_power': np.sum(R)}
-        # print('f', f, 'R', from_W_to_dB(np.sum(R)))
+        structure.results['radiation'][fkey] = compas_vibro.structure.result.Result(f) 
+        structure.results['radiation'][fkey].radiated_p = R
+
 
     import plotly.graph_objects as go
-
-
     l1 = go.Scatter(x=freqs, y=rs, mode='lines', name='R')
     l2 = go.Scatter(x=freqs, y=rs_, mode='lines', name = 'R_')
     l3 = go.Scatter(x=freqs, y=rs__, mode='lines', name = 'R__')
     fig = go.Figure(data=[l1, l2, l3])
     fig.show()
-
-    return mbr
 
 
 if __name__ == '__main__':
@@ -148,12 +147,17 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
 
-    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'glass_5x5.obj'))
+    geometry = 'glass_10x10'
+
+    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
     print(s)
-    freq_list = list(range(20, 200, 2))
+    freq_list = list(range(10, 100, 2))
     damping=.02
     fx = 0
     fy = 0
     fz = 1
     compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
+    path = os.path.join(compas_vibro.DATA, 'structures')
+    name = '{}_mobility'.format(geometry)
+    s.to_obj(path=path, name=name)
 
