@@ -14,6 +14,7 @@ from compas_vibro.vibro.rayleigh import calculate_radiation_matrix_np
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np
 from compas_vibro.vibro.utilities import make_area_matrix
 from compas_vibro.vibro.utilities import make_diagonal_area_matrix
+from compas_vibro.vibro.utilities import from_W_to_dB
 from compas.geometry import length_vector
 
 
@@ -66,19 +67,74 @@ def compute_radiation_matrices(structure):
         rms.append(Z)
     return rms
 
+def compute_cross_spectral_matrices(structure):
+    rad_nks = structure.radiating_nodes()
+    node_xyz = [structure.node_xyz(nk) for nk in rad_nks]
+    D = calculate_distance_matrix_np(node_xyz)
+    fkeys = structure.results['harmonic']
+    csm = []
+    for fkey in fkeys:
+        f = structure.results['harmonic'][fkey].frequency
+        wlen = structure.c / f
+        k = (2. * np.pi) / wlen
+        Gd = np.sin(k * np.abs(D)) / k * np.abs(D)
+        csm.append(Gd)
+    return csm
+
 def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
     mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
     rad_mats = compute_radiation_matrices(structure)
+    spec_mats = compute_cross_spectral_matrices(structure)
     mesh = structure.radiating_mesh()
     rad_nks = structure.radiating_nodes()
     areas = [mesh.vertex_area(nk) for nk in rad_nks]
     dS = make_diagonal_area_matrix(areas)
-    # print(np.trace(dS))
+    S = np.trace(dS)
+    N = len(rad_nks)
+    rho = structure.rho
+    c = structure.c
+    
+    mbr = {}
+    freqs = []
+    rs = []
+    rs_ = []
     for i, fkey in enumerate(structure.results['harmonic']):
         f = structure.results['harmonic'][fkey].frequency
         H = mob_mats[i]
+        H_ = np.conjugate(np.transpose(H))
         Z = rad_mats[i]
-        R = np.dot(H, Z)
+        Gd = spec_mats[i]
+
+        # A = np.dot(np.dot(H, Z), dS)
+        # B = np.dot(np.dot(Gd, H_), dS)
+        # C = np.dot(np.real(np.dot(A, B)), dS)
+        # D = np.trace(C) * ((8 * rho * c ) / S)
+        # R = -10 * np.log10(D)
+
+        R = -10 * np.log(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
+        R_ = -10 * np.log(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Gd, H_), H), Z))))
+
+        # A = np.dot(Z, H)
+        # B = np.dot(Gd, H_)
+        # C = np.trace(np.real(np.dot(A, B))) * ((8 * rho * c * np.square(S)) / N ** 3)
+        # R_ = -10 * np.log10(C) 
+        
+        print(R, R_)
+        print(np.allclose(R, R_))
+        print('')
+        freqs.append(f)
+        rs.append(R)
+        rs_.append(R_)
+        # mbr[fkey] = {'frequency': f, 'rad_power': np.sum(R)}
+        # print('f', f, 'R', from_W_to_dB(np.sum(R)))
+
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots()
+    ax.plot(freqs, rs)
+    ax.plot(freqs, rs_)
+    plt.show()
+
+    return mbr
 
 
 if __name__ == '__main__':
@@ -88,7 +144,7 @@ if __name__ == '__main__':
 
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'flat_5x5.obj'))
     print(s)
-    freq_list = list(range(20, 200, 5))
+    freq_list = list(range(20, 200, 2))
     damping=.02
     fx = 0
     fy = 0
