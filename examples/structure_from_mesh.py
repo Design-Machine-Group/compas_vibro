@@ -25,7 +25,7 @@ __version__ = "0.1.0"
 
 
 path = compas_vibro.TEMP
-geometry = 'flat_mesh_5x5'
+geometry = 'glass_20x20'
 name = '{}'.format(geometry)
 
 
@@ -56,23 +56,21 @@ s.add(d)
 
 
 # add sections - - - - - - - - - - - - 
-section = ShellSection('sec', t=.05)
+section = ShellSection('sec', t=.012)
 s.add(section)
 
 # add material - - - - - - 
-material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
+material = ElasticIsotropic('glass', E=70e9, v=.22, p=2500)
 s.add(material)
 
 # add element properties - - - - - - - - -
 el_prop1 = ElementProperties('concrete_shell_thin',
-                             material='concrete',
+                             material='glass',
                              section='sec',
                              elset='shell',
                              is_rad=True,
                              is_incident=True)
 s.add(el_prop1)
-
-
 
 path = os.path.join(compas_vibro.DATA, 'structures')
 s.to_obj(path=path, name=geometry)

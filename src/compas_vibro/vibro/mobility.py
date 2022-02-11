@@ -14,7 +14,6 @@ from compas_vibro.vibro.rayleigh import calculate_radiation_matrix_np
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np
 from compas_vibro.vibro.utilities import make_area_matrix
 from compas_vibro.vibro.utilities import make_diagonal_area_matrix
-from compas_vibro.vibro.utilities import from_W_to_dB
 from compas.geometry import length_vector
 
 
@@ -98,6 +97,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
     freqs = []
     rs = []
     rs_ = []
+    rs__ = []
     for i, fkey in enumerate(structure.results['harmonic']):
         f = structure.results['harmonic'][fkey].frequency
         H = mob_mats[i]
@@ -105,34 +105,40 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
         Z = rad_mats[i]
         Gd = spec_mats[i]
 
-        # A = np.dot(np.dot(H, Z), dS)
-        # B = np.dot(np.dot(Gd, H_), dS)
-        # C = np.dot(np.real(np.dot(A, B)), dS)
-        # D = np.trace(C) * ((8 * rho * c ) / S)
-        # R = -10 * np.log10(D)
+        A = np.dot(np.dot(H, Z), dS)
+        B = np.dot(np.dot(Gd, H_), dS)
+        C = np.dot(np.real(np.dot(A, B)), dS)
+        D = np.trace(C) * ((8 * rho * c ) / S)
+        R = -10 * np.log10(D)
 
-        R = -10 * np.log(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
-        R_ = -10 * np.log(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Gd, H_), H), Z))))
+        R_ = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
+        R__ = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Gd, H_), H), Z))))
 
         # A = np.dot(Z, H)
         # B = np.dot(Gd, H_)
         # C = np.trace(np.real(np.dot(A, B))) * ((8 * rho * c * np.square(S)) / N ** 3)
         # R_ = -10 * np.log10(C) 
         
-        print(R, R_)
-        print(np.allclose(R, R_))
-        print('')
+        # print(R, R_)
+        # print(np.allclose(R, R_))
+        # print('')
+
         freqs.append(f)
         rs.append(R)
         rs_.append(R_)
+        rs__.append(R__)
+
         # mbr[fkey] = {'frequency': f, 'rad_power': np.sum(R)}
         # print('f', f, 'R', from_W_to_dB(np.sum(R)))
 
-    import matplotlib.pyplot as plt
-    fig, ax = plt.subplots()
-    ax.plot(freqs, rs)
-    ax.plot(freqs, rs_)
-    plt.show()
+    import plotly.graph_objects as go
+
+
+    l1 = go.Scatter(x=freqs, y=rs, mode='lines', name='R')
+    l2 = go.Scatter(x=freqs, y=rs_, mode='lines', name = 'R_')
+    l3 = go.Scatter(x=freqs, y=rs__, mode='lines', name = 'R__')
+    fig = go.Figure(data=[l1, l2, l3])
+    fig.show()
 
     return mbr
 
@@ -142,7 +148,7 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
 
-    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'flat_5x5.obj'))
+    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'glass_5x5.obj'))
     print(s)
     freq_list = list(range(20, 200, 2))
     damping=.02
