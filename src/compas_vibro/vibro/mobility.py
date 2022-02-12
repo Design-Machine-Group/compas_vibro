@@ -26,7 +26,8 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
 
     fvl = length_vector([fx, fy, fz])
 
-    for ink in inc_nks:
+    for i, ink in enumerate(inc_nks):
+        print('Computing H matrix {} of {}'.format(i, len(inc_nks)))
         load = PointLoad(name='pload', nodes=[ink], x=fx, y=fy, z=fz, xx=0, yy=0, zz=0)
         structure.add(load)
         structure.analyze_harmonic(freq_list,
