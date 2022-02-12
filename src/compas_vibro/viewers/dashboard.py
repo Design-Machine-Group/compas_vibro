@@ -27,7 +27,15 @@ class Dashboard(object):
         self.all_curves_fig = None
         s = structures[0]
         self.modal_scale = 20
-        self.freq_key = {s.results['radiation'][k].frequency: k for k in s.results['radiation']}
+        if 'radiation' in s.results.keys():
+            self.freq_key = {s.results['radiation'][k].frequency: k for k in s.results['radiation']}
+            self.freqs = [s.results['radiation'][k].frequency for k in s.results['radiation']]
+            self.res_key = 'radiation'
+        elif 'mob_radiation' in s.results.keys():
+            self.freq_key = {s.results['mob_radiation'][k].frequency: k for k in s.results['mob_radiation']}
+            self.freqs = [s.results['mob_radiation'][k].frequency for k in s.results['mob_radiation']]
+            self.res_key = 'mob_radiation'
+
 
     def show(self):
         app = dash.Dash(__name__)
@@ -133,8 +141,8 @@ class Dashboard(object):
     def add_rad_curve_fig(self, freq, s_index):
         s = self.structures[s_index]
         self.current_structure = s_index
-        x1 = [s.results['radiation'][k].frequency for k in s.results['radiation']]
-        y1 = [s.results['radiation'][k].radiated_p for k in s.results['radiation']]
+        x1 = [s.results[self.res_key][k].frequency for k in s.results[self.res_key]]
+        y1 = [s.results[self.res_key][k].radiated_p for k in s.results[self.res_key]]
         y1 = [(10 * math.log10(w)) + 120 for w in y1]
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -179,7 +187,7 @@ class Dashboard(object):
         fig.update_yaxes(showgrid=True, gridwidth=1, gridcolor='lightgrey', zerolinecolor='grey')
 
         
-        w = s.results['radiation'][self.freq_key[freq]].radiated_p
+        w = s.results[self.res_key][self.freq_key[freq]].radiated_p
         y3 = (10 * math.log10(w)) + 120
         fig.add_trace(go.Scatter(x=[freq],
                                     y=[y3],
@@ -201,15 +209,15 @@ class Dashboard(object):
 
     def add_fslider(self):
         s = self.structures[self.current_structure]
-        freqs = [s.results['radiation'][k].frequency for k in s.results['radiation']]
-        f0 = min(freqs)
-        fmax = max(freqs)
+        # freqs = [s.results['radiation'][k].frequency for k in s.results['radiation']]
+        f0 = min(self.freqs)
+        fmax = max(self.freqs)
         fslider = dcc.Slider(id='slider_freq',
                              min=f0,
                              max=fmax,
                              step=None,
                              value=f0,
-                             marks={i:{'label':'', 'style':{'dots':False}} for i in freqs},
+                             marks={i:{'label':'', 'style':{'dots':False}} for i in self.freqs},
                              included=False,
                              tooltip={'always_visible':True},
                              )
@@ -250,9 +258,10 @@ class Dashboard(object):
 
         data = []
         for s in self.structures:
-            x1 = [s.results['radiation'][k].frequency for k in s.results['radiation']]
-            y1 = [s.results['radiation'][k].radiated_p for k in s.results['radiation']]
-            y1 = [(10 * math.log10(w)) + 120 for w in y1]
+            x1 = [s.results[self.res_key][k].frequency for k in s.results[self.res_key]]
+            y1 = [s.results[self.res_key][k].radiated_p for k in s.results[self.res_key]]
+            if self.res_key == 'radiation':
+                y1 = [(10 * math.log10(w)) + 120 for w in y1]
             if s.name == self.structures[s_index].name:
                 width = 4
                 opacity = .9
@@ -286,9 +295,9 @@ class Dashboard(object):
         eks = s.radiating_faces()
         faces = [s.elements[ek].nodes for ek in eks]
 
-        f = s.results['radiation'][mode].frequency
-        W = s.results['radiation'][mode].radiated_p_faces
-        w = s.results['radiation'][mode].radiated_p
+        f = s.results[self.res_key][mode].frequency
+        W = s.results[self.res_key][mode].radiated_p_faces
+        w = s.results[self.res_key][mode].radiated_p
         w = round((10 * math.log10(w)) + 120, 2)
 
         
@@ -346,15 +355,14 @@ class Dashboard(object):
         y = [v[1] for v in vertices]
         z = [v[2] for v in vertices]
 
-        # intensity = [d * 1e3 for d in dm]
-        intensity = wlist
-
-
-        intensity_ = []
-        for m, fk in enumerate(mesh.face):
-            intensity_.append(intensity[m])
-            if len(mesh.face[fk]) == 4:
-                intensity_.append(intensity[m])
+        if wlist:
+            intensity = []
+            for m, fk in enumerate(mesh.face):
+                intensity.append(wlist[m])
+                if len(mesh.face[fk]) == 4:
+                    intensity.append(wlist[m])
+        else:
+            intensity = None
 
         data = []
         faces = [go.Mesh3d(x=x,
@@ -369,7 +377,7 @@ class Dashboard(object):
                            colorbar_title='Amplitude',
                            colorbar_thickness=10,
                            colorscale= 'agsunset', # 'viridis'
-                           intensity=intensity_,
+                           intensity=intensity,
                            intensitymode='cell',
                            showscale=True,
                 )]
@@ -547,26 +555,33 @@ if __name__ == '__main__':
     from compas_vibro.structure import Structure
     for i in range(50): print('')
     
-    filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_radiation_t10.obj')
+    # filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_radiation_t10.obj')
+    # s1 = Structure.from_obj(filepath)
+    # s1.name = 't10'
+
+    # filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_radiation_t20.obj')
+    # s2 = Structure.from_obj(filepath)
+    # s2.name = 't20'
+
+    # filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_radiation_t30.obj')
+    # s3 = Structure.from_obj(filepath)
+    # s3.name = 't30'
+
+    # db = Dashboard([s1, s2, s3])
+    # db.show()
+
+
+    filepath = os.path.join(compas_vibro.DATA, 'structures', 'glass_5x5_mobility.obj')
     s1 = Structure.from_obj(filepath)
-    s1.name = 't10'
+    s1.name = '5x5'
 
-    # print(dir(s1.results['modal'][0]))
-    # print('')
-    # print(s1.results['modal'][0].frequency)
-
-    filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_radiation_t20.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'structures', 'glass_10x10_mobility.obj')
     s2 = Structure.from_obj(filepath)
-    s2.name = 't20'
+    s2.name = '10x10'
 
-    filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_radiation_t30.obj')
-    s3 = Structure.from_obj(filepath)
-    s3.name = 't30'
+    # filepath = os.path.join(compas_vibro.DATA, 'structures', 'glass_20x20_mobility.obj')
+    # s3 = Structure.from_obj(filepath)
+    # s3.name = '20x20'
 
-    db = Dashboard([s1, s2, s3])
+    db = Dashboard([s1, s2])
     db.show()
-
-
-
-
-

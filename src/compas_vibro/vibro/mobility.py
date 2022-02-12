@@ -82,7 +82,9 @@ def compute_cross_spectral_matrices(structure):
     return csm
 
 
-def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
+def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend='ansys', num_modes=20):
+    structure.analyze_modal(['u'], backend=backend, num_modes=num_modes)
+
     mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
     rad_mats = compute_radiation_matrices(structure)
     spec_mats = compute_cross_spectral_matrices(structure)
@@ -99,7 +101,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
     rs = []
     rs_ = []
     rs__ = []
-    structure.results['radiation'] = {}
+    structure.results['mob_radiation'] = {}
     for i, fkey in enumerate(structure.results['harmonic']):
         f = structure.results['harmonic'][fkey].frequency
         H = mob_mats[i]
@@ -130,8 +132,8 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz):
         rs_.append(R_)
         rs__.append(R__)
 
-        structure.results['radiation'][fkey] = compas_vibro.structure.result.Result(f) 
-        structure.results['radiation'][fkey].radiated_p = R
+        structure.results['mob_radiation'][fkey] = compas_vibro.structure.result.Result(f) 
+        structure.results['mob_radiation'][fkey].radiated_p = R
 
 
     import plotly.graph_objects as go
@@ -147,11 +149,11 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
 
-    geometry = 'glass_10x10'
+    geometry = 'glass_20x20'
 
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
     print(s)
-    freq_list = list(range(10, 100, 2))
+    freq_list = list(range(10, 300, 2))
     damping=.02
     fx = 0
     fy = 0
