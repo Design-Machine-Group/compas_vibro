@@ -27,7 +27,7 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
     fvl = length_vector([fx, fy, fz])
 
     for i, ink in enumerate(inc_nks):
-        print('Computing H matrix {} of {}'.format(i, len(inc_nks)))
+        print('Computing H matrix {}/{}'.format(i + 1, len(inc_nks)))
         load = PointLoad(name='pload', nodes=[ink], x=fx, y=fy, z=fz, xx=0, yy=0, zz=0)
         structure.add(load)
         structure.analyze_harmonic(freq_list,
@@ -73,6 +73,7 @@ def compute_cross_spectral_matrices(structure):
     node_xyz = [structure.node_xyz(nk) for nk in rad_nks]
     D = calculate_distance_matrix_np(node_xyz)
     fkeys = structure.results['harmonic']
+    print(np.diag(D))
     csm = []
     for fkey in fkeys:
         f = structure.results['harmonic'][fkey].frequency
@@ -109,6 +110,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
         H_ = np.conjugate(np.transpose(H))
         Z = rad_mats[i]
         Gd = spec_mats[i]
+        print(np.diag(Gd))
 
         A = np.dot(np.dot(H, Z), dS)
         B = np.dot(np.dot(Gd, H_), dS)
@@ -150,17 +152,17 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
 
-    geometry = 'glass_20x20'
+    geometry = 'glass_5x5'
 
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
     print(s)
-    freq_list = list(range(10, 300, 2))
+    freq_list = list(range(200, 202, 2))
     damping=.02
     fx = 0
     fy = 0
     fz = 1
     compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
-    path = os.path.join(compas_vibro.DATA, 'structures')
-    name = '{}_mobility'.format(geometry)
-    s.to_obj(path=path, name=name)
+    # path = os.path.join(compas_vibro.DATA, 'structures')
+    # name = '{}_mobility'.format(geometry)
+    # s.to_obj(path=path, name=name)
 
