@@ -78,8 +78,7 @@ def compute_cross_spectral_matrices(structure):
         f = structure.results['harmonic'][fkey].frequency
         wlen = structure.c / f
         k = (2. * np.pi) / wlen
-        # Gd = np.sin(k * np.abs(D)) / k * np.abs(D)
-        Gd = np.sinc(k * np.abs(D)) / k * np.abs(D)
+        Gd = np.sin(k * np.abs(D)) / k * np.abs(D)
         np.fill_diagonal(Gd, 1)
         csm.append(Gd)
     return csm
