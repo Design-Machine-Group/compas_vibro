@@ -73,13 +73,14 @@ def compute_cross_spectral_matrices(structure):
     node_xyz = [structure.node_xyz(nk) for nk in rad_nks]
     D = calculate_distance_matrix_np(node_xyz)
     fkeys = structure.results['harmonic']
-    print(np.diag(D))
     csm = []
     for fkey in fkeys:
         f = structure.results['harmonic'][fkey].frequency
         wlen = structure.c / f
         k = (2. * np.pi) / wlen
-        Gd = np.sin(k * np.abs(D)) / k * np.abs(D)
+        # Gd = np.sin(k * np.abs(D)) / k * np.abs(D)
+        Gd = np.sinc(k * np.abs(D)) / k * np.abs(D)
+        np.fill_diagonal(Gd, 1)
         csm.append(Gd)
     return csm
 
@@ -110,7 +111,6 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
         H_ = np.conjugate(np.transpose(H))
         Z = rad_mats[i]
         Gd = spec_mats[i]
-        print(np.diag(Gd))
 
         A = np.dot(np.dot(H, Z), dS)
         B = np.dot(np.dot(Gd, H_), dS)
@@ -156,7 +156,7 @@ if __name__ == '__main__':
 
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
     print(s)
-    freq_list = list(range(200, 202, 2))
+    freq_list = list(range(20, 300, 2))
     damping=.02
     fx = 0
     fy = 0
