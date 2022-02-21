@@ -36,7 +36,6 @@ class Dashboard(object):
             self.freqs = [s.results['mob_radiation'][k].frequency for k in s.results['mob_radiation']]
             self.res_key = 'mob_radiation'
 
-
     def show(self):
         app = dash.Dash(__name__)
         self.add_dropdown()
