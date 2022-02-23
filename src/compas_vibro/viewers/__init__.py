@@ -14,3 +14,4 @@ __email__      = 'tmendeze@uw.edu'
 from .pressure_field_viewer import *
 from .dashboard import *
 from .structure_viewer import *
+from .plotly_mesh import *
