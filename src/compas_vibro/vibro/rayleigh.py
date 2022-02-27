@@ -89,6 +89,7 @@ def compute_rad_power_structure(structure):
         W, W_tot = calculate_rayleigh_rad_power_np(sareas, p, v, n, sum=True)
         # lw = from_W_to_dB(W_tot)
         W = W.tolist()
+        #TODO: This line of code fails when no_rad elements are in the middle of rad elements
         W_ = {ek:W[ek] for ek in eks}
         structure.results['radiation'][rk].radiated_p_faces = W_
         structure.results['radiation'][rk].radiated_p = W_tot
