@@ -60,8 +60,6 @@ class PlotlyMeshViewer(object):
         # s = self.scale
         # vertices = []
         # dm = []
-
-        vertices, faces = self.mesh.to_vertices_and_faces()
         
         edges = [[self.mesh.vertex_coordinates(u), self.mesh.vertex_coordinates(v)] for u,v in self.mesh.edges()]
         line_marker = dict(color='rgb(0,0,0)', width=1.5)
@@ -73,11 +71,17 @@ class PlotlyMeshViewer(object):
             z.extend([u[2], v[2], [None]])
 
         lines = [go.Scatter3d(x=x, y=y, z=z, mode='lines', line=line_marker)]
-        triangles = []
-        for face in faces:
-            triangles.append(face[:3])
-            if len(face) == 4:
-                triangles.append([face[2], face[3], face[0]])
+
+        self.mesh.quads_to_triangles()
+        fks = []
+        for fk in self.mesh.faces():
+            nv = len(self.mesh.face_vertices(fk))
+            if nv >= 4:
+                fks.append(fk)
+        for fk in fks:
+            self.mesh.insert_vertex(fk)
+
+        vertices, triangles = self.mesh.to_vertices_and_faces()
         
         i = [v[0] for v in triangles]
         j = [v[1] for v in triangles]
