@@ -486,7 +486,8 @@ class Dashboard(object):
             vertices_ = []
             faces_ = []
             count = 0
-            faces = [s.elements[ek].nodes for ek in s.elements]
+            shell_elements = [ek for ek in s.elements if s.elements[ek].__name__ == 'ShellElement']
+            faces = [s.elements[ek].nodes for ek in shell_elements]
             for i, f in enumerate(faces):
                 face = []
                 for vk in f:
