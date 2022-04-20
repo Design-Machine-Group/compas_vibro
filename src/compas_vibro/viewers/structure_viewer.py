@@ -22,6 +22,7 @@ from compas.geometry import add_vectors
 
 # TODO: Add harmonic mode participation factors
 # TODO: Add modal effective masses
+# TODO: Add mesh colors for modal/harmonic plots
 # TODO: Plot forces with cones?
 
 class StructureViewer(object):
