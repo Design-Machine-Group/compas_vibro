@@ -164,4 +164,3 @@ if __name__ == '__main__':
     # path = os.path.join(compas_vibro.DATA, 'structures')
     # name = '{}_mobility'.format(geometry)
     # s.to_obj(path=path, name=name)
-
