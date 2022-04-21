@@ -261,7 +261,7 @@ class ObjectMixins(object):
             self.step['harmonic_field'][step.index] = step
             
         else:
-            raise NameError('This type of step is not implemented yet')
+            raise NameError('This type of step is not implemented yet - {}'.format(step.__name__))
 
 if __name__ == "__main__":
     pass

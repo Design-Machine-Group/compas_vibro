@@ -100,7 +100,7 @@ class StaticStep(Step):
         if not loads:
             loads = []
 
-        self.__name__      = 'GeneralStep'
+        self.__name__      = 'StaticStep'
         self.name          = name
         # self.increments    = increments
         # self.iterations    = iterations

@@ -19,11 +19,13 @@ from compas.geometry import normalize_vector
 from compas.geometry import cross_vectors
 from compas.geometry import scale_vector
 from compas.geometry import add_vectors
+from compas.geometry import length_vector
 
 # TODO: Add harmonic mode participation factors
 # TODO: Add modal effective masses
-# TODO: Add mesh colors for modal/harmonic plots
-# TODO: Plot forces with cones?
+# TODO: Add displacement colors also for modal and harmonic
+# TODO: Add static scale slider option
+
 
 class StructureViewer(object):
 
@@ -47,6 +49,7 @@ class StructureViewer(object):
 
         self.modal_scale            = 4.
         self.harmonic_scale         = 2e7
+        self.static_scale           = 2e5
 
     @property
     def num_traces(self):
@@ -75,21 +78,24 @@ class StructureViewer(object):
                     el_keys = self.structure.sets[elset].selection
                 self.beam_elements.extend(el_keys)
 
-    def make_shell_mesh(self, mode=None, frequency=None):
+    def make_shell_mesh(self, mode=None, frequency=None, load_step=None):
 
         elements = self.shell_elements
         nodes = sorted(self.structure.nodes.keys(), key=int)
 
         if mode != None:
-            s = self.modal_scale
             vertices = []
             for vk in nodes:
                 vertices.append(self.move_node(vk, mode=mode))
         elif frequency != None:
-            s = self.harmonic_scale
             vertices = []
             for vk in nodes:
                 vertices.append(self.move_node(vk, frequency=frequency))
+        elif load_step != None:
+            vertices = []
+            for vk in nodes:
+                vertices.append(self.move_node(vk, load_step=load_step))
+
         else:
             vertices = [self.structure.nodes[vk].xyz() for vk in nodes]
         faces = [self.structure.elements[ek].nodes for ek in elements]
@@ -366,7 +372,7 @@ class StructureViewer(object):
 
         return [[p0, p1, p2, p3, p0], [p4, p5, p6, p7, p4]]
 
-    def move_node(self, nk, mode=None, frequency=None):
+    def move_node(self, nk, mode=None, frequency=None, load_step=None):
         x, y, z = self.structure.nodes[nk].xyz()
         if mode != None:
             s = self.modal_scale
@@ -381,6 +387,14 @@ class StructureViewer(object):
             dx = self.structure.results[plot_type][frequency].displacements[nk]['real']['x']
             dy = self.structure.results[plot_type][frequency].displacements[nk]['real']['y']
             dz = self.structure.results[plot_type][frequency].displacements[nk]['real']['z']
+
+        elif load_step != None:
+            s = self.static_scale
+            plot_type = 'static'
+            dx = self.structure.results[plot_type][load_step].displacements['ux'][nk]
+            dy = self.structure.results[plot_type][load_step].displacements['uy'][nk]
+            dz = self.structure.results[plot_type][load_step].displacements['uz'][nk]
+
         return [x + dx * s, y + dy * s, z + dz * s]
 
     def plot_beam_lines(self):
@@ -439,7 +453,7 @@ class StructureViewer(object):
                               )]
         self.data.extend(lines)
 
-    def plot_shell_shape(self):
+    def plot_shell_shape(self, bar_mode='properties'):
 
         mesh = self.mesh
         vertices, faces = mesh.to_vertices_and_faces()
@@ -476,29 +490,47 @@ class StructureViewer(object):
         y = [v[1] for v in vertices]
         z = [v[2] for v in vertices]
 
-
-        attrs = ['elset', 'is_rad', 'material', 'thickess']
-        intensity_ = []
-        text = []
-        for ek in elements:
-            ep = self.structure.elements[ek].element_property
-            ep = self.structure.element_properties[ep]
-            intensity_.append(int(ep.is_rad) + .1)
-            string = 'ekey:{}<br>'.format(ek)
-            for att in attrs:
-                if att == 'elset':
-                    val = ep.elset
-                elif att == 'is_rad':
-                    val = ep.is_rad
-                elif att == 'material':
-                    val = ep.material
-                elif att == 'thickess':
-                    val = self.structure.sections[ep.section].geometry['t']
-                string += '{}: {}<br>'.format(att, val)
-            text.append(string)
-            if len(self.structure.elements[ek].nodes) == 4:
+        if bar_mode == 'properties':
+            showscale = False
+            intensitymode = 'cell'
+            colorscale = 'Emrld_r'
+            attrs = ['elset', 'is_rad', 'material', 'thickess']
+            intensity_ = []
+            text = []
+            for ek in elements:
+                ep = self.structure.elements[ek].element_property
+                ep = self.structure.element_properties[ep]
                 intensity_.append(int(ep.is_rad) + .1)
+                string = 'ekey:{}<br>'.format(ek)
+                for att in attrs:
+                    if att == 'elset':
+                        val = ep.elset
+                    elif att == 'is_rad':
+                        val = ep.is_rad
+                    elif att == 'material':
+                        val = ep.material
+                    elif att == 'thickess':
+                        val = self.structure.sections[ep.section].geometry['t']
+                    string += '{}: {}<br>'.format(att, val)
                 text.append(string)
+                if len(self.structure.elements[ek].nodes) == 4:
+                    intensity_.append(int(ep.is_rad) + .1)
+                    text.append(string)
+
+        elif bar_mode == 'displacements':
+            showscale = True
+            intensitymode = None
+            colorscale = 'Agsunset'
+            intensity_ = []
+            text = []
+            for nk in self.structure.nodes:
+                dx = self.structure.results['static'][0].displacements['ux'][nk]
+                dy = self.structure.results['static'][0].displacements['uy'][nk]
+                dz = self.structure.results['static'][0].displacements['uz'][nk]
+                lv = length_vector([dx, dy, dz])
+                intensity_.append(lv)
+                text.append(lv)
+
 
         faces = [go.Mesh3d(name='Shell elements',
                            x=x,
@@ -510,12 +542,12 @@ class StructureViewer(object):
                            opacity=1.,
                            colorbar_title='is_rad',
                            colorbar_thickness=10,
-                           colorscale='Emrld_r',
+                           colorscale=colorscale,
                            intensity=intensity_,
-                           intensitymode='cell',
+                           intensitymode=intensitymode,
                            text=text,
                            hoverinfo='text',
-                           showscale=False,
+                           showscale=showscale,
                            legendgroup='Shell elements',
                 )]
         self.data.extend(lines)
@@ -619,6 +651,28 @@ class StructureViewer(object):
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()
 
+    def show_static(self):
+        self.make_shell_mesh(load_step=0)
+            
+        if self.shell_elements:
+            self.plot_shell_shape(bar_mode='displacements')
+
+        if self.beam_elements:
+            if self.show_beam_sections:
+                self.plot_3d_beams()
+            else:
+                self.plot_beam_lines()  
+
+        if self.show_supports:
+            self.plot_supports()
+
+        fig = go.Figure(data=self.data, layout=self.layout)
+
+        fig.update_layout(sliders=self.sliders)
+        fig.update_layout(legend_orientation="h")
+
+        fig.show()
+
     def show_modal(self):
         modes = sorted(self.structure.results['modal'].keys())
         for mode in modes:
@@ -682,6 +736,8 @@ class StructureViewer(object):
             self.show_modal()
         elif result == 'harmonic' or result == 'Harmonic':
             self.show_harmonic()
+        elif result == 'static' or result == 'Static':
+            self.show_static()
         else:
             raise ValueError('This type of result plot has not been implemented')
         
@@ -699,6 +755,6 @@ if __name__ == '__main__':
     s = Structure.from_obj(fp)
 
     v = StructureViewer(s)
-    v.show()
+    v.show('harmonic')
 
     

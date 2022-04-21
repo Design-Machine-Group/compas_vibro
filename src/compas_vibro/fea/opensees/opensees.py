@@ -92,9 +92,10 @@ def extract_data(structure, fields, results_type):
     path = structure.path
     name = structure.name
     out_path = os.path.join(path, name + '_output')
-    num_modes = structure.step['modal'].modes
+    
 
     if results_type == 'modal':
+        num_modes = structure.step['modal'].modes
         mfreq = read_modal_frequencies(out_path)
         rdict = {fk: Result(mfreq[fk], name='VibroResult_{}'.format(fk), type='modal') for fk in mfreq}
         structure.results.update({'modal':rdict})
