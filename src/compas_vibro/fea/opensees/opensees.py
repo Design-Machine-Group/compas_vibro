@@ -38,7 +38,7 @@ __all__ = ['opensees_modal',
            'opensees_harmonic']
 
 
-def opensees_modal(structure, fields, num_modes, license='introductory'):
+def opensees_modal(structure, fields, num_modes, license='introductory', exe=None):
 
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
@@ -48,12 +48,12 @@ def opensees_modal(structure, fields, num_modes, license='introductory'):
 
     # analyse and extraxt results ----------------------------------------------
     write_command_file_modal(structure, fields)
-    opensess_launch_process(structure)
+    opensess_launch_process(structure, exe=exe)
     extract_data(structure, fields, 'modal')
     return structure
 
 
-def opensees_static(structure, fields, license='introductory'):
+def opensees_static(structure, fields, license='introductory', exe=None):
     # TODO: opensees
 
     # add modal step -----------------------------------------------------------
@@ -64,12 +64,12 @@ def opensees_static(structure, fields, license='introductory'):
 
     # analyse and extraxt results ----------------------------------------------
     write_command_file_static(structure, fields)
-    opensess_launch_process(structure)
+    opensess_launch_process(structure, exe=exe)
     extract_data(structure, fields, 'static')
     return structure
 
 
-def opensees_harmonic(structure, freq_list, fields='all', damping=0.05):
+def opensees_harmonic(structure, freq_list, fields='all', damping=0.05, exe=None):
     # TODO: opensees
     # # add harmonic step --------------------------------------------------------
     loads = [structure.loads[lk].name for lk in structure.loads]
@@ -83,7 +83,7 @@ def opensees_harmonic(structure, freq_list, fields='all', damping=0.05):
 
     # analyse and extraxt results ----------------------------------------------
     write_command_file_harmonic(structure, fields)
-    opensess_launch_process(structure)
+    opensess_launch_process(structure, exe=exe)
     extract_data(structure, fields, 'harmonic')
     return structure
 
@@ -202,10 +202,6 @@ def opensess_launch_process(structure, exe=None, output=True, delete=True):
     toc = time() - tic
 
     print('\n***** OpenSees analysis time : {0} s *****'.format(toc))
-
-    # except:
-
-    #     print('\n***** OpenSees analysis failed')
 
 
 def delete_result_files(path, name):

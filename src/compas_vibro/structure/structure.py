@@ -158,28 +158,28 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             load = PointLoad(vk, vk, z=-l)
             self.loads[vk] = load
 
-    def analyze_modal(self, fields, backend='ansys', num_modes=10):
+    def analyze_modal(self, fields, backend='ansys', num_modes=10, exe=None):
         self.compute_mass()
         if backend == 'ansys':
             ansys_modal(self, fields, num_modes=num_modes)
         elif backend == 'opensees':
-            opensees_modal(self, fields, num_modes=num_modes)
+            opensees_modal(self, fields, num_modes=num_modes, exe=exe)
         else:
             raise NameError('This backend is not implemented')
 
-    def analyze_static(self, fields, backend='ansys'):
+    def analyze_static(self, fields, backend='ansys', exe=None):
         if backend == 'ansys':
             raise NameError('This backend is not implemented')
         elif backend == 'opensees':
-            opensees_static(self, fields)
+            opensees_static(self, fields, exe=exe)
         else:
             raise NameError('This backend is not implemented')
 
-    def analyze_harmonic(self, freq_list, fields, damping=.02, backend='ansys'):
+    def analyze_harmonic(self, freq_list, fields, damping=.02, backend='ansys', exe=None):
         if backend == 'ansys':
             ansys_harmonic(self, freq_list, fields, damping=damping)
         elif backend == 'opensees':
-            opensees_harmonic(self, freq_list, fields=fields, damping=damping)
+            opensees_harmonic(self, freq_list, fields=fields, damping=damping, exe=exe)
         else:
             raise NameError('This backend is not implemented')
         
