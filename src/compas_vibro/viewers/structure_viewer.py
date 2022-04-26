@@ -174,7 +174,7 @@ class StructureViewer(object):
 
         self.sliders = sliders
 
-    def plot_3d_beams(self, mode=None, frequency=None):
+    def plot_3d_beams(self, mode=None, frequency=None, load_step=None):
         elements = self.beam_elements
         beam_mesh = Mesh()
         for ek in elements:
@@ -182,12 +182,12 @@ class StructureViewer(object):
             section = self.structure.element_properties[epk].section
             sec_name = self.structure.sections[section].__name__
             if sec_name == 'ISection':
-                sec_pts = self.make_isection(ek, section, mode=mode, frequency=frequency)
+                sec_pts = self.make_isection(ek, section, mode=mode, frequency=frequency, load_step=load_step)
             elif sec_name == 'RectangularSection':
-                sec_pts = self.make_recsection(ek, section, mode=mode, frequency=frequency)
+                sec_pts = self.make_recsection(ek, section, mode=mode, frequency=frequency, load_step=load_step)
             elif sec_name == 'BoxSection':
-                sec_pts = self.make_boxsection(ek, section, mode=mode, frequency=frequency)
-            self.add_beam_to_mesh(beam_mesh, sec_pts, ek, mode, frequency)
+                sec_pts = self.make_boxsection(ek, section, mode=mode, frequency=frequency,  load_step=load_step)
+            self.add_beam_to_mesh(beam_mesh, sec_pts, ek, mode, frequency, load_step)
         self.add_beams_mesh(beam_mesh)
 
     def add_beams_mesh(self, beam_mesh):
@@ -240,7 +240,7 @@ class StructureViewer(object):
         self.data.extend(lines)
         self.data.extend(faces)
 
-    def add_beam_to_mesh(self, beam_mesh, sec_pts_list, ek, mode=None, frequency=None):
+    def add_beam_to_mesh(self, beam_mesh, sec_pts_list, ek, mode=None, frequency=None,  load_step=None):
         
         u, v = self.structure.elements[ek].nodes
         if mode != None:
@@ -248,7 +248,10 @@ class StructureViewer(object):
             v_ = self.move_node(v, mode=mode)
         elif frequency != None:
             u_ = self.move_node(u, frequency=frequency)
-            v_ = self.move_node(v, frequency=frequency)     
+            v_ = self.move_node(v, frequency=frequency)
+        elif load_step != None:
+            u_ = self.move_node(u, load_step=load_step)
+            v_ = self.move_node(v, load_step=load_step) 
         else:
             u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
 
@@ -262,14 +265,17 @@ class StructureViewer(object):
                 # mesh.add_face([sk[i], sk[i + 1], sk_[i]])
                 beam_mesh.add_face([sk[i], sk[i + 1], sk_[i + 1], sk_[i]])
 
-    def make_isection(self, ek, section, mode=None, frequency=None):
+    def make_isection(self, ek, section, mode=None, frequency=None, load_step=None):
         u, v = self.structure.elements[ek].nodes
         if mode != None:
             u_ = self.move_node(u, mode=mode)
             v_ = self.move_node(v, mode=mode)
         elif frequency != None:
             u_ = self.move_node(u, frequency=frequency)
-            v_ = self.move_node(v, frequency=frequency) 
+            v_ = self.move_node(v, frequency=frequency)
+        elif load_step != None:
+            u_ = self.move_node(u, load_step=load_step)
+            v_ = self.move_node(v, load_step=load_step)
         else:
             u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
         z = subtract_vectors(u_, v_)
@@ -305,14 +311,17 @@ class StructureViewer(object):
 
         return [[p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p0]]
 
-    def make_recsection(self, ek, section, mode=None, frequency=None):
+    def make_recsection(self, ek, section, mode=None, frequency=None, load_step=None):
         u, v = self.structure.elements[ek].nodes
         if mode != None:
             u_ = self.move_node(u, mode=mode)
             v_ = self.move_node(v, mode=mode)
         elif frequency != None:
             u_ = self.move_node(u, frequency=frequency)
-            v_ = self.move_node(v, frequency=frequency) 
+            v_ = self.move_node(v, frequency=frequency)
+        elif load_step != None:
+            u_ = self.move_node(u, load_step=load_step)
+            v_ = self.move_node(v, load_step=load_step)
         else:
             u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
         z = subtract_vectors(u_, v_)
@@ -333,14 +342,17 @@ class StructureViewer(object):
 
         return [[p0, p1, p2, p3, p0]]
 
-    def make_boxsection(self, ek, section, mode=None, frequency=None):
+    def make_boxsection(self, ek, section, mode=None, frequency=None, load_step=None):
         u, v = self.structure.elements[ek].nodes
         if mode != None:
             u_ = self.move_node(u, mode=mode)
             v_ = self.move_node(v, mode=mode)
         elif frequency != None:
             u_ = self.move_node(u, frequency=frequency)
-            v_ = self.move_node(v, frequency=frequency) 
+            v_ = self.move_node(v, frequency=frequency)
+        elif load_step != None:
+            u_ = self.move_node(u, load_step=load_step)
+            v_ = self.move_node(v, load_step=load_step)
         else:
             u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
         z = subtract_vectors(u_, v_)
@@ -659,9 +671,9 @@ class StructureViewer(object):
 
         if self.beam_elements:
             if self.show_beam_sections:
-                self.plot_3d_beams()
+                self.plot_3d_beams(load_step=0)
             else:
-                self.plot_beam_lines()  
+                self.plot_beam_lines(load_step=0)  
 
         if self.show_supports:
             self.plot_supports()

@@ -50,7 +50,48 @@ def write_elements(structure, path, filename):
 
         if etype == 'ShellElement':
             write_shells(structure, path, filename, ekeys, section, material)
+        if etype == 'BeamElement':
+            write_beams(structure, path, filename, ekeys, section, material)
+        if etype == 'TrussElement':
+            write_trusses(structure, path, filename, ekeys, section, material)
 
+def write_beams(structure, path, filename, ekeys, section, material):
+    fh = open(os.path.join(path, filename), 'a')
+    fh.write('#\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('# Beam elements\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('#\n')
+
+    e = 'element elasticBeamColumn'
+    for ek in ekeys:
+        nodes = [i + 1 for i in structure.elements[ek].nodes] 
+        A = structure.sections[section].geometry['A']
+        J = structure.sections[section].geometry['J']
+        Ixx = structure.sections[section].geometry['Ixx']
+        Iyy = structure.sections[section].geometry['Iyy']
+        E = structure.materials[material].E['E']
+        G = structure.materials[material].G['G']
+        n = ek + 1
+
+        ex = structure.elements[ek].axes['x']
+        fh.write('geomTransf Corotational {0} {1} \n'.format(n, ' '.join([str(i) for i in ex])))
+        fh.write('{} {} {} {} {} {} {} {} {} {} {} \n'.format(e, n, nodes[0], nodes[1], A, E, G, J, Ixx, Iyy, n))
+
+
+
+def write_trusses(structure, path, filename, ekeys, section, material):
+    fh = open(os.path.join(path, filename), 'a')
+    fh.write('#\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('# Truss elements\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('#\n')
+
+
+    # for ekey in ekeys:
+        # e = 'element corotTruss'
+        # fh.write('{0} {1} {2} {3} {4} {5} \n'.format(e, n, nodes[0], nodes[1], A, m_index))
 
 def write_shells(structure, path, filename, ekeys, section, material):
     fh = open(os.path.join(path, filename), 'a')
