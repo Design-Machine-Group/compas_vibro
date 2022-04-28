@@ -46,12 +46,13 @@ def write_static_loads(structure, path, filename):
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
     fh.write('pattern Plain 1 "Linear" {\n')
-    # fh.write('load 8 0 0 -50 0 0 0\n')
     for lk in structure.loads:
-        # print(vk)
         l = structure.loads[lk] 
         if l.__name__ == 'PointLoad':
-            for vk in l.nodes:
+            nodes = l.nodes
+            if type(nodes) == int:
+                nodes = [nodes]
+            for vk in nodes:
                 x = l.components['x']
                 y = l.components['y']
                 z = l.components['z']

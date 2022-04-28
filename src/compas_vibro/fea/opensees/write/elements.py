@@ -73,10 +73,13 @@ def write_beams(structure, path, filename, ekeys, section, material):
         E = structure.materials[material].E['E']
         G = structure.materials[material].G['G']
         n = ek + 1
+        density = structure.materials[material].p
+        mass = A * density * 1
+        print(mass)
 
         ex = structure.elements[ek].axes['x']
         fh.write('geomTransf Corotational {0} {1} \n'.format(n, ' '.join([str(i) for i in ex])))
-        fh.write('{} {} {} {} {} {} {} {} {} {} {} \n'.format(e, n, nodes[0], nodes[1], A, E, G, J, Ixx, Iyy, n))
+        fh.write('{} {} {} {} {} {} {} {} {} {} {} {} \n'.format(e, n, nodes[0], nodes[1], A, E, G, J, Ixx, Iyy, n, mass))
 
 
 
