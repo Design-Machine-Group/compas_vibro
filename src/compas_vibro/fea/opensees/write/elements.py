@@ -75,7 +75,6 @@ def write_beams(structure, path, filename, ekeys, section, material):
         n = ek + 1
         density = structure.materials[material].p
         mass = A * density * 1
-        print(mass)
 
         ex = structure.elements[ek].axes['x']
         fh.write('geomTransf Corotational {0} {1} \n'.format(n, ' '.join([str(i) for i in ex])))

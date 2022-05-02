@@ -24,7 +24,7 @@ func_dict = {'ShellElement': ShellElement, 'BeamElement': BeamElement}
 
 class ElementMixins(object):
 
-    def add_element(self, nodes, type, axes={}):
+    def add_element(self, nodes, type, axes={}, check=True):
 
         """ Adds an element to structure.elements with centroid geometric key.
 
@@ -47,7 +47,10 @@ class ElementMixins(object):
         """
 
         if len(nodes) == len(set(nodes)):
-            ekey = self.check_element_exists(nodes)
+            if check:
+                ekey = self.check_element_exists(nodes)
+            else:
+                ekey = None
 
             if ekey is None:
 
