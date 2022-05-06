@@ -1,6 +1,6 @@
 import gmsh
 from compas.utilities import geometric_key
-from timber_vibro.meshing.mesh import Mesh
+from compas_vibro.structure.mesh import Mesh
 from compas.datastructures import meshes_join
 from compas.datastructures import mesh_weld
 

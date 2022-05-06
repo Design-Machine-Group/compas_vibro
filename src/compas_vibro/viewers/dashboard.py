@@ -1,8 +1,11 @@
 import math
-import dash
-from dash import html, dcc
+try:
+    import dash
+    from dash import html, dcc
+    from dash.dependencies import Input, Output
+except:
+    pass
 import plotly.graph_objects as go
-from dash.dependencies import Input, Output
 from plotly.subplots import make_subplots
 from compas.datastructures import Mesh
 from compas.geometry import length_vector
