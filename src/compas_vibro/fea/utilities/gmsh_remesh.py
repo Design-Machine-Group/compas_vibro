@@ -1,4 +1,10 @@
-import gmsh
+
+try:
+    import gmsh
+except:
+    pass
+
+
 from compas.utilities import geometric_key
 from compas_vibro.structure.mesh import Mesh
 from compas.datastructures import meshes_join
