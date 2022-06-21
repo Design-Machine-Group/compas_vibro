@@ -81,6 +81,7 @@ def write_static_solve(structure, path, filename):
 def write_static_shape(structure, path, filename):
     num_nodes = len(structure.nodes)
     outpath = os.path.join(path, '{}_output'.format(structure.name))
+    outpath = outpath.replace(os.sep, '/')
 
     fh = open(os.path.join(path, filename), 'a')
     fh.write('#\n')
@@ -88,6 +89,7 @@ def write_static_shape(structure, path, filename):
     fh.write('# Static shape recorders\n')
     fh.write('#-{} \n'.format('-'*80))
     fh.write('#\n')
+
     string = 'recorder Node -file \"{0}/displacements.out\" -load -nodeRange 1 {1} -dof 1 2 3 disp\n'
     # string = 'recorder Node -file \"{0}/displacements.out\" -nodeRange 1 {1} -dof 1 2 3 disp\n'
     # 'recorder Node -file example.out -load -node 4 -dof 1 2 disp'
