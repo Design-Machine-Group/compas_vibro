@@ -34,7 +34,7 @@ from compas.geometry import rotate_points
 from compas.geometry import subtract_vectors
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
-__copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
+__copyright__  = 'Copyright 2022, Design Machine Group - University of Washington'
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 

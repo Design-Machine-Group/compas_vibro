@@ -117,7 +117,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
         D = np.trace(C) * ((8 * rho * c ) / S)
         R = -10 * np.log10(D)
 
-        R_ = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
+        R_  = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
         R__ = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Gd, H_), H), Z))))
 
         # A = np.dot(Z, H)
@@ -150,17 +150,25 @@ if __name__ == '__main__':
     import os
     import compas_vibro
     from compas_vibro.structure import Structure
+    from compas_vibro.viewers import StructureViewer
 
     geometry = 'glass_5x5'
 
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
     print(s)
-    freq_list = list(range(20, 300, 2))
-    damping=.02
-    fx = 0
-    fy = 0
-    fz = 1
-    compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
-    # path = os.path.join(compas_vibro.DATA, 'structures')
-    # name = '{}_mobility'.format(geometry)
-    # s.to_obj(path=path, name=name)
+
+    v = StructureViewer(s)
+    v.show_rad_nodes = True
+    v.show_incident_nodes = True
+    v.show()
+
+    # freq_list = list(range(20, 300, 2))
+    # damping=.02
+    # fx = 0
+    # fy = 0
+    # fz = 1
+    # compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
+
+    # # path = os.path.join(compas_vibro.DATA, 'structures')
+    # # name = '{}_mobility'.format(geometry)
+    # # s.to_obj(path=path, name=name)
