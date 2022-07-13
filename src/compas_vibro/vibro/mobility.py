@@ -157,10 +157,12 @@ if __name__ == '__main__':
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
     print(s)
 
-    v = StructureViewer(s)
-    v.show_rad_nodes = True
-    v.show_incident_nodes = True
-    v.show()
+
+    print(s.radiating_mesh())
+    # v = StructureViewer(s)
+    # v.show_rad_nodes = True
+    # v.show_incident_nodes = True
+    # v.show()
 
     # freq_list = list(range(20, 300, 2))
     # damping=.02

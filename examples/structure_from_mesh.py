@@ -25,15 +25,16 @@ __version__ = "0.1.0"
 
 
 path = compas_vibro.TEMP
-geometry = 'glass_5x5'
+geometry = '6x6_sym_structure'
+inc_geometry = '6x6_sym_quarter'
 name = '{}'.format(geometry)
 
+fp_mesh = os.path.join(compas_vibro.DATA, 'meshes', '6x6_sym', '{}.json'.format(geometry))
+fp_inc_mesh = os.path.join(compas_vibro.DATA, 'meshes', '6x6_sym', '{}.json'.format(inc_geometry))
 
-fp = os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry))
+mesh = Mesh.from_json(fp_mesh)
+inc_mesh = Mesh.from_json(fp_inc_mesh)
 
-mesh = Mesh.from_json(fp)
-
-print(mesh.summary())
 
 # make an instance of the stucture object - - - - - - - - - - - - - - - - - - - 
 s = Structure(path, name) 
@@ -69,13 +70,20 @@ el_prop1 = ElementProperties('concrete_shell_thin',
                              section='sec',
                              elset='shell',
                              is_rad=True,
-                             is_incident=True)
+                             is_incident=False)
 s.add(el_prop1)
+
+s.add_incident_elements_from_mesh(inc_mesh)
 
 path = os.path.join(compas_vibro.DATA, 'structures')
 s.to_obj(path=path, name=geometry)
 
+
+print(s.sets)
+print(s.element_properties)
 # v = StructureViewer(s)
+# v.show_rad_nodes = True
+# v.show_incident_nodes = True
 # v.show()
 
 

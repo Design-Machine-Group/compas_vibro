@@ -87,3 +87,7 @@ class ElementProperties(object):
     def __repr__(self):
 
         return '{0}({1})'.format(self.__name__, self.name)
+
+    def remove_elements(self, elements):
+        if self.elements:
+            self.elements = [ek for ek in self.elements if ek not in elements]

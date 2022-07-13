@@ -25,6 +25,8 @@ from compas_vibro.fea.opensees.opensees import opensees_static
 
 from compas_vibro.structure.load import PointLoad
 
+from compas_vibro.structure.element_properties import ElementProperties
+
 from compas_vibro.vibro.rayleigh import compute_rad_power_structure
 from compas_vibro.vibro import from_W_to_dB
 
@@ -151,6 +153,40 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             l = area * thickness * density
             load = PointLoad(vk, vk, z=-l)
             self.loads[vk] = load
+
+    def add_incident_elements_from_mesh(self, mesh):
+
+        eps = {}
+        for fk in mesh.faces():
+            cpt = mesh.face_centroid(fk)
+            ek = self.check_element_exists(xyz=cpt)
+            ep = self.elements[ek].element_property
+            if ep in eps:
+                eps[ep].append(ek)
+            else:
+                eps[ep] = [ek]
+
+        for epk in eps:
+            mat = self.element_properties[epk].material
+            sec = self.element_properties[epk].section
+            is_rad = self.element_properties[epk].is_rad
+            elset = self.element_properties[epk].elset
+
+            self.add_set(name='{}_incident'.format(elset), type='element', selection=eps[epk])
+
+            el_prop = ElementProperties('{}_incident_prop'.format(ep),
+                                        material=mat,
+                                        section=sec,
+                                        elset='{}_incident'.format(elset),
+                                        is_rad=is_rad,
+                                        is_incident=True)
+            self.add(el_prop)
+
+            self.element_properties[epk].remove_elements(eps[epk])
+            
+            if elset:
+                self.sets[elset].remove_elements(eps[epk])
+
 
     def analyze_modal(self, fields, backend='ansys', num_modes=10, exe=None):
         self.compute_mass()
@@ -387,21 +423,23 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
 
 if __name__ == '__main__':
-    import compas_vibro
-    from compas_vibro.viewers import StructureViewer
+    pass
 
-    # fp = os.path.join(compas_vibro.DATA, 'structures', 'shell_beams_harmonic.obj')
-    # s = Structure.from_obj(fp)
-    # s.to_results_json(path=compas_vibro.TEMP)
-    # print(s)
+    # import compas_vibro
+    # from compas_vibro.viewers import StructureViewer
+
+    # # fp = os.path.join(compas_vibro.DATA, 'structures', 'shell_beams_harmonic.obj')
+    # # s = Structure.from_obj(fp)
+    # # s.to_results_json(path=compas_vibro.TEMP)
+    # # print(s)
     
-    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'flat_10x10.obj'))
+    # s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', 'flat_10x10.obj'))
 
-    print(s.radiating_nodes())
+    # print(s.radiating_nodes())
 
-    v = StructureViewer(s)
-    v.show_rad_nodes = True
-    v.show_incident_nodes = True
-    v.show()
+    # v = StructureViewer(s)
+    # v.show_rad_nodes = True
+    # v.show_incident_nodes = True
+    # v.show()
 
     
