@@ -70,20 +70,18 @@ el_prop1 = ElementProperties('concrete_shell_thin',
                              section='sec',
                              elset='shell',
                              is_rad=True,
-                             is_incident=False)
+                             is_incident=True)
 s.add(el_prop1)
 
-s.add_incident_elements_from_mesh(inc_mesh)
+# s.add_incident_elements_from_mesh(inc_mesh)
 
 path = os.path.join(compas_vibro.DATA, 'structures')
-s.to_obj(path=path, name=geometry)
+s.to_obj(path=path, name='{}_all_inc'.format(geometry))
 
 
-print(s.sets)
-print(s.element_properties)
-# v = StructureViewer(s)
-# v.show_rad_nodes = True
-# v.show_incident_nodes = True
-# v.show()
+v = StructureViewer(s)
+v.show_rad_nodes = True
+v.show_incident_nodes = True
+v.show()
 
 

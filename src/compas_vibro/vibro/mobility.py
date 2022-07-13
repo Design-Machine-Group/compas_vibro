@@ -46,7 +46,7 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
 
     mob_mats = []
     for a in mm:
-        mob_mats.append(np.array(a))
+        mob_mats.append(np.array(a).transpose())
     return mob_mats
 
 
@@ -69,8 +69,13 @@ def compute_radiation_matrices(structure):
 
 
 def compute_cross_spectral_matrices(structure):
-    rad_nks = structure.radiating_nodes()
-    node_xyz = [structure.node_xyz(nk) for nk in rad_nks]
+    #TODO: Make sure if this matrix should be done with the radiating nodes or incident nodes (Bert says incident)
+    # rad_nks = structure.radiating_nodes()
+    inc_nks = structure.incident_nodes()
+
+    # node_xyz = [structure.node_xyz(nk) for nk in rad_nks]
+    node_xyz = [structure.node_xyz(nk) for nk in inc_nks]
+
     D = calculate_distance_matrix_np(node_xyz)
     fkeys = structure.results['harmonic']
     csm = []
@@ -91,11 +96,17 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     rad_mats = compute_radiation_matrices(structure)
     spec_mats = compute_cross_spectral_matrices(structure)
     mesh = structure.radiating_mesh()
-    rad_nks = structure.radiating_nodes()
-    areas = [mesh.vertex_area(nk) for nk in rad_nks]
+    # rad_nks = structure.radiating_nodes()
+    inc_nks = structure.incident_nodes()
+
+    #TODO: Should thse areas be computed from incident or radiation nodes???
+    nks = inc_nks
+    #TODO: These areas should be calculated with the incident mesh, not structure (areas will be smaller)
+    #TODO: Write function to make incident mesh
+    areas = [mesh.vertex_area(nk) for nk in nks]
     dS = make_diagonal_area_matrix(areas)
     S = np.trace(dS)
-    N = len(rad_nks)
+    N = len(nks)
     rho = structure.rho
     c = structure.c
     
@@ -146,31 +157,39 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     fig.show()
 
 
+def compute_mobility_based_r_sym(structure, freq_list, damping, fx, fy, fz, backend='ansys', num_modes=20):
+    structure.analyze_modal(['u'], backend=backend, num_modes=num_modes)
+
+    mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
+    rad_mats = compute_radiation_matrices(structure)
+    spec_mats = compute_cross_spectral_matrices(structure)
+
+
 if __name__ == '__main__':
     import os
     import compas_vibro
     from compas_vibro.structure import Structure
     from compas_vibro.viewers import StructureViewer
 
-    geometry = 'glass_5x5'
+    geometry = '6x6_sym_structure'
+    # geometry = '6x6_sym_structure_all_inc'
+    # geometry = 'glass_10x10'
 
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
     print(s)
 
-
-    print(s.radiating_mesh())
     # v = StructureViewer(s)
     # v.show_rad_nodes = True
     # v.show_incident_nodes = True
     # v.show()
 
-    # freq_list = list(range(20, 300, 2))
-    # damping=.02
-    # fx = 0
-    # fy = 0
-    # fz = 1
-    # compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
+    freq_list = list(range(20, 300, 2))
+    damping=.02
+    fx = 0
+    fy = 0
+    fz = 1
+    compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
 
-    # # path = os.path.join(compas_vibro.DATA, 'structures')
-    # # name = '{}_mobility'.format(geometry)
-    # # s.to_obj(path=path, name=name)
+    # path = os.path.join(compas_vibro.DATA, 'structures')
+    # name = '{}_mobility'.format(geometry)
+    # s.to_obj(path=path, name=name)
