@@ -57,7 +57,7 @@ s.add(d)
 
 
 # add sections - - - - - - - - - - - - 
-section = ShellSection('sec', t=.012)
+section = ShellSection('sec', t=.1)
 s.add(section)
 
 # add material - - - - - - 

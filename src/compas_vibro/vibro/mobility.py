@@ -41,12 +41,11 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
             vi = [structure.results['harmonic'][fkey].velocities[nkey].imag for nkey in rad_nks]
             v = [complex(vr[i], vi[i]) for i in range(len(vr))]
             v = [vi / fvl for vi in v]
-            
             mm[fkey].append(v)
 
     mob_mats = []
     for a in mm:
-        mob_mats.append(np.array(a).transpose())
+        mob_mats.append(np.array(a))
     return mob_mats
 
 
@@ -92,21 +91,29 @@ def compute_cross_spectral_matrices(structure):
 def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend='ansys', num_modes=20):
     structure.analyze_modal(['u'], backend=backend, num_modes=num_modes)
 
+    for fk in structure.results['modal']:
+        print(fk, structure.results['modal'][fk].frequency)
+
+
     mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
     rad_mats = compute_radiation_matrices(structure)
     spec_mats = compute_cross_spectral_matrices(structure)
     mesh = structure.radiating_mesh()
-    # rad_nks = structure.radiating_nodes()
+    rad_nks = structure.radiating_nodes()
     inc_nks = structure.incident_nodes()
-
-    #TODO: Should thse areas be computed from incident or radiation nodes???
     nks = inc_nks
     #TODO: These areas should be calculated with the incident mesh, not structure (areas will be smaller)
     #TODO: Write function to make incident mesh
+    #TODO: 
     areas = [mesh.vertex_area(nk) for nk in nks]
     dS = make_diagonal_area_matrix(areas)
     S = np.trace(dS)
-    N = len(nks)
+
+    areas_ = [mesh.vertex_area(nk) for nk in rad_nks]
+    dS_ = make_diagonal_area_matrix(areas_)
+    S_ = np.trace(dS_)
+
+    # N = len(nks)
     rho = structure.rho
     c = structure.c
     
@@ -117,19 +124,42 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     structure.results['mob_radiation'] = {}
     for i, fkey in enumerate(structure.results['harmonic']):
         f = structure.results['harmonic'][fkey].frequency
-        H = mob_mats[i]
+        H = mob_mats[i].transpose()
         H_ = np.conjugate(np.transpose(H))
         Z = rad_mats[i]
         Gd = spec_mats[i]
 
-        A = np.dot(np.dot(H, Z), dS)
-        B = np.dot(np.dot(Gd, H_), dS)
-        C = np.dot(np.real(np.dot(A, B)), dS)
-        D = np.trace(C) * ((8 * rho * c ) / S)
-        R = -10 * np.log10(D)
+        # print('H', H.shape)
+        # print('Z', Z.shape)
+        # print('Gd', Gd.shape)
+        # print('dS', dS.shape)
 
-        R_  = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
-        R__ = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Gd, H_), H), Z))))
+        A = np.matmul(Z, H)
+        A1 = np.matmul(A, dS)
+        B = np.matmul(A1, Gd)
+
+        # print('A', A.shape)
+        # print('B', B.shape)
+
+        C = np.matmul(B, dS)
+        D = np.matmul(C, H_)
+        
+        # print('C', C.shape)
+        # print('D', D.shape)
+
+        # E = np.matmul(dS, np.real(D))  # this is how it is in the paper
+        E = np.matmul(dS_, np.real(D))  # this is my idea, probably wrong
+        # E = np.trace(dS) * np.trace(np.real(D))   # this is my idea about it, probably wrong
+
+        # print('E', E.shape)
+
+        F = np.trace(E) * ((8 * rho * c ) / S)  # this is how it is in the paper
+        # F = E * ((8 * rho * c ) / S)            # this is my idea about it
+        R = -10 * np.log10(F)
+
+
+        # R_  = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
+        # R__ = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Gd, H_), H), Z))))
 
         # A = np.dot(Z, H)
         # B = np.dot(Gd, H_)
@@ -142,8 +172,8 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
 
         freqs.append(f)
         rs.append(R)
-        rs_.append(R_)
-        rs__.append(R__)
+        # rs_.append(R_)
+        # rs__.append(R__)
 
         structure.results['mob_radiation'][fkey] = compas_vibro.structure.result.Result(f) 
         structure.results['mob_radiation'][fkey].radiated_p = R
@@ -151,9 +181,10 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
 
     import plotly.graph_objects as go
     l1 = go.Scatter(x=freqs, y=rs, mode='lines', name='R')
-    l2 = go.Scatter(x=freqs, y=rs_, mode='lines', name = 'R_')
-    l3 = go.Scatter(x=freqs, y=rs__, mode='lines', name = 'R__')
-    fig = go.Figure(data=[l1, l2, l3])
+    # l2 = go.Scatter(x=freqs, y=rs_, mode='lines', name = 'R_')
+    # l3 = go.Scatter(x=freqs, y=rs__, mode='lines', name = 'R__')
+    # fig = go.Figure(data=[l1, l2, l3])
+    fig = go.Figure(data=[l1])
     fig.show()
 
 
