@@ -61,22 +61,23 @@ section = ShellSection('sec', t=.1)
 s.add(section)
 
 # add material - - - - - - 
-material = ElasticIsotropic('glass', E=70e9, v=.22, p=2500)
+# material = ElasticIsotropic('glass', E=70e9, v=.22, p=2500)
+material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
 s.add(material)
 
 # add element properties - - - - - - - - -
 el_prop1 = ElementProperties('concrete_shell_thin',
-                             material='glass',
+                             material='concrete',
                              section='sec',
                              elset='shell',
                              is_rad=True,
-                             is_incident=True)
+                             is_incident=False)
 s.add(el_prop1)
 
-# s.add_incident_elements_from_mesh(inc_mesh)
+s.add_incident_elements_from_mesh(inc_mesh)
 
 path = os.path.join(compas_vibro.DATA, 'structures')
-s.to_obj(path=path, name='{}_all_inc'.format(geometry))
+s.to_obj(path=path, name='{}'.format(geometry))
 
 
 v = StructureViewer(s)

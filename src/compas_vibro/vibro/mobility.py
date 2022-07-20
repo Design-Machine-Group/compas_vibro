@@ -68,7 +68,6 @@ def compute_radiation_matrices(structure):
 
 
 def compute_cross_spectral_matrices(structure):
-    #TODO: Make sure if this matrix should be done with the radiating nodes or incident nodes (Bert says incident)
     # rad_nks = structure.radiating_nodes()
     inc_nks = structure.incident_nodes()
 
@@ -104,7 +103,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     nks = inc_nks
     #TODO: These areas should be calculated with the incident mesh, not structure (areas will be smaller)
     #TODO: Write function to make incident mesh
-    #TODO: 
+
     areas = [mesh.vertex_area(nk) for nk in nks]
     dS = make_diagonal_area_matrix(areas)
     S = np.trace(dS)
