@@ -23,66 +23,69 @@ __license__ = "MIT License"
 __email__ = "tmendeze@uw.edu"
 __version__ = "0.1.0"
 
+geometries = ['6x6', '20x20', '50x50']
 
-path = compas_vibro.TEMP
-geometry = '6x6_sym_structure'
-inc_geometry = '6x6_sym_quarter'
-name = '{}'.format(geometry)
+for geo in geometries:
+    path = compas_vibro.TEMP
 
-fp_mesh = os.path.join(compas_vibro.DATA, 'meshes', '6x6_sym', '{}.json'.format(geometry))
-fp_inc_mesh = os.path.join(compas_vibro.DATA, 'meshes', '6x6_sym', '{}.json'.format(inc_geometry))
+    geometry = '{}_structure'.format(geo)
+    inc_geometry = '{}_quarter'.format(geo)
+    name = '{}'.format(geometry)
 
-mesh = Mesh.from_json(fp_mesh)
-inc_mesh = Mesh.from_json(fp_inc_mesh)
+    fp_mesh = os.path.join(compas_vibro.DATA, 'meshes', '5x4m', '{}.json'.format(geometry))
+    fp_inc_mesh = os.path.join(compas_vibro.DATA, 'meshes', '5x4m', '{}.json'.format(inc_geometry))
 
-
-# make an instance of the stucture object - - - - - - - - - - - - - - - - - - - 
-s = Structure(path, name) 
-
-# add nodes and elements from mesh - - - - - - - - - - - - - - - - - - - - - - - 
-s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
-
-# add displacements - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
-d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
-s.add(d)
-
-# bv = {vk for fk in mesh.faces_where({'is_boundary': True}) for vk in mesh.face_vertices(fk)}
-# d = FixedDisplacement('boundary', list(bv))
-# s.add(d)
+    mesh = Mesh.from_json(fp_mesh)
+    inc_mesh = Mesh.from_json(fp_inc_mesh)
 
 
-# add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# load = PointLoad(name='pload', nodes=[100], x=0, y=0, z=1, xx=0, yy=0, zz=0)
-# s.add(load)
+    # make an instance of the stucture object - - - - - - - - - - - - - - - - - - - 
+    s = Structure(path, name) 
+
+    # add nodes and elements from mesh - - - - - - - - - - - - - - - - - - - - - - - 
+    s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
+
+    # add displacements - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+    d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
+    s.add(d)
+
+    # bv = {vk for fk in mesh.faces_where({'is_boundary': True}) for vk in mesh.face_vertices(fk)}
+    # d = FixedDisplacement('boundary', list(bv))
+    # s.add(d)
 
 
-# add sections - - - - - - - - - - - - 
-section = ShellSection('sec', t=.2)
-s.add(section)
-
-# add material - - - - - - 
-# material = ElasticIsotropic('glass', E=70e9, v=.22, p=2500)
-material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
-s.add(material)
-
-# add element properties - - - - - - - - -
-el_prop1 = ElementProperties('concrete_shell_thin',
-                             material='concrete',
-                             section='sec',
-                             elset='shell',
-                             is_rad=True,
-                             is_incident=True)
-s.add(el_prop1)
-
-# s.add_incident_elements_from_mesh(inc_mesh)
-
-path = os.path.join(compas_vibro.DATA, 'structures')
-s.to_obj(path=path, name='{}_t20_all_inc'.format(geometry))
+    # add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # load = PointLoad(name='pload', nodes=[100], x=0, y=0, z=1, xx=0, yy=0, zz=0)
+    # s.add(load)
 
 
-v = StructureViewer(s)
-v.show_rad_nodes = True
-v.show_incident_nodes = True
-v.show()
+    # add sections - - - - - - - - - - - - 
+    section = ShellSection('sec', t=.2)
+    s.add(section)
+
+    # add material - - - - - - 
+    # material = ElasticIsotropic('glass', E=70e9, v=.22, p=2500)
+    material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
+    s.add(material)
+
+    # add element properties - - - - - - - - -
+    el_prop1 = ElementProperties('concrete_shell_thin',
+                                material='concrete',
+                                section='sec',
+                                elset='shell',
+                                is_rad=True,
+                                is_incident=True)
+    s.add(el_prop1)
+
+    # s.add_incident_elements_from_mesh(inc_mesh)
+
+    path = os.path.join(compas_vibro.DATA, 'structures', '5x4m_concrete')
+    s.to_obj(path=path, name='{}_t20_all_inc'.format(geometry))
+
+
+    v = StructureViewer(s)
+    v.show_rad_nodes = True
+    v.show_incident_nodes = True
+    v.show()
 
 

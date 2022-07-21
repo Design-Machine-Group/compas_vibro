@@ -94,6 +94,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     #TODO: These areas should be calculated with the incident mesh, not structure (areas will be smaller)
     #TODO: Write function to make incident mesh
     #TODO: Figure out if the incident mesh actually matters
+    # TODO: veryfy which S is correct in computing F
 
     for fk in structure.results['modal']:
         print(fk, structure.results['modal'][fk].frequency)
@@ -109,16 +110,20 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
 
     if len(rad_nks) != len(inc_nks):
 
-        gk_dict = {geometric_key(inc_mesh.node_coordinates(nk)): nk for nk in inc_mesh.nodes}
-        inc_nks_ = [gk_dict[geometric_key(nk)] for nk in inc_nks]
+        gk_dict = {geometric_key(inc_mesh.vertex_coordinates(nk)): nk for nk in inc_mesh.vertices()}
+        inc_nks_ = [gk_dict[geometric_key(structure.node_xyz(nk))] for nk in inc_nks]
         areas_inc = [inc_mesh.vertex_area(nk) for nk in inc_nks_]
         dS_inc = make_diagonal_area_matrix(areas_inc)
         S_inc = np.trace(dS_inc)
+
+        
 
         areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
         dS_rad = make_diagonal_area_matrix(areas_rad)
         S_rad = np.trace(dS_rad)
         
+        print('area check', S_inc, S_rad)
+
         rho = structure.rho
         c = structure.c
 
@@ -137,8 +142,8 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
             B = np.matmul(A1, Gd)
             C = np.matmul(B, dS_inc)
             D = np.matmul(C, H_)
-            E = np.matmul(dS_inc, np.real(D))
-            F = ((8 * rho * c ) / S_inc) * np.trace(E)
+            E = np.matmul(dS_rad, np.real(D))
+            F = ((8 * rho * c ) / S_inc) * np.trace(E)  # this S could be either, inc is lower than rad. 
             R = -10 * np.log10(F)
         
             freqs.append(f)
@@ -196,7 +201,7 @@ if __name__ == '__main__':
     from compas_vibro.structure import Structure
     from compas_vibro.viewers import StructureViewer
 
-    geometry = '6x6_sym_structure_t20_all_inc'
+    geometry = '6x6_sym_structure_t20'
 
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
 
