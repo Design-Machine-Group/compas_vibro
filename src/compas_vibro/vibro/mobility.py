@@ -103,6 +103,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     nks = inc_nks
     #TODO: These areas should be calculated with the incident mesh, not structure (areas will be smaller)
     #TODO: Write function to make incident mesh
+    #TODO: Figure out if the incident mesh actually matters
 
     areas = [mesh.vertex_area(nk) for nk in nks]
     dS = make_diagonal_area_matrix(areas)
@@ -201,7 +202,7 @@ if __name__ == '__main__':
     from compas_vibro.structure import Structure
     from compas_vibro.viewers import StructureViewer
 
-    geometry = '6x6_sym_structure'
+    geometry = '6x6_sym_structure_t20_all_inc'
     # geometry = '6x6_sym_structure_all_inc'
     # geometry = 'glass_10x10'
 

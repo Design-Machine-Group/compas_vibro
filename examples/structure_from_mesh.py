@@ -57,7 +57,7 @@ s.add(d)
 
 
 # add sections - - - - - - - - - - - - 
-section = ShellSection('sec', t=.1)
+section = ShellSection('sec', t=.2)
 s.add(section)
 
 # add material - - - - - - 
@@ -71,13 +71,13 @@ el_prop1 = ElementProperties('concrete_shell_thin',
                              section='sec',
                              elset='shell',
                              is_rad=True,
-                             is_incident=False)
+                             is_incident=True)
 s.add(el_prop1)
 
-s.add_incident_elements_from_mesh(inc_mesh)
+# s.add_incident_elements_from_mesh(inc_mesh)
 
 path = os.path.join(compas_vibro.DATA, 'structures')
-s.to_obj(path=path, name='{}'.format(geometry))
+s.to_obj(path=path, name='{}_t20_all_inc'.format(geometry))
 
 
 v = StructureViewer(s)
