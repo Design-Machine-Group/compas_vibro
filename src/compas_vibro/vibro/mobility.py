@@ -14,8 +14,9 @@ from compas_vibro.vibro.rayleigh import calculate_radiation_matrix_np
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np
 from compas_vibro.vibro.utilities import make_area_matrix
 from compas_vibro.vibro.utilities import make_diagonal_area_matrix
-from compas.geometry import length_vector
 
+from compas.geometry import length_vector
+from compas.utilities import geometric_key
 
 def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, backend='ansys'):
 
@@ -97,32 +98,32 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     for fk in structure.results['modal']:
         print(fk, structure.results['modal'][fk].frequency)
 
-
     mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
     rad_mats = compute_radiation_matrices(structure)
     spec_mats = compute_cross_spectral_matrices(structure)
-    mesh = structure.radiating_mesh()
+    rad_mesh = structure.radiating_mesh()
     rad_nks = structure.radiating_nodes()
+    inc_mesh = structure.inc_mesh
     inc_nks = structure.incident_nodes()
-    nks = inc_nks
+    
 
     if len(rad_nks) != len(inc_nks):
-        areas = [mesh.vertex_area(nk) for nk in nks]
-        dS = make_diagonal_area_matrix(areas)
-        S = np.trace(dS)
 
-        areas_ = [mesh.vertex_area(nk) for nk in rad_nks]
-        dS_ = make_diagonal_area_matrix(areas_)
-        S_ = np.trace(dS_)
+        gk_dict = {geometric_key(inc_mesh.node_coordinates(nk)): nk for nk in inc_mesh.nodes}
+        inc_nks_ = [gk_dict[geometric_key(nk)] for nk in inc_nks]
+        areas_inc = [inc_mesh.vertex_area(nk) for nk in inc_nks_]
+        dS_inc = make_diagonal_area_matrix(areas_inc)
+        S_inc = np.trace(dS_inc)
 
-        # N = len(nks)
+        areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
+        dS_rad = make_diagonal_area_matrix(areas_rad)
+        S_rad = np.trace(dS_rad)
+        
         rho = structure.rho
         c = structure.c
 
         freqs = []
         rs = []
-        rs_ = []
-        rs__ = []
         structure.results['mob_radiation'] = {}
         for i, fkey in enumerate(structure.results['harmonic']):
             f = structure.results['harmonic'][fkey].frequency
@@ -131,58 +132,25 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
             Z = rad_mats[i]
             Gd = spec_mats[i]
 
-            # print('H', H.shape)
-            # print('Z', Z.shape)
-            # print('Gd', Gd.shape)
-            # print('dS', dS.shape)
-
             A = np.matmul(Z, H)
-            A1 = np.matmul(A, dS)
+            A1 = np.matmul(A, dS_inc)
             B = np.matmul(A1, Gd)
-
-            # print('A', A.shape)
-            # print('B', B.shape)
-
-            C = np.matmul(B, dS)
+            C = np.matmul(B, dS_inc)
             D = np.matmul(C, H_)
-            
-            # print('C', C.shape)
-            # print('D', D.shape)
-
-            # E = np.matmul(dS, np.real(D))  # this is how it is in the paper
-            E = np.matmul(dS_, np.real(D))  # this is my idea, probably wrong
-            # E = np.trace(dS) * np.trace(np.real(D))   # this is my idea about it, probably wrong
-
-            # print('E', E.shape)
-
-            F = ((8 * rho * c ) / S) * np.trace(E)  # this is how it is in the paper
-            # F = E * ((8 * rho * c ) / S)            # this is my idea about it
+            E = np.matmul(dS_inc, np.real(D))
+            F = ((8 * rho * c ) / S_inc) * np.trace(E)
             R = -10 * np.log10(F)
-
-
-            # R_  = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
-            # R__ = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Gd, H_), H), Z))))
-
-            # A = np.dot(Z, H)
-            # B = np.dot(Gd, H_)
-            # C = np.trace(np.real(np.dot(A, B))) * ((8 * rho * c * np.square(S)) / N ** 3)
-            # R_ = -10 * np.log10(C) 
-            
-            # print(R, R_)
-            # print(np.allclose(R, R_))
-            # print('')
-
+        
             freqs.append(f)
             rs.append(R)
 
             structure.results['mob_radiation'][fkey] = compas_vibro.structure.result.Result(f) 
             structure.results['mob_radiation'][fkey].radiated_p = R
     else:
-        #TODO: The results between these two options are the same ONLY if the inccident area is used. 
-        # areas_ = [mesh.vertex_area(nk) for nk in inc_nks]
-        areas_ = [mesh.vertex_area(nk) for nk in rad_nks]
-        dS_ = make_diagonal_area_matrix(areas_)
-        S_ = np.trace(dS_)
+
+        areas_ = [rad_mesh.vertex_area(nk) for nk in rad_nks]
+        dS_rad = make_diagonal_area_matrix(areas_)
+        S_rad = np.trace(dS_rad)
 
         rho = structure.rho
         c = structure.c
@@ -198,18 +166,19 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
             Gd = spec_mats[i]
 
             E = np.real(np.matmul(np.matmul(np.matmul(Z, H), Gd), H_))
-            F = ((8 * rho * c ) / S_**2) * np.trace(E) 
+            F = ((8 * rho * c ) / S_rad**2) * np.trace(E) 
             R = -10 * np.log10(F)
 
             freqs.append(f)
             rs.append(R)
+            
+            structure.results['mob_radiation'][fkey] = compas_vibro.structure.result.Result(f) 
+            structure.results['mob_radiation'][fkey].radiated_p = R
 
     import plotly.graph_objects as go
     l1 = go.Scatter(x=freqs, y=rs, mode='lines', name='R')
-    # l2 = go.Scatter(x=freqs, y=rs_, mode='lines', name = 'R_')
-    # l3 = go.Scatter(x=freqs, y=rs__, mode='lines', name = 'R__')
-    # fig = go.Figure(data=[l1, l2, l3])
     fig = go.Figure(data=[l1])
+    fig.update_layout(title_text=geometry)
     fig.show()
 
 
@@ -228,11 +197,8 @@ if __name__ == '__main__':
     from compas_vibro.viewers import StructureViewer
 
     geometry = '6x6_sym_structure_t20_all_inc'
-    # geometry = '6x6_sym_structure_all_inc'
-    # geometry = 'glass_10x10'
 
     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
-    print(s)
 
     # v = StructureViewer(s)
     # v.show_rad_nodes = True

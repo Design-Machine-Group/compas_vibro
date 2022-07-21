@@ -86,6 +86,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.c                      = 340.0
         self.rho                    = 1.225
         self.beam_sections          = ['ISection','BoxSection','RectangularSection']
+        self.inc_mesh               = None
 
     def __str__(self):
         string = ''
@@ -155,7 +156,9 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             self.loads[vk] = load
 
     def add_incident_elements_from_mesh(self, mesh):
-
+        
+        self.inc_mesh = mesh
+        
         eps = {}
         for fk in mesh.faces():
             cpt = mesh.face_centroid(fk)
@@ -186,7 +189,6 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             
             if elset:
                 self.sets[elset].remove_elements(eps[epk])
-
 
     def analyze_modal(self, fields, backend='ansys', num_modes=10, exe=None):
         self.compute_mass()
