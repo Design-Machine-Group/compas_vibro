@@ -90,6 +90,10 @@ def compute_cross_spectral_matrices(structure):
 def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend='ansys', num_modes=20):
     structure.analyze_modal(['u'], backend=backend, num_modes=num_modes)
 
+    #TODO: These areas should be calculated with the incident mesh, not structure (areas will be smaller)
+    #TODO: Write function to make incident mesh
+    #TODO: Figure out if the incident mesh actually matters
+
     for fk in structure.results['modal']:
         print(fk, structure.results['modal'][fk].frequency)
 
@@ -101,83 +105,104 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     rad_nks = structure.radiating_nodes()
     inc_nks = structure.incident_nodes()
     nks = inc_nks
-    #TODO: These areas should be calculated with the incident mesh, not structure (areas will be smaller)
-    #TODO: Write function to make incident mesh
-    #TODO: Figure out if the incident mesh actually matters
 
-    areas = [mesh.vertex_area(nk) for nk in nks]
-    dS = make_diagonal_area_matrix(areas)
-    S = np.trace(dS)
+    if len(rad_nks) != len(inc_nks):
+        areas = [mesh.vertex_area(nk) for nk in nks]
+        dS = make_diagonal_area_matrix(areas)
+        S = np.trace(dS)
 
-    areas_ = [mesh.vertex_area(nk) for nk in rad_nks]
-    dS_ = make_diagonal_area_matrix(areas_)
-    S_ = np.trace(dS_)
+        areas_ = [mesh.vertex_area(nk) for nk in rad_nks]
+        dS_ = make_diagonal_area_matrix(areas_)
+        S_ = np.trace(dS_)
 
-    # N = len(nks)
-    rho = structure.rho
-    c = structure.c
-    
-    freqs = []
-    rs = []
-    rs_ = []
-    rs__ = []
-    structure.results['mob_radiation'] = {}
-    for i, fkey in enumerate(structure.results['harmonic']):
-        f = structure.results['harmonic'][fkey].frequency
-        H = mob_mats[i].transpose()
-        H_ = np.conjugate(np.transpose(H))
-        Z = rad_mats[i]
-        Gd = spec_mats[i]
+        # N = len(nks)
+        rho = structure.rho
+        c = structure.c
 
-        # print('H', H.shape)
-        # print('Z', Z.shape)
-        # print('Gd', Gd.shape)
-        # print('dS', dS.shape)
+        freqs = []
+        rs = []
+        rs_ = []
+        rs__ = []
+        structure.results['mob_radiation'] = {}
+        for i, fkey in enumerate(structure.results['harmonic']):
+            f = structure.results['harmonic'][fkey].frequency
+            H = mob_mats[i].transpose()
+            H_ = np.conjugate(np.transpose(H))
+            Z = rad_mats[i]
+            Gd = spec_mats[i]
 
-        A = np.matmul(Z, H)
-        A1 = np.matmul(A, dS)
-        B = np.matmul(A1, Gd)
+            # print('H', H.shape)
+            # print('Z', Z.shape)
+            # print('Gd', Gd.shape)
+            # print('dS', dS.shape)
 
-        # print('A', A.shape)
-        # print('B', B.shape)
+            A = np.matmul(Z, H)
+            A1 = np.matmul(A, dS)
+            B = np.matmul(A1, Gd)
 
-        C = np.matmul(B, dS)
-        D = np.matmul(C, H_)
+            # print('A', A.shape)
+            # print('B', B.shape)
+
+            C = np.matmul(B, dS)
+            D = np.matmul(C, H_)
+            
+            # print('C', C.shape)
+            # print('D', D.shape)
+
+            # E = np.matmul(dS, np.real(D))  # this is how it is in the paper
+            E = np.matmul(dS_, np.real(D))  # this is my idea, probably wrong
+            # E = np.trace(dS) * np.trace(np.real(D))   # this is my idea about it, probably wrong
+
+            # print('E', E.shape)
+
+            F = ((8 * rho * c ) / S) * np.trace(E)  # this is how it is in the paper
+            # F = E * ((8 * rho * c ) / S)            # this is my idea about it
+            R = -10 * np.log10(F)
+
+
+            # R_  = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
+            # R__ = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Gd, H_), H), Z))))
+
+            # A = np.dot(Z, H)
+            # B = np.dot(Gd, H_)
+            # C = np.trace(np.real(np.dot(A, B))) * ((8 * rho * c * np.square(S)) / N ** 3)
+            # R_ = -10 * np.log10(C) 
+            
+            # print(R, R_)
+            # print(np.allclose(R, R_))
+            # print('')
+
+            freqs.append(f)
+            rs.append(R)
+
+            structure.results['mob_radiation'][fkey] = compas_vibro.structure.result.Result(f) 
+            structure.results['mob_radiation'][fkey].radiated_p = R
+    else:
+        #TODO: The results between these two options are the same ONLY if the inccident area is used. 
+        # areas_ = [mesh.vertex_area(nk) for nk in inc_nks]
+        areas_ = [mesh.vertex_area(nk) for nk in rad_nks]
+        dS_ = make_diagonal_area_matrix(areas_)
+        S_ = np.trace(dS_)
+
+        rho = structure.rho
+        c = structure.c
         
-        # print('C', C.shape)
-        # print('D', D.shape)
+        freqs = []
+        rs = []
+        structure.results['mob_radiation'] = {}
+        for i, fkey in enumerate(structure.results['harmonic']):
+            f = structure.results['harmonic'][fkey].frequency
+            H = mob_mats[i].transpose()
+            H_ = np.conjugate(np.transpose(H))
+            Z = rad_mats[i]
+            Gd = spec_mats[i]
 
-        # E = np.matmul(dS, np.real(D))  # this is how it is in the paper
-        E = np.matmul(dS_, np.real(D))  # this is my idea, probably wrong
-        # E = np.trace(dS) * np.trace(np.real(D))   # this is my idea about it, probably wrong
+            E = np.real(np.matmul(np.matmul(np.matmul(Z, H), Gd), H_))
+            F = ((8 * rho * c ) / S_**2) * np.trace(E) 
+            R = -10 * np.log10(F)
 
-        # print('E', E.shape)
-
-        F = np.trace(E) * ((8 * rho * c ) / S)  # this is how it is in the paper
-        # F = E * ((8 * rho * c ) / S)            # this is my idea about it
-        R = -10 * np.log10(F)
-
-
-        # R_  = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Z, H), Gd), H_))))
-        # R__ = -10 * np.log10(((8 * rho * c * np.square(S)) / N **3) * np.trace(np.real(np.dot(np.dot(np.dot(Gd, H_), H), Z))))
-
-        # A = np.dot(Z, H)
-        # B = np.dot(Gd, H_)
-        # C = np.trace(np.real(np.dot(A, B))) * ((8 * rho * c * np.square(S)) / N ** 3)
-        # R_ = -10 * np.log10(C) 
-        
-        # print(R, R_)
-        # print(np.allclose(R, R_))
-        # print('')
-
-        freqs.append(f)
-        rs.append(R)
-        # rs_.append(R_)
-        # rs__.append(R__)
-
-        structure.results['mob_radiation'][fkey] = compas_vibro.structure.result.Result(f) 
-        structure.results['mob_radiation'][fkey].radiated_p = R
-
+            freqs.append(f)
+            rs.append(R)
 
     import plotly.graph_objects as go
     l1 = go.Scatter(x=freqs, y=rs, mode='lines', name='R')
