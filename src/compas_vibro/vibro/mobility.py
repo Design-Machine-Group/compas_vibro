@@ -201,9 +201,9 @@ if __name__ == '__main__':
     from compas_vibro.structure import Structure
     from compas_vibro.viewers import StructureViewer
 
-    geometry = '6x6_sym_structure_t20'
+    geometry = '20x20_structure_t20_inc_mesh'
 
-    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '{}.obj'.format(geometry)))
+    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '5x4m_concrete', '{}.obj'.format(geometry)))
 
     # v = StructureViewer(s)
     # v.show_rad_nodes = True
