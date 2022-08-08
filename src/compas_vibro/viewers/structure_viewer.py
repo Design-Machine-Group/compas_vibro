@@ -331,7 +331,7 @@ class StructureViewer(object):
         h = self.structure.sections[section].geometry['h']
 
         h2 = scale_vector(y, h / 2.)
-        b2 = scale_vector(x, b /2.)
+        b2 = scale_vector(x, b / 2.)
         h2_ = scale_vector(y, -h / 2.)
         b2_ = scale_vector(x, -b /2.)
 

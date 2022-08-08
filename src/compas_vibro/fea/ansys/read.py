@@ -150,7 +150,7 @@ def read_modal_freq(out_path):
 
 
 def read_modal_coordinates(structure, out_path):
-    fh = open(os.path.join(out_path, '{}{}.mcf'.format(structure.name, 0)), 'r')
+    fh = open(os.path.join(out_path, '{}_{}.mcf'.format(structure.name, 0)), 'r')
     num_modes = structure.step['modal'].modes
     coo = fh.readlines()[8:]
     ncd = {}
