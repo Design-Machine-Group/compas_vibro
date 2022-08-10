@@ -8,7 +8,12 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
-__all__ = ['ShellElement', 'BeamElement']
+__all__ = ['ShellElement',
+           'BeamElement',
+           'TieElement',
+           'StrutElement',
+           'TrussElement',
+           ]
 
 
 class Element(object):
@@ -85,6 +90,53 @@ class BeamElement(Element):
 
         self.__name__ = 'BeamElement'
 
+
+class TieElement(Element):
+
+    """ A 1D element that resists only axial forces in tension.
+
+    Parameters
+    ----------
+    None
+
+    """
+
+    def __init__(self):
+        Element.__init__(self)
+
+        self.__name__ = 'TieElement'
+
+
+class StrutElement(Element):
+
+    """ A 1D element that resists only axial forces in compression.
+
+    Parameters
+    ----------
+    None
+
+    """
+
+    def __init__(self):
+        Element.__init__(self)
+
+        self.__name__ = 'StrutElement'
+
+
+class TrussElement(Element):
+
+    """ A 1D element that resists axial forces in tension and compression.
+
+    Parameters
+    ----------
+    None
+
+    """
+
+    def __init__(self):
+        Element.__init__(self)
+
+        self.__name__ = 'TrussElement'
 
 if __name__ == "__main__":
     el = ShellElement()

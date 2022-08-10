@@ -17,6 +17,9 @@ __all__ = [
     'ISection',
     'BoxSection',
     'RectangularSection',
+    'TrussSection',
+    'StrutSection',
+    'TieSection',
 ]
 
 
@@ -196,6 +199,66 @@ class BoxSection(Section):
         self.__name__ = 'BoxSection'
         self.name     = name
         self.geometry = {'b': b, 'h': h, 'tw': tw, 'tf': tf, 'A': A, 'J': J, 'Ixx': Ixx, 'Iyy': Iyy, 'Ixy': 0}
+
+
+class TrussSection(Section):
+
+    """ For use with truss elements.
+
+    Parameters
+    ----------
+    name : str
+        Section name.
+    A : float
+        Area.
+
+    """
+
+    def __init__(self, name, A):
+        Section.__init__(self, name=name)
+
+        self.__name__ = 'TrussSection'
+        self.name     = name
+        self.geometry = {'A': A, 'Ixx': 0, 'Iyy': 0, 'Ixy': 0, 'J': 0}
+
+
+class StrutSection(TrussSection):
+
+    """ For use with strut elements.
+
+    Parameters
+    ----------
+    name : str
+        Section name.
+    A : float
+        Area.
+
+    """
+
+    def __init__(self, name, A):
+        TrussSection.__init__(self, name=name, A=A)
+
+        self.__name__ = 'StrutSection'
+
+
+class TieSection(TrussSection):
+
+    """ For use with tie elements.
+
+    Parameters
+    ----------
+    name : str
+        Section name.
+    A : float
+        Area.
+
+    """
+
+    def __init__(self, name, A):
+        TrussSection.__init__(self, name=name, A=A)
+
+        self.__name__ = 'TieSection'
+
 
 # ==============================================================================
 # 2D

@@ -85,7 +85,9 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.mass                   = None
         self.c                      = 340.0
         self.rho                    = 1.225
-        self.beam_sections          = ['ISection','BoxSection','RectangularSection']
+        self.beam_sections          = ['ISection','BoxSection','RectangularSection',
+                                       'TieSection', 'StrutSection', 'TrussSection',
+                                       ]
         self.inc_mesh               = None
 
     def __str__(self):

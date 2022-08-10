@@ -8,6 +8,9 @@ from compas.utilities import geometric_key
 
 from compas_vibro.structure.element import ShellElement
 from compas_vibro.structure.element import BeamElement
+from compas_vibro.structure.element import TieElement
+from compas_vibro.structure.element import StrutElement
+from compas_vibro.structure.element import TrussElement
 
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
@@ -19,7 +22,12 @@ __all__ = [
     'ElementMixins',
 ]
 
-func_dict = {'ShellElement': ShellElement, 'BeamElement': BeamElement}
+func_dict = {'ShellElement': ShellElement,
+             'BeamElement': BeamElement,
+             'TieElement': TieElement,
+             'StrutElement': StrutElement,
+             'TrussElement': TrussElement,
+             }
 
 
 class ElementMixins(object):

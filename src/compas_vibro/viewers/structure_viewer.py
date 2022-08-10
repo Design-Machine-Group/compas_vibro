@@ -8,11 +8,11 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
+from math import sqrt, pi
 
 import plotly.graph_objects as go
 
 from compas_vibro.structure import Mesh
-# from compas.datastructures import Mesh
 
 from compas.geometry import subtract_vectors
 from compas.geometry import normalize_vector
@@ -20,6 +20,7 @@ from compas.geometry import cross_vectors
 from compas.geometry import scale_vector
 from compas.geometry import add_vectors
 from compas.geometry import length_vector
+from compas.geometry import rotate_points
 
 # TODO: Add harmonic mode participation factors
 # TODO: Add modal effective masses
@@ -187,6 +188,8 @@ class StructureViewer(object):
                 sec_pts = self.make_recsection(ek, section, mode=mode, frequency=frequency, load_step=load_step)
             elif sec_name == 'BoxSection':
                 sec_pts = self.make_boxsection(ek, section, mode=mode, frequency=frequency,  load_step=load_step)
+            elif sec_name in ['TieSection', 'TrussSection', 'StrutSection']:
+                sec_pts = self.make_axialsection(ek, section, mode=mode, frequency=frequency,  load_step=load_step)
             self.add_beam_to_mesh(beam_mesh, sec_pts, ek, mode, frequency, load_step)
         self.add_beams_mesh(beam_mesh)
 
@@ -383,6 +386,35 @@ class StructureViewer(object):
         p7 = add_vectors(p3, add_vectors(twv, tfv_))
 
         return [[p0, p1, p2, p3, p0], [p4, p5, p6, p7, p4]]
+
+    def make_axialsection(self, ek, section, mode=None, frequency=None, load_step=None):
+        u, v = self.structure.elements[ek].nodes
+        if mode != None:
+            u_ = self.move_node(u, mode=mode)
+            v_ = self.move_node(v, mode=mode)
+        elif frequency != None:
+            u_ = self.move_node(u, frequency=frequency)
+            v_ = self.move_node(v, frequency=frequency)
+        elif load_step != None:
+            u_ = self.move_node(u, load_step=load_step)
+            v_ = self.move_node(v, load_step=load_step)
+        else:
+            u_, v_ = self.structure.node_xyz(u), self.structure.node_xyz(v)
+        z = subtract_vectors(u_, v_)
+        x = normalize_vector(self.structure.elements[ek].axes['x'])
+        y = normalize_vector(cross_vectors(x, z))
+        area = self.structure.sections[section].geometry['A']
+        radius = sqrt(area / pi)
+
+        pt = add_vectors(u_, scale_vector(x, radius))
+        pts = [pt]
+        num = 7
+        angle = (2 * pi) / num
+        for i in range(1, num):
+            pt_ = rotate_points([pt], angle * i, axis=z, origin=u_)
+            pts.append(pt_[0])
+        pts.append(pt)
+        return [pts]
 
     def move_node(self, nk, mode=None, frequency=None, load_step=None):
         x, y, z = self.structure.nodes[nk].xyz()
