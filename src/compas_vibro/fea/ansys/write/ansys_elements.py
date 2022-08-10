@@ -370,13 +370,23 @@ def write_tie_elements(structure, output_path, filename, ekeys, section, materia
 
 
 def write_tie_section(output_path, filename, sec_area, sec_index, axial_force):
+    # cFile = open(os.path.join(output_path, filename), 'a')
+    # # cFile.write('R,' + str(sec_index + 1) + ',' + str(sec_area) + ', ,1  \n')
+    # cFile.write('R,{},{},,{} \n'.format(sec_index + 1, sec_area, axial_force))
+    # cFile.write('REAL,' + str(sec_index + 1) + '\n')
+    # cFile.write('!\n')
+    # cFile.write('!\n')
+    # cFile.close()
     cFile = open(os.path.join(output_path, filename), 'a')
-    # cFile.write('R,' + str(sec_index + 1) + ',' + str(sec_area) + ', ,1  \n')
-    cFile.write('R,{},{},,{} \n'.format(sec_index + 1, sec_area, axial_force))
-    cFile.write('REAL,' + str(sec_index + 1) + '\n')
+    cFile.write('SECTYPE,{}, LINK, , , 0 \n'.format(sec_index + 1))
+    cFile.write('SECOFFSET, CENT \n')
+    cFile.write('SECDATA, {} \n'.format(sec_area))
+    cFile.write('SECCONTROL,,{} \n'.format(axial_force))
+    cFile.write('SECNUM, ' + str(sec_index + 1) + ' \n')
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
+
 
 
 def write_circular_section(output_path, filename, radius, sec_index):
