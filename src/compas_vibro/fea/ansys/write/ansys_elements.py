@@ -322,6 +322,7 @@ def write_pipe_section(output_path, filename, in_radius, thickness, sec_index):
     cFile.write('!\n')
     cFile.close()
 
+
 def write_hollow_rect_section(output_path, filename,b, h, tw, tf, sec_index):
     cFile = open(os.path.join(output_path, filename), 'a')
     cFile.write('SECTYPE, ' + str(sec_index + 1) + ', BEAM, HREC, , 0 \n')
@@ -345,10 +346,10 @@ def write_tie_elements(structure, output_path, filename, ekeys, section, materia
     # axial_force =  0 for tension and compression, 1 tension only, 2 compression only
     if etype == 'TieElement':
         sec_area = structure.sections[section].geometry['A']
-        write_tie_section(output_path, filename, sec_area, sec_index, axial_force=2)
+        write_tie_section(output_path, filename, sec_area, sec_index, axial_force=1)
     elif etype == 'StrutElement':
         sec_area = structure.sections[section].geometry['A']
-        write_tie_section(output_path, filename, sec_area, sec_index, axial_force=1)
+        write_tie_section(output_path, filename, sec_area, sec_index, axial_force=2)
     elif etype == 'TrussElement':
         sec_area = structure.sections[section].geometry['A']
         write_tie_section(output_path, filename, sec_area, sec_index, axial_force=0)
@@ -370,7 +371,8 @@ def write_tie_elements(structure, output_path, filename, ekeys, section, materia
 
 def write_tie_section(output_path, filename, sec_area, sec_index, axial_force):
     cFile = open(os.path.join(output_path, filename), 'a')
-    cFile.write('R,' + str(sec_index + 1) + ',' + str(sec_area) + ', ,1  \n')
+    # cFile.write('R,' + str(sec_index + 1) + ',' + str(sec_area) + ', ,1  \n')
+    cFile.write('R,{},{},,{} \n'.format(sec_index + 1, sec_area, axial_force))
     cFile.write('REAL,' + str(sec_index + 1) + '\n')
     cFile.write('!\n')
     cFile.write('!\n')
