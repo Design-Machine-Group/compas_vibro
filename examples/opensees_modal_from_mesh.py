@@ -52,7 +52,8 @@ el_prop = ElementProperties('concrete_shell',
                             elset='shell')
 s.add(el_prop)
 
-s.analyze_modal(backend='opensees', fields=['f', 'u', 'm'], num_modes=12)
+exe = '/Applications/OpenSees3.3.0/bin/OpenSees'
+s.analyze_modal(backend='opensees', fields=['f', 'u', 'm'], num_modes=12, exe=exe)
 # s.analyze_modal(backend='opensees', fields=['m'], num_modes=12)
 
 # s.to_obj()
