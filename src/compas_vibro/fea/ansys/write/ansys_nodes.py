@@ -16,53 +16,6 @@ def write_nodes(structure, output_path, filename):
     cFile.close()
 
 
-def write_request_node_displacements(structure, step_index, mode=None):
-
-    name = structure.name
-    path = structure.path
-    step_name = structure.steps_order[step_index]
-
-    out_path = os.path.join(path, name + '_output')
-    filename = name + '_extract.txt'
-    if mode:
-        fname = 'modal_shape_' + str(mode)
-        name_ = 'nds_d' + str(mode)
-        name_x = 'dispX' + str(mode)
-        name_y = 'dispY' + str(mode)
-        name_z = 'dispZ' + str(mode)
-        out_path = os.path.join(out_path, 'modal_out')
-    else:
-        fname = str(step_name) + '_' + 'displacements'
-        name_ = 'nds_d'
-        name_x = 'dispX'
-        name_y = 'dispY'
-        name_z = 'dispZ'
-
-    cFile = open(os.path.join(path, filename), 'a')
-    cFile.write('/POST1 \n')
-    cFile.write('!\n')
-    cFile.write('*get,numNodes,node,,count \n')
-    cFile.write('*set,' + name_x + ', \n')
-    cFile.write('*dim,' + name_x + ',array,numNodes,1 \n')
-    cFile.write('*set,' + name_y + ', \n')
-    cFile.write('*dim,' + name_y + ',array,numNodes,1 \n')
-    cFile.write('*set,' + name_z + ', \n')
-    cFile.write('*dim,' + name_z + ',array,numNodes,1 \n')
-    cFile.write('*dim,' + name_ + ', ,numNodes \n')
-    cFile.write('*VGET, ' + name_x + ', node, all, u, X,,,2 \n')
-    cFile.write('*VGET, ' + name_y + ', node, all, u, Y,,,2 \n')
-    cFile.write('*VGET, ' + name_z + ', node, all, u, Z,,,2 \n')
-    cFile.write('*vfill,' + name_ + '(1),ramp,1,1 \n')
-    cFile.write('*cfopen,' + out_path + '/' + fname + ',txt \n')
-    cFile.write('*vwrite, ' + name_ + '(1) , \',\'  , ' + name_x + '(1) , \',\' , ')
-    cFile.write(name_y + '(1) , \',\' ,' + name_z + '(1) \n')
-    cFile.write('(          F9.0,       A,       ES,           A,          ES,          A,      ES) \n')
-    cFile.write('*cfclose \n')
-    cFile.write('!\n')
-    cFile.write('!\n')
-    cFile.close()
-
-
 def write_constraints(structure, step_type, output_path, filename):
 
     displacements = structure.step[step_type].displacements

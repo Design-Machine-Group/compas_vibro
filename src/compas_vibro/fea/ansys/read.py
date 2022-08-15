@@ -165,6 +165,23 @@ def read_modal_coordinates(structure, out_path):
     return ncd
         
 
+def read_static_displacements(out_path):
+    filename = 'static_displacements.txt'
+    fh = open(os.path.join(out_path, filename))
+    displacements = fh.readlines()
+
+    sd = {'ux': {}, 'uy': {}, 'uz': {}, 'um': {}}
+    for disp in displacements:
+        dstring = disp.split(',')
+        disp = list(map(float, dstring[1:]))
+        key = int(float(dstring[0])) - 1
+        sd['ux'][key] = disp[0]
+        sd['uy'][key] = disp[1]
+        sd['uz'][key] = disp[2]
+        sd['um'][key] = length_vector([disp[0], disp[1], disp[2]])
+        # print(sd['um'][key])
+    return sd
+
 
 if __name__ == '__main__':
     pass

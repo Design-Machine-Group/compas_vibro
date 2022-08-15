@@ -48,6 +48,7 @@ def write_modal_solve(structure, path, filename):
     cFile.write('ANTYPE,2 \n')
 
     cFile.write('MODOPT,LANB,' + str(num_modes) + ' \n')
+    # cFile.write('MODOPT,SNODE,' + str(num_modes) + ' \n')
     cFile.write('EQSLV,SPAR \n')
     cFile.write('MXPAND,' + str(num_modes) + ', , ,1 \n')
     cFile.write('LUMPM,0 \n')

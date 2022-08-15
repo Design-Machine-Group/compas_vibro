@@ -8,7 +8,7 @@ __email__      = 'tmendeze@uw.edu'
 
 
 # from .ansys_process import *
-# from .ansys_static import *
+from .ansys_static import *
 from .ansys_modal import *
 from .ansys_harmonic import *
 from .ansys_harmonic_super import *

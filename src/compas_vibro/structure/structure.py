@@ -14,6 +14,7 @@ from compas_vibro.structure._mixins.nodemixins import NodeMixins
 from compas_vibro.structure._mixins.elementmixins import ElementMixins
 from compas_vibro.structure._mixins.objectmixins import ObjectMixins
 
+from compas_vibro.fea.ansys.ansys import ansys_static
 from compas_vibro.fea.ansys.ansys import ansys_modal
 from compas_vibro.fea.ansys.ansys import ansys_harmonic
 from compas_vibro.fea.ansys.ansys import ansys_harmonic_super
@@ -89,6 +90,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
                                        'TieSection', 'StrutSection', 'TrussSection',
                                        ]
         self.inc_mesh               = None
+
 
     def __str__(self):
         string = ''
@@ -203,7 +205,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
     def analyze_static(self, fields, backend='ansys', exe=None):
         if backend == 'ansys':
-            raise NameError('This backend is not implemented')
+            ansys_static(self,fields)
         elif backend == 'opensees':
             opensees_static(self, fields, exe=exe)
         else:

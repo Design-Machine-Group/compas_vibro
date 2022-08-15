@@ -8,10 +8,12 @@ import subprocess
 
 from compas_vibro.structure.result import Result
 
+from compas_vibro.structure.step import StaticStep
 from compas_vibro.structure.step import ModalStep
 from compas_vibro.structure.step import HarmonicStep
 from compas_vibro.structure.step import HarmonicFieldStep
 
+from compas_vibro.fea.ansys.write import write_command_file_static
 from compas_vibro.fea.ansys.write import write_command_file_modal
 from compas_vibro.fea.ansys.write import write_command_file_harmonic
 from compas_vibro.fea.ansys.write import write_command_file_harmonic_super
@@ -24,6 +26,7 @@ from compas_vibro.fea.ansys.read import read_modal_displacements
 from compas_vibro.fea.ansys.read import read_harmonic_displacements
 from compas_vibro.fea.ansys.read import read_harmonic_displacements_field
 from compas_vibro.fea.ansys.read import read_modal_coordinates
+from compas_vibro.fea.ansys.read import read_static_displacements
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -31,10 +34,27 @@ __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
-__all__ = ['ansys_modal',
+__all__ = ['ansys_static',
+           'ansys_modal',
            'ansys_harmonic',
            'ansys_harmonic_super',
            'ansys_harmonic_field']
+
+
+def ansys_static(structure, fields, license='introductory'):
+
+    # add modal step -----------------------------------------------------------
+    step = StaticStep(name=structure.name + '_modal', 
+                     displacements=list(structure.displacements.keys()),
+                     loads=list(structure.loads.keys()),
+                     )
+    structure.add(step)
+
+    # analyse and extraxt results ----------------------------------------------
+    write_command_file_static(structure, fields)
+    ansys_launch_process(structure, cpus=4, license=license, delete=True)
+    extract_data(structure, fields, 'static')
+    return structure
 
 
 def ansys_modal(structure, fields, num_modes, license='introductory'):
@@ -188,6 +208,13 @@ def extract_data(structure, fields, results_type):
         for k in ncd:
             structure.results['harmonic'][k].modal_coordinates = ncd[k]
 
+    if results_type =='static':
+        structure.results['static'] = {}
+        if 'u' in fields or 'all' in fields:
+            structure.results['static'] = {}
+            sd = read_static_displacements(out_path)
+            structure.results['static'][0]  = Result('static', name='VibroResult'.format(0), type='static')
+            structure.results['static'][0].displacements = sd
     return structure
 
 
