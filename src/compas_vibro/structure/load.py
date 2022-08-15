@@ -13,6 +13,7 @@ __all__ = ['Load',
            'PointLoad',
            'HarmonicPointLoad',
            'HarmonicPressureFieldsLoad',
+           'Prestress',
            ]
 
 
@@ -80,6 +81,7 @@ class FieldsLoad(object):
         self.__name__   = 'FieldLoadObject'
         self.name       = name
         self.fields      = fields
+
 
 class PointLoad(Load):
 
@@ -157,3 +159,11 @@ class HarmonicPressureFieldsLoad(FieldsLoad):
         self.fields      = fields
 
 
+class Prestress(Load):
+    """
+    """
+    def __init__(self, name, elements, x=0, y=0, z=0, xx=0, yy=0, zz=0):
+        Load.__init__(self, name=name, elements=elements, axes='local')
+
+        self.__name__   = 'Prestress'
+        self.components = {'x': x, 'y': y, 'z': z, 'xx': xx, 'yy': yy, 'zz': zz}

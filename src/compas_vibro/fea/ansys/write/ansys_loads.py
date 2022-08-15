@@ -46,6 +46,8 @@ def write_loads(structure, step_type, output_path, filename):
                 pload = add_load_to_ploads(structure, pload, load, factor)
             elif load.__name__ == 'HarmonicPressureFieldsLoad':
                 fload =  write_fields_loads(structure, load, output_path, filename)
+            elif load.__name__ == 'Prestress':
+                continue
             else:
                 raise ValueError(load.__name__ + ' Type of load is not yet implemented for Ansys')
         if pload:
@@ -71,8 +73,6 @@ def write_fields_loads(structure, index, output_path, filename):
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
-
-
 
 
 def write_combined_point_loads(pload, output_path, filename):
@@ -190,3 +190,35 @@ def write_apply_acoustic_diffuse_field_load(structure, output_path, filename, lk
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
+
+
+def write_prestress(structure, path, filename):
+
+    lks = structure.loads.keys()
+    for pk in lks:
+        if structure.loads[pk].__name__ == 'Prestress':
+            ps = structure.loads[pk]
+            eks = ps.elements
+            x = ps.components['x']
+            y = ps.components['y']
+            z = ps.components['z']
+            xx = ps.components['xx']
+            yy = ps.components['yy']
+            zz = ps.components['zz']
+            if eks == 'all':
+                cFile = open(os.path.join(path, filename), 'a')
+                cFile.write('! \n')
+                cFile.write('inistate,set,csys,-2\n')
+                cFile.write('inistate,set,dtyp,stre\n')
+                cFile.write('inistate,defi,,,,,{},{},{},{},{},{}\n'.format(x, y, z, xx, yy, zz))
+                cFile.write('! \n')
+                cFile.close()
+            else:
+                for ek in eks:
+                    cFile = open(os.path.join(path, filename), 'a')
+                    cFile.write('! \n')
+                    cFile.write('inistate,set,csys,-2\n')
+                    cFile.write('inistate,set,dtyp,stre\n')
+                    cFile.write('inistate,defi,{},,,,{},{},{},{},{},{}\n'.format(ek + 1, x, y, z, xx, yy, zz))
+                    cFile.write('! \n')
+                    cFile.close()

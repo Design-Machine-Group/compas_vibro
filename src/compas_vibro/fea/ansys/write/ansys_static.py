@@ -15,6 +15,8 @@ from .ansys_steps import write_loadstep
 from .ansys_steps import write_solve_step
 
 from .ansys_loads import write_loads
+from .ansys_loads import write_prestress
+
 
 def write_command_file_static(structure, fields):
     path = structure.path
@@ -24,6 +26,7 @@ def write_command_file_static(structure, fields):
     write_materials(structure, path, filename)
     write_nodes(structure, path, filename)
     write_elements(structure, path, filename)
+    write_prestress(structure, path, filename)
     write_static_solve(structure, path, filename)
     write_constraints(structure, 'static', path, filename)
     write_loads(structure, 'static', path, filename)
@@ -107,5 +110,3 @@ def write_request_node_displacements(structure, step_index, filename):
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
-
-

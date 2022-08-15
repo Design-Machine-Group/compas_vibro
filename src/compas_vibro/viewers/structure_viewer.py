@@ -26,6 +26,8 @@ from compas.geometry import rotate_points
 # TODO: Add modal effective masses
 # TODO: Add displacement colors also for modal and harmonic
 # TODO: Add static scale slider option
+# TODO: Add displacement colors for beam/link elements
+# TODO: Visualize prestress / colors with no results (initial condition)
 
 
 class StructureViewer(object):

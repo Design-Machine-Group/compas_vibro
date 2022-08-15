@@ -59,7 +59,8 @@ class ElementProperties(object):
                  elset=None,
                  elements=None,
                  is_rad=True,
-                 is_incident=True):
+                 is_incident=True,
+                 ):
 
         self.__name__       = 'ElementProperties'
         self.name           = name
