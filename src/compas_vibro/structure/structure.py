@@ -16,6 +16,7 @@ from compas_vibro.structure._mixins.objectmixins import ObjectMixins
 
 from compas_vibro.fea.ansys.ansys import ansys_static
 from compas_vibro.fea.ansys.ansys import ansys_modal
+from compas_vibro.fea.ansys.ansys import ansys_modal_prestressed
 from compas_vibro.fea.ansys.ansys import ansys_harmonic
 from compas_vibro.fea.ansys.ansys import ansys_harmonic_super
 from compas_vibro.fea.ansys.ansys import ansys_harmonic_field
@@ -202,6 +203,16 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             opensees_modal(self, fields, num_modes=num_modes, exe=exe)
         else:
             raise NameError('This backend is not implemented')
+
+    def analyze_modal_prestressed(self, fields, backend='ansys', num_modes=10, exe=None):
+        self.compute_mass()
+        if backend == 'ansys':
+            ansys_modal_prestressed(self, fields, num_modes=num_modes)
+        elif backend == 'opensees':
+            NameError('This backend is not implemented')
+        else:
+            raise NameError('This backend is not implemented')
+
 
     def analyze_static(self, fields, backend='ansys', exe=None):
         if backend == 'ansys':

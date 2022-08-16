@@ -25,7 +25,7 @@ __email__      = 'tmendeze@uw.edu'
 __all__ = ['write_command_file_modal']
 
 
-def write_command_file_modal(structure, fields):
+def write_command_file_modal(structure, fields, pstress='0'):
     path = structure.path
     filename = structure.name + '.txt'
     
@@ -33,14 +33,14 @@ def write_command_file_modal(structure, fields):
     write_materials(structure, path, filename)
     write_nodes(structure, path, filename)
     write_elements(structure, path, filename)
-    write_modal_solve(structure, path, filename)
+    write_modal_solve(structure, path, filename, pstress=pstress)
     write_constraints(structure, 'modal', path, filename)
     write_loadstep(structure, path, filename)
     write_solve_step(structure, path, filename)
     write_modal_results(structure, fields, path, filename)
 
 
-def write_modal_solve(structure, path, filename):
+def write_modal_solve(structure, path, filename, pstress='0'):
     num_modes = structure.step['modal'].modes
     cFile = open(os.path.join(path, filename), 'a')
     cFile.write('/SOL \n')
@@ -52,7 +52,7 @@ def write_modal_solve(structure, path, filename):
     cFile.write('EQSLV,SPAR \n')
     cFile.write('MXPAND,' + str(num_modes) + ', , ,1 \n')
     cFile.write('LUMPM,0 \n')
-    cFile.write('PSTRES,0 \n')
+    cFile.write('PSTRES,{} \n'.format(pstress))
     cFile.write('!\n')
     cFile.write('!\n')
 
@@ -268,3 +268,5 @@ def write_modal_results(structure, fields, path, filename):
         write_modal_shapes(structure, path, filename)
     # if 'geo' in fields:
     #     write_request_element_nodes(path, name)
+    else:
+        pass

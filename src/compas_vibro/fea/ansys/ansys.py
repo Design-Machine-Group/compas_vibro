@@ -36,6 +36,7 @@ __email__      = 'tmendeze@uw.edu'
 
 __all__ = ['ansys_static',
            'ansys_modal',
+           'ansys_modal_prestressed',
            'ansys_harmonic',
            'ansys_harmonic_super',
            'ansys_harmonic_field']
@@ -68,6 +69,33 @@ def ansys_modal(structure, fields, num_modes, license='introductory'):
     # analyse and extraxt results ----------------------------------------------
     write_command_file_modal(structure, fields)
     ansys_launch_process(structure, cpus=4, license=license, delete=True)
+    extract_data(structure, fields, 'modal')
+    return structure
+
+def ansys_modal_prestressed(structure, fields, num_modes, license='introductory'):
+
+    # add modal step -----------------------------------------------------------
+    step = StaticStep(name=structure.name + '_modal', 
+                     displacements=list(structure.displacements.keys()),
+                     loads=list(structure.loads.keys()),
+                     nlgeom=False,
+                     )
+    structure.add(step)
+
+    # analyse and extraxt results ----------------------------------------------
+    write_command_file_static(structure, fields)
+    ansys_launch_process(structure, cpus=4, license=license, delete=True)
+
+
+    # add modal step -----------------------------------------------------------
+    step = ModalStep(name=structure.name + '_modal', 
+                     displacements=list(structure.displacements.keys()),
+                     modes=num_modes)
+    structure.add(step)
+
+    # analyse and extraxt results ----------------------------------------------
+    write_command_file_modal(structure, fields, pstress='1')
+    ansys_launch_process(structure, cpus=4, license=license, delete=False)
     extract_data(structure, fields, 'modal')
     return structure
 
