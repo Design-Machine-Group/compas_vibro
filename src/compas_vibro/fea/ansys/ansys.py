@@ -48,6 +48,7 @@ def ansys_static(structure, fields, license='introductory'):
     step = StaticStep(name=structure.name + '_modal', 
                      displacements=list(structure.displacements.keys()),
                      loads=list(structure.loads.keys()),
+                     nlgeom=structure.nl_geom,
                      )
     structure.add(step)
 
@@ -74,11 +75,11 @@ def ansys_modal(structure, fields, num_modes, license='introductory'):
 
 def ansys_modal_prestressed(structure, fields, num_modes, license='introductory'):
 
-    # add modal step -----------------------------------------------------------
+    # add static step -----------------------------------------------------------
     step = StaticStep(name=structure.name + '_modal', 
                      displacements=list(structure.displacements.keys()),
                      loads=list(structure.loads.keys()),
-                     nlgeom=False,
+                     nlgeom=structure.nl_geom,
                      )
     structure.add(step)
 

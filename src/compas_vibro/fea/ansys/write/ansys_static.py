@@ -41,6 +41,8 @@ def write_static_solve(structure, path, filename):
     cFile.write('/SOLU ! \n')
     cFile.write('ERESX, NO \n')  # this copies IP results to nodes
     cFile.write('ANTYPE,0\n')
+    pstress = '1'
+    cFile.write('PSTRES,{} \n'.format(pstress))
     cFile.write('!\n')
     if structure.step['static'].nlgeom:
         cFile.write('NLGEOM,ON\n')  # add automatic time steps and max substeps/increments

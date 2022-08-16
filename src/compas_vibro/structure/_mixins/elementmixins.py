@@ -6,6 +6,7 @@ from compas.geometry import centroid_points
 
 from compas.utilities import geometric_key
 
+from compas_vibro.structure.element import MassElement
 from compas_vibro.structure.element import ShellElement
 from compas_vibro.structure.element import BeamElement
 from compas_vibro.structure.element import TieElement
@@ -27,6 +28,7 @@ func_dict = {'ShellElement': ShellElement,
              'TieElement': TieElement,
              'StrutElement': StrutElement,
              'TrussElement': TrussElement,
+             'MassElement': MassElement,
              }
 
 

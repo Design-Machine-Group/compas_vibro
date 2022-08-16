@@ -13,6 +13,7 @@ __all__ = ['ShellElement',
            'TieElement',
            'StrutElement',
            'TrussElement',
+           'MassElement',
            ]
 
 
@@ -137,6 +138,15 @@ class TrussElement(Element):
         Element.__init__(self)
 
         self.__name__ = 'TrussElement'
+
+
+class MassElement(Element):
+    """
+    """
+    def __init__(self):
+        Element.__init__(self)
+
+        self.__name__ == '__MassElement'
 
 if __name__ == "__main__":
     el = ShellElement()

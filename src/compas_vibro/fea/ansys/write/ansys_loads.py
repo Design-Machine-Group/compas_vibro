@@ -193,7 +193,7 @@ def write_apply_acoustic_diffuse_field_load(structure, output_path, filename, lk
 
 
 def write_prestress(structure, path, filename):
-
+    
     lks = structure.loads.keys()
     for pk in lks:
         if structure.loads[pk].__name__ == 'Prestress':

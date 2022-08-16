@@ -20,6 +20,7 @@ __all__ = [
     'TrussSection',
     'StrutSection',
     'TieSection',
+    'MassSection',
 ]
 
 
@@ -259,6 +260,24 @@ class TieSection(TrussSection):
 
         self.__name__ = 'TieSection'
 
+
+class MassSection(TrussSection):
+
+    """ For use with mass elements.
+
+    Parameters
+    ----------
+    name : str
+        Section name.
+    M : float
+        Mass.
+
+    """
+
+    def __init__(self, name, M):
+        MassSection.__init__(self, name=name, M=M)
+
+        self.__name__ = 'MassSection'
 
 # ==============================================================================
 # 2D
