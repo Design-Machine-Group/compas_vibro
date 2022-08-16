@@ -65,11 +65,8 @@ def write_command_file_modal_prestressed(structure, fields):
     # write_static_results(structure, fields, filename)
 
     write_linear_perturbation_modal(structure, path, filename)
+    write_modal_results(structure, fields, path, filename, restart=True)
 
-
-    # TODO: Result file must be writched to rstp beforr any set operation, in the case of restart
-
-    write_modal_results(structure, fields, path, filename)
 
 def write_modal_solve(structure, path, filename):
     num_modes = structure.step['modal'].modes
@@ -89,7 +86,7 @@ def write_modal_solve(structure, path, filename):
     cFile.close()
 
 
-def write_modal_freq(structure, path, filename):
+def write_modal_freq(structure, path, filename, restart=False):
     path = structure.path
     name = structure.name
     num_modes = structure.step['modal'].modes
@@ -110,6 +107,9 @@ def write_modal_freq(structure, path, filename):
     cFile.write('*set,pfacz, \n')
     cFile.write('*dim,pfacz,array,' + str(num_modes) + ', \n')
 
+    if restart:
+        cFile.write('file,,rstp  ! Use *.rstp file to review results from linear perturbation!\n')
+
     for i in range(num_modes):
         cFile.write('SET, 1,' + str(i + 1) + '\n')
         cFile.write('*GET,n_freq({}),ACTIVE, 0, SET, FREQ \n'.format(i + 1))
@@ -127,7 +127,7 @@ def write_modal_freq(structure, path, filename):
     cFile.close()
 
 
-def write_participation_factor(structure, path, filename):
+def write_participation_factor(structure, path, filename, restart=False):
     path = structure.path
     name = structure.name
     num_modes = structure.step['modal'].modes
@@ -151,6 +151,8 @@ def write_participation_factor(structure, path, filename):
     cFile.write('*set,pfacrz, \n')
     cFile.write('*dim,pfacrz,array,{}, \n'.format(num_modes))
 
+    if restart:
+        cFile.write('file,,rstp  ! Use *.rstp file to review results from linear perturbation!\n')
 
     for i in range(num_modes):
         cFile.write('SET, 1,' + str(i + 1) + '\n')
@@ -176,7 +178,7 @@ def write_participation_factor(structure, path, filename):
     cFile.close()
 
 
-def write_effective_mass(structure, path, filename):
+def write_effective_mass(structure, path, filename, restart=False):
     path = structure.path
     name = structure.name
     num_modes = structure.step['modal'].modes
@@ -200,6 +202,8 @@ def write_effective_mass(structure, path, filename):
     cFile.write('*set,pfacrz, \n')
     cFile.write('*dim,pfacrz,array,{}, \n'.format(num_modes))
 
+    if restart:
+        cFile.write('file,,rstp  ! Use *.rstp file to review results from linear perturbation!\n')
 
     for i in range(num_modes):
         cFile.write('SET, 1,' + str(i + 1) + '\n')
@@ -225,11 +229,13 @@ def write_effective_mass(structure, path, filename):
     cFile.close()
 
 
-def write_modal_shapes(structure, path, filename):
+def write_modal_shapes(structure, path, filename, restart=False):
     num_modes = structure.step['modal'].modes
 
     cFile = open(os.path.join(path, filename), 'a')
     cFile.write('/POST1 \n')
+    if restart:
+        cFile.write('file,,rstp  ! Use *.rstp file to review results from linear perturbation!\n')
     cFile.close()
     for i in range(num_modes):
         cFile = open(os.path.join(path, filename), 'a')
@@ -278,16 +284,16 @@ def write_modal_displacements(structure, mode, filename):
     cFile.close()
 
 
-def write_modal_results(structure, fields, path, filename):
+def write_modal_results(structure, fields, path, filename, restart=False):
 
     if type(fields) == str:
         fields = [fields]
-    write_modal_freq(structure, path, filename)
-    write_participation_factor(structure, path, filename)
-    write_effective_mass(structure, path, filename)
+    write_modal_freq(structure, path, filename, restart=restart)
+    write_participation_factor(structure, path, filename, restart=restart)
+    write_effective_mass(structure, path, filename, restart=restart)
 
     if 'u' in fields or 'all' in fields:
-        write_modal_shapes(structure, path, filename)
+        write_modal_shapes(structure, path, filename, restart=restart)
     # if 'geo' in fields:
     #     write_request_element_nodes(path, name)
     else:
@@ -326,7 +332,7 @@ def write_linear_perturbation_modal(structure, path, filename):
     cFile.write('fini!\n')
     cFile.write('!\n')
     cFile.write('/post1!\n')
-    cFile.write('file,,rstp  ! Use *.rstp file to review results from linear perturbation!\n')
+    # cFile.write('file,,rstp  ! Use *.rstp file to review results from linear perturbation!\n')
     # cFile.write('set,list    ! It should list 3 eigen-modes!\n')
     # cFile.write('set,last    ! List stresses of the 3rd mode!\n')
     # cFile.write('esel,s,elem,,1!\n')
