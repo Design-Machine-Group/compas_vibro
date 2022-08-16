@@ -60,7 +60,10 @@ class StructureViewer(object):
         if self.shell_elements:
             n += 2
         if self.beam_elements:
-            n += 2
+            if self.show_beam_sections:
+                n += 2
+            else:
+                n += 1
         return n
             
     def separate_element_types(self):
@@ -132,12 +135,14 @@ class StructureViewer(object):
     def add_sliders(self, modes=None, frequencies=None):
         
         nt = self.num_traces
+
         if modes:
             keys = modes
             plot_type = 'modal'
         if frequencies:
             keys = frequencies
             plot_type = 'harmonic'
+        print('modes', modes)
         steps = []
         for i in keys:
             name = self.structure.name
@@ -158,6 +163,7 @@ class StructureViewer(object):
                 args=[{"visible": [False] * len(self.data)},
                     {"title": title}],
                 label=step_label)
+
 
             step["args"][0]["visible"][i * nt] = True
             step["args"][0]["visible"][i * nt + 1] = True
@@ -410,7 +416,7 @@ class StructureViewer(object):
 
         pt = add_vectors(u_, scale_vector(x, radius))
         pts = [pt]
-        num = 7
+        num = 5
         angle = (2 * pi) / num
         for i in range(1, num):
             pt_ = rotate_points([pt], angle * i, axis=z, origin=u_)
@@ -481,9 +487,9 @@ class StructureViewer(object):
                     val = ep.material
                 elif att == 'section':
                     val = self.structure.sections[ep.section].__name__
-                elif att == 'base':
+                elif att == 'base' and 'b' in self.structure.sections[ep.section].geometry.keys():
                     val = self.structure.sections[ep.section].geometry['b']
-                elif att == 'height':
+                elif att == 'height'and 'h' in self.structure.sections[ep.section].geometry.keys():
                     val = self.structure.sections[ep.section].geometry['h']
                 string += '{}: {}<br>'.format(att, val)
             text.append(string)
@@ -794,13 +800,16 @@ if __name__ == '__main__':
     from compas_vibro.structure import Structure
 
     # file = 'shell_beams_modal.obj'
-    file = 'shell_beams_harmonic.obj'
+    # file = 'shell_beams_harmonic.obj'
     # file = 'shell_boxbeams_modal.obj'
+    file = 'flat_web.obj'
     fp = os.path.join(compas_vibro.DATA, 'structures', file)
     # fp = os.path.join(compas_vibro.TEMP, file)
     s = Structure.from_obj(fp)
 
     v = StructureViewer(s)
-    v.show('harmonic')
+    v.modal_scale = 100
+    v.show_beam_sections = False
+    v.show('modal')
 
     
