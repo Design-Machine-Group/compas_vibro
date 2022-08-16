@@ -16,16 +16,24 @@ from .ansys_process import write_preprocess
 from .ansys_steps import write_loadstep
 from .ansys_steps import write_solve_step
 
+from .ansys_loads import write_loads
+from .ansys_loads import write_prestress
+
+from .ansys_static import write_static_solve
+from .ansys_static import write_static_results
+
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
 
-__all__ = ['write_command_file_modal']
+__all__ = ['write_command_file_modal',
+           'write_command_file_modal_prestressed',
+          ]
 
 
-def write_command_file_modal(structure, fields, pstress='0'):
+def write_command_file_modal(structure, fields):
     path = structure.path
     filename = structure.name + '.txt'
     
@@ -33,14 +41,37 @@ def write_command_file_modal(structure, fields, pstress='0'):
     write_materials(structure, path, filename)
     write_nodes(structure, path, filename)
     write_elements(structure, path, filename)
-    write_modal_solve(structure, path, filename, pstress=pstress)
+    write_modal_solve(structure, path, filename)
     write_constraints(structure, 'modal', path, filename)
     write_loadstep(structure, path, filename)
     write_solve_step(structure, path, filename)
     write_modal_results(structure, fields, path, filename)
 
 
-def write_modal_solve(structure, path, filename, pstress='0'):
+def write_command_file_modal_prestressed(structure, fields):
+    path = structure.path
+    filename = structure.name + '.txt'
+    
+    write_preprocess(path, filename)
+    write_materials(structure, path, filename)
+    write_nodes(structure, path, filename)
+    write_elements(structure, path, filename)
+    is_pstress = write_prestress(structure, path, filename)
+    write_static_solve(structure, path, filename,is_pstress)
+    write_constraints(structure, 'static', path, filename)
+    write_loads(structure, 'static', path, filename)
+    write_loadstep(structure, path, filename)
+    write_solve_step(structure, path, filename)
+    # write_static_results(structure, fields, filename)
+
+    write_linear_perturbation_modal(structure, path, filename)
+
+
+    # TODO: Result file must be writched to rstp beforr any set operation, in the case of restart
+
+    write_modal_results(structure, fields, path, filename)
+
+def write_modal_solve(structure, path, filename):
     num_modes = structure.step['modal'].modes
     cFile = open(os.path.join(path, filename), 'a')
     cFile.write('/SOL \n')
@@ -52,18 +83,9 @@ def write_modal_solve(structure, path, filename, pstress='0'):
     cFile.write('EQSLV,SPAR \n')
     cFile.write('MXPAND,' + str(num_modes) + ', , ,1 \n')
     cFile.write('LUMPM,0 \n')
-    cFile.write('PSTRES,{} \n'.format(pstress))
+    cFile.write('PSTRES,0 \n')
     cFile.write('!\n')
     cFile.write('!\n')
-
-    # if structure.geom_nonlinearity is True:
-    #     cFile.close()
-    #     write_geom_nonlinearity(path, filename)
-    #     cFile = open(path + "/" + filename, 'a')
-
-    # cFile.write('SOLVE')
-    # cFile.write('!\n')
-    # cFile.write('!\n')
     cFile.close()
 
 
@@ -270,3 +292,47 @@ def write_modal_results(structure, fields, path, filename):
     #     write_request_element_nodes(path, name)
     else:
         pass
+
+
+def write_linear_perturbation_modal(structure, path, filename):
+    num_modes = structure.step['modal'].modes
+    cFile = open(os.path.join(path, filename), 'a')
+    cFile.write('/prep7\n')
+    # cFile.write('/finish!\n')
+    cFile.write('/solu!\n')
+
+    cFile.write('/com    FIRST PHASE OF LINEAR PERTURBATION!\n')
+    
+    cFile.write('antype,,restart,,,perturb  ! Restart \n')
+    cFile.write('perturb, modal!\n')
+    cFile.write('solve,elform     ! Execute 1st phase of linear perturbation, recovering Kt of NLGEOM,on!\n')
+    cFile.write('!\n')
+    cFile.write('!\n')
+    cFile.write('!\n')
+
+    cFile.write('/com    SECOND PHASE OF LINEAR PERTURBATION!\n')
+
+    
+
+    cFile.write('MODOPT,LANB,' + str(num_modes) + ' \n')
+    cFile.write('EQSLV,SPAR \n')                                # check is this should be there or not
+    cFile.write('MXPAND,' + str(num_modes) + ', , ,1 \n')
+    # cFile.write('LUMPM,0 \n')                                # check is this should be there or not
+    # cFile.write('PSTRES,0 \n')                                # check is this should be there or not
+
+    # cFile.write('outres,esol,all !\n')
+    cFile.write('solve            ! Execute 2nd phase of linear perturbation: modal analysis!\n')
+
+    cFile.write('fini!\n')
+    cFile.write('!\n')
+    cFile.write('/post1!\n')
+    cFile.write('file,,rstp  ! Use *.rstp file to review results from linear perturbation!\n')
+    # cFile.write('set,list    ! It should list 3 eigen-modes!\n')
+    # cFile.write('set,last    ! List stresses of the 3rd mode!\n')
+    # cFile.write('esel,s,elem,,1!\n')
+    # cFile.write('etable,seqv,s,eqv!\n')
+    # cFile.write('allsel,all!\n')
+    # cFile.write('etable,seqv,s,eqv!\n')
+    # cFile.write('pretab,seqv!\n')
+    # cFile.write('finish!\n')
+    cFile.close()

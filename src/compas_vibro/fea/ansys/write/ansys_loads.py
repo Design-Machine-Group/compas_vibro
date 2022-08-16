@@ -193,10 +193,11 @@ def write_apply_acoustic_diffuse_field_load(structure, output_path, filename, lk
 
 
 def write_prestress(structure, path, filename):
-    
+    is_ptress = False
     lks = structure.loads.keys()
     for pk in lks:
         if structure.loads[pk].__name__ == 'Prestress':
+            is_ptress = True
             ps = structure.loads[pk]
             eks = ps.elements
             x = ps.components['x']
@@ -222,3 +223,4 @@ def write_prestress(structure, path, filename):
                     cFile.write('inistate,defi,{},,,,{},{},{},{},{},{}\n'.format(ek + 1, x, y, z, xx, yy, zz))
                     cFile.write('! \n')
                     cFile.close()
+    return is_ptress

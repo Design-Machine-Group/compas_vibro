@@ -15,6 +15,7 @@ from compas_vibro.structure.step import HarmonicFieldStep
 
 from compas_vibro.fea.ansys.write import write_command_file_static
 from compas_vibro.fea.ansys.write import write_command_file_modal
+from compas_vibro.fea.ansys.write import write_command_file_modal_prestressed
 from compas_vibro.fea.ansys.write import write_command_file_harmonic
 from compas_vibro.fea.ansys.write import write_command_file_harmonic_super
 from compas_vibro.fea.ansys.write import write_command_file_harmonic_field
@@ -83,11 +84,6 @@ def ansys_modal_prestressed(structure, fields, num_modes, license='introductory'
                      )
     structure.add(step)
 
-    # analyse and extraxt results ----------------------------------------------
-    write_command_file_static(structure, fields)
-    ansys_launch_process(structure, cpus=4, license=license, delete=True)
-
-
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
                      displacements=list(structure.displacements.keys()),
@@ -95,8 +91,8 @@ def ansys_modal_prestressed(structure, fields, num_modes, license='introductory'
     structure.add(step)
 
     # analyse and extraxt results ----------------------------------------------
-    write_command_file_modal(structure, fields, pstress='1')
-    ansys_launch_process(structure, cpus=4, license=license, delete=False)
+    write_command_file_modal_prestressed(structure, fields)
+    ansys_launch_process(structure, cpus=4, license=license, delete=True)
     extract_data(structure, fields, 'modal')
     return structure
 

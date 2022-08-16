@@ -26,8 +26,8 @@ def write_command_file_static(structure, fields):
     write_materials(structure, path, filename)
     write_nodes(structure, path, filename)
     write_elements(structure, path, filename)
-    write_prestress(structure, path, filename)
-    write_static_solve(structure, path, filename)
+    is_pstress = write_prestress(structure, path, filename)
+    write_static_solve(structure, path, filename,is_pstress)
     write_constraints(structure, 'static', path, filename)
     write_loads(structure, 'static', path, filename)
     write_loadstep(structure, path, filename)
@@ -35,14 +35,15 @@ def write_command_file_static(structure, fields):
     write_static_results(structure, fields, filename)
 
 
-def write_static_solve(structure, path, filename):
+def write_static_solve(structure, path, filename, is_pstress):
     cFile = open(os.path.join(path, filename), 'a')
     cFile.write('! \n')
     cFile.write('/SOLU ! \n')
     cFile.write('ERESX, NO \n')  # this copies IP results to nodes
     cFile.write('ANTYPE,0\n')
-    pstress = '1'
-    cFile.write('PSTRES,{} \n'.format(pstress))
+    if is_pstress:
+        cFile.write('PSTRES,1 \n')
+        cFile.write('rescontrol,,all,1  ! Get restart files for all substeps\n')
     cFile.write('!\n')
     if structure.step['static'].nlgeom:
         cFile.write('NLGEOM,ON\n')  # add automatic time steps and max substeps/increments
