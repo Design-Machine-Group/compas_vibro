@@ -6,13 +6,12 @@ from compas.geometry import centroid_points
 
 from compas.utilities import geometric_key
 
-from compas_vibro.structure.element import MassElement
 from compas_vibro.structure.element import ShellElement
 from compas_vibro.structure.element import BeamElement
 from compas_vibro.structure.element import TieElement
 from compas_vibro.structure.element import StrutElement
 from compas_vibro.structure.element import TrussElement
-
+from compas_vibro.structure.element import MassElement
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -227,5 +226,4 @@ class ElementMixins(object):
 
 
 if __name__ == "__main__":
-    for i in range(60):
-        print()
+    pass

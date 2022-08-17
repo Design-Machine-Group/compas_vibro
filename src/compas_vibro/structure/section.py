@@ -261,7 +261,7 @@ class TieSection(TrussSection):
         self.__name__ = 'TieSection'
 
 
-class MassSection(TrussSection):
+class MassSection(Section):
 
     """ For use with mass elements.
 
@@ -275,9 +275,11 @@ class MassSection(TrussSection):
     """
 
     def __init__(self, name, M):
-        MassSection.__init__(self, name=name, M=M)
+        Section.__init__(self, name=name)
 
         self.__name__ = 'MassSection'
+        self.name     = name
+        self.geometry = {'M': M}
 
 # ==============================================================================
 # 2D
