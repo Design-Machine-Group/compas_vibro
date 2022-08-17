@@ -40,19 +40,22 @@ def write_elements(structure, output_path, filename):
         if ep:
             section = ep.section
             material = ep.material
-
         if etype == 'ShellElement':
             write_shell4_elements(structure, output_path, filename, ekeys, section, material)
-        if etype == 'BeamElement':
+        elif etype == 'BeamElement':
             write_beam_elements(structure, output_path, filename, ekeys, section, material)
-        if etype == 'TieElement' or etype == 'StrutElement' or etype == 'TrussElement':
+        elif etype == 'TieElement' or etype == 'StrutElement' or etype == 'TrussElement':
             write_tie_elements(structure, output_path, filename, ekeys, section, material, etype)
-        if etype == 'SpringElement':
+        elif etype == 'SpringElement':
             write_spring_elements_nodal(structure, output_path, filename, ekeys, section)
-        if etype == 'FaceElement':
+        elif etype == 'FaceElement':
             write_surface_elements(structure, output_path, filename, ekeys)
-        if etype == 'SolidElement':
+        elif etype == 'SolidElement':
             write_solid_elements(structure, output_path, filename, ekeys, material)
+        elif etype == 'MassElement':
+            write_mass_elements(structure, output_path, filename, ekeys, section)
+        else:
+            raise NameError('The {} element type is not implemented in Ansys yet'.format(etype))
 
 
 def write_virtual_elements(structure, output_path, filename):
@@ -746,5 +749,25 @@ def write_spring_elements_nodal(structure, out_path, filename, ekeys, section):
             string = 'E, ' + str(int(element[0]) + 1) + ', ' + str(int(element[1]) + 1) + '\n'
             fh.write(string)
         fh.write('! \n')
+    fh.write('! \n')
+    fh.close()
+
+
+def write_mass_elements(structure, out_path, filename, ekeys, section):
+
+    etkey = structure.et_dict.setdefault('MASS21', len(structure.et_dict) + 1)
+    mass = structure.sections[section].geometry['M']
+
+    fh = open(os.path.join(out_path, filename), 'a')
+    fh.write('ET, {}, MASS21\n'.format(etkey))
+    fh.write('R, {0}, {1}, {1}, {1}\n'. format(etkey, mass))
+    fh.write('TYPE,{}\n'.format(etkey))
+    fh.write('REAL,{}\n'.format(etkey))
+
+    for ek in ekeys:
+        nodes = structure.elements[ek].nodes
+        for node in nodes:
+            fh.write('E, {} \n'.format(node))
+
     fh.write('! \n')
     fh.close()

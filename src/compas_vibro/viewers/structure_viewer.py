@@ -142,7 +142,7 @@ class StructureViewer(object):
         if frequencies:
             keys = frequencies
             plot_type = 'harmonic'
-        print('modes', modes)
+            
         steps = []
         for i in keys:
             name = self.structure.name

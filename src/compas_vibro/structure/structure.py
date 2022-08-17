@@ -214,7 +214,6 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         else:
             raise NameError('This backend is not implemented')
 
-
     def analyze_static(self, fields, backend='ansys', exe=None):
         if backend == 'ansys':
             ansys_static(self,fields)
@@ -282,7 +281,8 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         el_prop = self.element_properties[epk]
         material = el_prop.material
         section = el_prop.section
-        density = self.materials[material].p
+        if material:
+            density = self.materials[material].p
         if self.sections[section].__name__ == 'ShellSection':
             thick = self.sections[section].geometry['t']
             polygon = [self.nodes[nk].xyz() for nk in self.elements[element_key].nodes]
@@ -293,6 +293,8 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             u, v = self.elements[element_key].nodes
             length = distance_point_point(self.node_xyz(u), self.node_xyz(v))
             mass = area * length * density
+        elif self.sections[section].__name__ == 'MassSection':
+            mass = self.sections[section].geometry['M']
         return mass
 
     def compute_rad_power(self):
