@@ -8,7 +8,9 @@ __copyright__  = 'Copyright 2020, Design Machine Group - University of Washingto
 __license__    = 'MIT License'
 __email__      = 'tmendeze@uw.edu'
 
-from math import sqrt, pi
+from math import sqrt
+from math import pi
+from math import copysign
 
 import plotly.graph_objects as go
 
@@ -21,11 +23,11 @@ from compas.geometry import scale_vector
 from compas.geometry import add_vectors
 from compas.geometry import length_vector
 from compas.geometry import rotate_points
+from compas.geometry import dot_vectors
 
 # TODO: Add harmonic mode participation factors
 # TODO: Add modal effective masses
-# TODO: Add displacement colors also for modal and harmonic
-# TODO: Add static scale slider option
+# TODO: Add static scale slider option - THIS PROBABLY REQUIRES DASH
 # TODO: Add displacement colors for beam/link elements
 # TODO: Visualize prestress / colors with no results (initial condition)
 
@@ -54,7 +56,7 @@ class StructureViewer(object):
         self.modal_scale                = 4.
         self.harmonic_scale             = 2e7
         self.static_scale               = 2e5
-        self.displacement_colorscale    = 'Agsunset'
+        self.displacement_colorscale    = 'Portland' # 'Agsunset'
         self.bar_mode                   = 'displacements'
         self.beam_line_width            = 10
         self.show_legend                = True
@@ -112,6 +114,7 @@ class StructureViewer(object):
             vertices = [self.structure.nodes[vk].xyz() for vk in nodes]
         faces = [self.structure.elements[ek].nodes for ek in elements]
         self.mesh = Mesh.from_vertices_and_faces(vertices, faces)
+        self.mesh.cull_vertices()
 
     def make_layout(self):
         name = self.structure.name
@@ -582,23 +585,18 @@ class StructureViewer(object):
             colorscale = self.displacement_colorscale
             intensity_ = []
             text = []
-            if mode != None:
-                for nk in self.structure.nodes:
-                    dx = self.structure.results['modal'][mode].displacements['ux'][nk]
-                    dy = self.structure.results['modal'][mode].displacements['uy'][nk]
-                    dz = self.structure.results['modal'][mode].displacements['uz'][nk]
-                    lv = length_vector([dx, dy, dz])
-                    intensity_.append(lv)
-                    text.append(lv)
-            else:
-                for nk in self.structure.nodes:
-                    dx = self.structure.results['static'][0].displacements['ux'][nk]
-                    dy = self.structure.results['static'][0].displacements['uy'][nk]
-                    dz = self.structure.results['static'][0].displacements['uz'][nk]
-                    lv = length_vector([dx, dy, dz])
-                    intensity_.append(lv)
-                    text.append(lv)
-
+            if mode == None:
+                mode = 0
+            # for nk in self.structure.nodes:
+            for nk in mesh.vertex:
+                normal = mesh.vertex_normal(nk)
+                dx = self.structure.results['modal'][mode].displacements['ux'][nk]
+                dy = self.structure.results['modal'][mode].displacements['uy'][nk]
+                dz = self.structure.results['modal'][mode].displacements['uz'][nk]
+                vsign = copysign(1, dot_vectors([dx, dy, dz], normal))
+                lv = length_vector([dx, dy, dz]) * vsign
+                intensity_.append(lv)
+                text.append(lv)
 
         faces = [go.Mesh3d(name='Shell elements',
                            x=x,
