@@ -39,6 +39,7 @@ class StructureViewer(object):
         self.sliders                    = None
         self.show_point_loads           = True
         self.show_supports              = True
+        self.show_beams                 = True
         self.show_beam_sections         = True
         self.show_node_labels           = False
         self.show_rad_nodes             = False
@@ -63,11 +64,12 @@ class StructureViewer(object):
         n = 0
         if self.shell_elements:
             n += 2
-        if self.beam_elements:
-            if self.show_beam_sections:
-                n += 2
-            else:
-                n += 1
+        if self.show_beams:
+            if self.beam_elements:
+                if self.show_beam_sections:
+                    n += 2
+                else:
+                    n += 1
         return n
             
     def separate_element_types(self):
@@ -723,7 +725,7 @@ class StructureViewer(object):
         if self.shell_elements:
             self.plot_shell_shape()
 
-        if self.beam_elements:
+        if self.beam_elements and self.show_beams:
             if self.show_beam_sections:
                 self.plot_3d_beams(load_step=0)
             else:
@@ -747,7 +749,7 @@ class StructureViewer(object):
             if self.shell_elements:
                 self.plot_shell_shape(mode=mode)
             
-            if self.beam_elements:
+            if self.beam_elements and self.show_beams:
                 if self.show_beam_sections:
                     self.plot_3d_beams(mode=mode)
                 else:
@@ -774,7 +776,7 @@ class StructureViewer(object):
             if self.shell_elements:
                 self.plot_shell_shape()
             
-            if self.beam_elements:
+            if self.beam_elements and self.show_beams:
                 if self.show_beam_sections:
                     self.plot_3d_beams(frequency=f)
                 else:
