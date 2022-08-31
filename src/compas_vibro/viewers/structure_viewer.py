@@ -33,26 +33,30 @@ from compas.geometry import rotate_points
 class StructureViewer(object):
 
     def __init__(self, structure):
-        self.structure              = structure
-        self.data                   = []
-        self.layout                 = None
-        self.sliders                = None
-        self.show_point_loads       = True
-        self.show_supports          = True
-        self.show_beam_sections     = True
-        self.show_node_labels       = False
-        self.show_rad_nodes         = False
-        self.show_incident_nodes    = False
-        self.contains_supports      = False
-        self.beam_sec_names         = structure.beam_sections
+        self.structure                  = structure
+        self.data                       = []
+        self.layout                     = None
+        self.sliders                    = None
+        self.show_point_loads           = True
+        self.show_supports              = True
+        self.show_beam_sections         = True
+        self.show_node_labels           = False
+        self.show_rad_nodes             = False
+        self.show_incident_nodes        = False
+        self.contains_supports          = False
+        self.beam_sec_names             = structure.beam_sections
 
-        self.shell_elements         = []
-        self.beam_elements          = []
-        self.mesh                   = None
+        self.shell_elements             = []
+        self.beam_elements              = []
+        self.mesh                       = None
 
-        self.modal_scale            = 4.
-        self.harmonic_scale         = 2e7
-        self.static_scale           = 2e5
+        self.modal_scale                = 4.
+        self.harmonic_scale             = 2e7
+        self.static_scale               = 2e5
+        self.displacement_colorscale    = 'Agsunset'
+        self.bar_mode                   = 'displacements'
+        self.beam_line_width            = 10
+        self.show_legend                = True
 
     @property
     def num_traces(self):
@@ -494,7 +498,7 @@ class StructureViewer(object):
                 string += '{}: {}<br>'.format(att, val)
             text.append(string)
 
-        line_marker = dict(color='rgb(0,0,200)', width=20)
+        line_marker = dict(color='rgb(0,0,200)', width=self.beam_line_width)
         lines = [go.Scatter3d(x=x,
                               y=y,
                               z=z,
@@ -502,10 +506,11 @@ class StructureViewer(object):
                               text=text,
                               hoverinfo='text',
                               line=line_marker,
+                            #   lighting={'ambient': 1}
                               )]
         self.data.extend(lines)
 
-    def plot_shell_shape(self, bar_mode='properties'):
+    def plot_shell_shape(self, mode=None):
 
         mesh = self.mesh
         vertices, faces = mesh.to_vertices_and_faces()
@@ -542,7 +547,7 @@ class StructureViewer(object):
         y = [v[1] for v in vertices]
         z = [v[2] for v in vertices]
 
-        if bar_mode == 'properties':
+        if self.bar_mode == 'properties':
             showscale = False
             intensitymode = 'cell'
             colorscale = 'Emrld_r'
@@ -569,19 +574,28 @@ class StructureViewer(object):
                     intensity_.append(int(ep.is_rad) + .1)
                     text.append(string)
 
-        elif bar_mode == 'displacements':
+        elif self.bar_mode == 'displacements':
             showscale = True
             intensitymode = None
-            colorscale = 'Agsunset'
+            colorscale = self.displacement_colorscale
             intensity_ = []
             text = []
-            for nk in self.structure.nodes:
-                dx = self.structure.results['static'][0].displacements['ux'][nk]
-                dy = self.structure.results['static'][0].displacements['uy'][nk]
-                dz = self.structure.results['static'][0].displacements['uz'][nk]
-                lv = length_vector([dx, dy, dz])
-                intensity_.append(lv)
-                text.append(lv)
+            if mode != None:
+                for nk in self.structure.nodes:
+                    dx = self.structure.results['modal'][mode].displacements['ux'][nk]
+                    dy = self.structure.results['modal'][mode].displacements['uy'][nk]
+                    dz = self.structure.results['modal'][mode].displacements['uz'][nk]
+                    lv = length_vector([dx, dy, dz])
+                    intensity_.append(lv)
+                    text.append(lv)
+            else:
+                for nk in self.structure.nodes:
+                    dx = self.structure.results['static'][0].displacements['ux'][nk]
+                    dy = self.structure.results['static'][0].displacements['uy'][nk]
+                    dz = self.structure.results['static'][0].displacements['uz'][nk]
+                    lv = length_vector([dx, dy, dz])
+                    intensity_.append(lv)
+                    text.append(lv)
 
 
         faces = [go.Mesh3d(name='Shell elements',
@@ -592,7 +606,7 @@ class StructureViewer(object):
                            j=j,
                            k=k,
                            opacity=1.,
-                           colorbar_title='is_rad',
+                           colorbar_title=self.bar_mode,
                            colorbar_thickness=10,
                            colorscale=colorscale,
                            intensity=intensity_,
@@ -707,7 +721,7 @@ class StructureViewer(object):
         self.make_shell_mesh(load_step=0)
             
         if self.shell_elements:
-            self.plot_shell_shape(bar_mode='displacements')
+            self.plot_shell_shape()
 
         if self.beam_elements:
             if self.show_beam_sections:
@@ -731,7 +745,7 @@ class StructureViewer(object):
             self.make_shell_mesh(mode=mode)
             
             if self.shell_elements:
-                self.plot_shell_shape()
+                self.plot_shell_shape(mode=mode)
             
             if self.beam_elements:
                 if self.show_beam_sections:
@@ -749,6 +763,7 @@ class StructureViewer(object):
             fig.data[i].visible = False
 
         fig.update_layout(sliders=self.sliders)
+        fig.update_layout(showlegend=self.show_legend)
         fig.show()
 
     def show_harmonic(self):
@@ -809,7 +824,7 @@ if __name__ == '__main__':
 
     v = StructureViewer(s)
     v.modal_scale = 100
-    v.show_beam_sections = False
+    # v.show_beam_sections = False
     v.show('modal')
 
     
