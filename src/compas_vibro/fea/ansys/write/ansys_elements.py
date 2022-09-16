@@ -767,7 +767,7 @@ def write_mass_elements(structure, out_path, filename, ekeys, section):
     for ek in ekeys:
         nodes = structure.elements[ek].nodes
         for node in nodes:
-            fh.write('E, {} \n'.format(node))
+            fh.write('E, {} \n'.format( + 1))
 
     fh.write('! \n')
     fh.close()
