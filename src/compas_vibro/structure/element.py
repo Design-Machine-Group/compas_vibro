@@ -14,6 +14,7 @@ __all__ = ['ShellElement',
            'StrutElement',
            'TrussElement',
            'MassElement',
+           'SolidElement',
            ]
 
 
@@ -151,3 +152,20 @@ class MassElement(Element):
 if __name__ == "__main__":
     el = MassElement()
     print(el)
+
+
+class SolidElement(Element):
+
+    """ A 3D element that resists axial, shear, bending and torsion.
+
+    Parameters
+    ----------
+    None
+
+    """
+
+    def __init__(self):
+        Element.__init__(self)
+
+        self.__name__ = 'SolidElement'
+

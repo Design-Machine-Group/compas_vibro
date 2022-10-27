@@ -12,6 +12,7 @@ from compas_vibro.structure.element import TieElement
 from compas_vibro.structure.element import StrutElement
 from compas_vibro.structure.element import TrussElement
 from compas_vibro.structure.element import MassElement
+from compas_vibro.structure.element import SolidElement
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -28,6 +29,7 @@ func_dict = {'ShellElement': ShellElement,
              'StrutElement': StrutElement,
              'TrussElement': TrussElement,
              'MassElement': MassElement,
+             'SolidElement': SolidElement,
              }
 
 

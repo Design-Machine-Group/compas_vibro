@@ -127,8 +127,9 @@ def write_shell4_elements(structure, output_path, filename, ekeys, section, mate
 def write_solid_elements(structure, output_path, filename, ekeys, material):
     ekeys = sorted(ekeys, key=int)
     mat_index = structure.materials[material].index
-    etkey = structure.et_dict.setdefault('SOLID185', len(structure.et_dict) + 1)
-    write_set_element_material(output_path, filename, mat_index, 'SOLID185', etkey)
+    # etkey = structure.et_dict.setdefault('SOLID185', len(structure.et_dict) + 1)
+    etkey = structure.et_dict.setdefault('SOLID285', len(structure.et_dict) + 1)
+    write_set_element_material(output_path, filename, mat_index, 'SOLID285', etkey)
 
     cFile = open(os.path.join(output_path, filename), 'a')
     for ekey in ekeys:

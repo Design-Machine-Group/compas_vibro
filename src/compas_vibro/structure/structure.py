@@ -143,6 +143,37 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
         return ekeys
 
+    def add_nodes_elements_from_volmesh(self, volmesh, element_type='SolidElement', elset=None):
+
+        """ Adds the nodes and cells of a VolMesh to the Structure object.
+
+        Parameters
+        ----------
+        volmesh : obj
+            VolMesh datastructure object.
+        element_type : str
+            Element type: 'SolidElement', etc.
+
+        Returns
+        -------
+        list
+            Keys of the created elements.
+
+        """
+
+        for key in sorted(list(volmesh.vertices()), key=int):
+            self.add_node(volmesh.vertex_coordinates(key))
+
+        ekeys = []
+        for cell in volmesh.cells():
+            v = volmesh.cell_vertices(cell)
+            cell = [self.check_node_exists(volmesh.vertex_coordinates(i)) for i in volmesh.cell_vertices(cell)]
+            ekeys.append(self.add_element(nodes=cell, type=element_type))
+        if elset:
+            self.add_set(name=elset, type='element', selection=ekeys)
+
+        return ekeys
+
     def add_nodes_elements_from_lines(self, lines, element_type='BeamElement', elset=None, normal=[0,0,1]):
         ekeys = []
         for u, v in lines:
