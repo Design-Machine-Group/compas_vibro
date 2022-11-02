@@ -93,7 +93,6 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.inc_mesh               = None
         self.nl_geom                = False
 
-
     def __str__(self):
         string = ''
         num_modes = 0

@@ -20,7 +20,7 @@ path = compas_vibro.TEMP
 s = Structure(path, 'volmesh')
 s.add_nodes_elements_from_volmesh(vmesh, elset='tetra')
 
-nodes = list(vmesh.vertices_where({'z': (1, 10)}))
+nodes = list(vmesh.vertices_where({'z': (1, 100)}))
 load = PointLoad(name='pload', nodes=nodes, x=0, y=0, z=1000, xx=0, yy=0, zz=0)
 s.add(load)
 
@@ -40,5 +40,5 @@ el_prop = ElementProperties('concrete_tetra',
                             elset='tetra')
 s.add(el_prop)
 
-s.analyze_static(backend='ansys', fields=['u'])
-print(s)
+s.analyze_static(backend='ansys', fields=['u', 's', 'sp', 'ss', 'rf'])
+print(s.results['static'][0].displacements['um'])

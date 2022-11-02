@@ -74,6 +74,7 @@ def ansys_modal(structure, fields, num_modes, license='introductory'):
     extract_data(structure, fields, 'modal')
     return structure
 
+
 def ansys_modal_prestressed(structure, fields, num_modes, license='introductory'):
 
     # add static step -----------------------------------------------------------
