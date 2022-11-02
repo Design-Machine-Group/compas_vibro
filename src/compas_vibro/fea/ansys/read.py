@@ -183,5 +183,86 @@ def read_static_displacements(out_path):
     return sd
 
 
+def read_static_stresses(out_path):
+    filename = 'static_nodal_stresses.txt'
+    try:
+        sfile   = open(os.path.join(out_path, filename), 'r')
+    except(Exception):
+        return None
+
+    s = sfile.readlines()
+    stress_dict = {'sxt': {}, 'syt': {}, 'szt': {}, 'sxb': {}, 'syb': {}, 'szb': {}}
+    for i in range(len(s)):
+        s_string = s[i].split(',')
+        stress = list(map(float, s_string))
+        key = int(stress[0]) - 1
+        stress_dict['sxt'][key] = float(stress[4])
+        stress_dict['syt'][key] = float(stress[5])
+        stress_dict['szt'][key] = float(stress[6])
+        stress_dict['sxb'][key] = float(stress[1])
+        stress_dict['syb'][key] = float(stress[2])
+        stress_dict['szb'][key] = float(stress[3])
+
+    return stress_dict
+
+
+def read_principal_stresses(out_path):
+    filename = 'static_principal_stresses.txt'
+    psfile   = open(os.path.join(out_path, filename), 'r')
+    ps = psfile.readlines()
+
+    p_stress_dict = {'ps1t': {}, 'ps2t': {}, 'ps3t': {}, 'ps1b': {}, 'ps2b': {}, 'ps3b': {}}
+    for i in range(len(ps)):
+        psstring = ps[i].split(',')
+        p_stress = list(map(float, psstring))
+        key = int(p_stress[0]) - 1
+        p_stress_dict['ps1t'][key] = float(p_stress[4])
+        p_stress_dict['ps2t'][key] = float(p_stress[5])
+        p_stress_dict['ps3t'][key] = float(p_stress[6])
+        p_stress_dict['ps1b'][key] = float(p_stress[1])
+        p_stress_dict['ps2b'][key] = float(p_stress[2])
+        p_stress_dict['ps3b'][key] = float(p_stress[3])
+
+    return p_stress_dict
+
+
+def read_shear_stresses(out_path):
+    filename = 'static_shear_stresses.txt'
+    psfile = open(os.path.join(out_path, filename), 'r')
+    ss = psfile.readlines()
+    ss_dict = {'sxyt': {}, 'syzt': {}, 'sxzt': {}, 'sxyb': {}, 'syzb': {}, 'sxzb': {}}
+    for i in range(len(ss)):
+        ss_string = ss[i].split(',')
+        ss_stress = list(map(float, ss_string))
+        key = int(ss_stress[0]) - 1
+        ss_dict['sxyt'][key] = float(ss_stress[4])
+        ss_dict['syzt'][key] = float(ss_stress[5])
+        ss_dict['sxzt'][key] = float(ss_stress[6])
+        ss_dict['sxyb'][key] = float(ss_stress[1])
+        ss_dict['syzb'][key] = float(ss_stress[2])
+        ss_dict['sxzb'][key] = float(ss_stress[3])
+    return ss_dict
+
+
+def read_reactions(out_path):
+    filename = 'static_reactions.txt'
+    rfile   = open(os.path.join(out_path, filename), 'r')
+    r = rfile.readlines()
+    react_dict = {'rmx': {}, 'rmy': {}, 'rmz': {}, 'rfx': {}, 'rfy': {}, 'rfz': {}, 'rfm': {}}
+    for i in range(len(r)):
+        r_string = r[i].split(',')
+        reaction = list(map(float, r_string))
+        key = int(reaction[0]) - 1
+        if all(v == 0.0 for v in reaction) is False:
+            react_dict['rmx'][key] = float(reaction[4])
+            react_dict['rmy'][key] = float(reaction[5])
+            react_dict['rmz'][key] = float(reaction[6])
+            react_dict['rfx'][key] = float(reaction[1])
+            react_dict['rfy'][key] = float(reaction[2])
+            react_dict['rfz'][key] = float(reaction[3])
+            react_dict['rfm'][key] = length_vector([reaction[1], reaction[2], reaction[3]])
+    return react_dict
+
+
 if __name__ == '__main__':
     pass

@@ -41,4 +41,5 @@ el_prop = ElementProperties('concrete_tetra',
 s.add(el_prop)
 
 s.analyze_static(backend='ansys', fields=['u', 's', 'sp', 'ss', 'rf'])
-print(s.results['static'][0].displacements['um'])
+
+print(s.results['static'][0].reactions.keys())

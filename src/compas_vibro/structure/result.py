@@ -48,6 +48,10 @@ class Result(object):
         self.velocities             = {}
         self.radiated_p             = {}
         self.radiated_p_faces       = {}
+        self.stresses               = {}
+        self.principal_stresses     = {}
+        self.shear_stresses         = {}
+        self.reactions              = {}
 
     def __str__(self):
         return TPL.format(self.frequency, self.type)

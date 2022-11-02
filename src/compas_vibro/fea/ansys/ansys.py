@@ -28,6 +28,10 @@ from compas_vibro.fea.ansys.read import read_harmonic_displacements
 from compas_vibro.fea.ansys.read import read_harmonic_displacements_field
 from compas_vibro.fea.ansys.read import read_modal_coordinates
 from compas_vibro.fea.ansys.read import read_static_displacements
+from compas_vibro.fea.ansys.read import read_static_stresses
+from compas_vibro.fea.ansys.read import read_principal_stresses
+from compas_vibro.fea.ansys.read import read_shear_stresses
+from compas_vibro.fea.ansys.read import read_reactions
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -235,12 +239,23 @@ def extract_data(structure, fields, results_type):
             structure.results['harmonic'][k].modal_coordinates = ncd[k]
 
     if results_type =='static':
-        structure.results['static'] = {}
+        result = Result('static', name='VibroResult', type='static')
+        structure.results['static'] = {0: result}
         if 'u' in fields or 'all' in fields:
-            structure.results['static'] = {}
-            sd = read_static_displacements(out_path)
-            structure.results['static'][0]  = Result('static', name='VibroResult'.format(0), type='static')
-            structure.results['static'][0].displacements = sd
+            ud = read_static_displacements(out_path)
+            structure.results['static'][0].displacements = ud
+        if 's' in fields or 'all' in fields:
+            sd = read_static_stresses(out_path)
+            structure.results['static'][0].stresses = sd
+        if 'sp' in fields or 'all' in fields:
+            spd = read_principal_stresses(out_path)
+            structure.results['static'][0].principal_stresses = spd
+        if 'ss' in fields or 'all' in fields:
+            ssd = read_shear_stresses(out_path)
+            structure.results['static'][0].shear_stresses = ssd
+        if 'rf' in fields or 'all' in fields:
+            rfd = read_reactions(out_path)
+            structure.results['static'][0].reactions = rfd
     return structure
 
 
@@ -313,7 +328,6 @@ def create_results_folders(structure, work_dir):
             out_path = os.path.join(work_dir, 'freq_{}'.format(skey))
             if not os.path.exists(out_path):
                 os.makedirs(out_path)
-
 
 
 if __name__ == '__main__':
