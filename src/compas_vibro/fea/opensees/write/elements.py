@@ -54,6 +54,8 @@ def write_elements(structure, path, filename):
             write_beams(structure, path, filename, ekeys, section, material)
         if etype == 'TrussElement':
             write_trusses(structure, path, filename, ekeys, section, material)
+        if etype == 'SolidElement':
+            write_solids(structure, path, filename, ekeys, section, material)
 
 def write_beams(structure, path, filename, ekeys, section, material):
     fh = open(os.path.join(path, filename), 'a')
@@ -79,7 +81,6 @@ def write_beams(structure, path, filename, ekeys, section, material):
         ex = structure.elements[ek].axes['x']
         fh.write('geomTransf Corotational {0} {1} \n'.format(n, ' '.join([str(i) for i in ex])))
         fh.write('{} {} {} {} {} {} {} {} {} {} {} {} \n'.format(e, n, nodes[0], nodes[1], A, E, G, J, Ixx, Iyy, n, mass))
-
 
 
 def write_trusses(structure, path, filename, ekeys, section, material):
@@ -123,4 +124,27 @@ def write_shells(structure, path, filename, ekeys, section, material):
 
     # fh.write('puts \"End Elements \"\n')  # printouts from opensees
 
+    fh.close()
+
+
+def write_solids(structure, path, filename, ekeys, section, material):
+    fh = open(os.path.join(path, filename), 'a')
+    fh.write('#\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('# Solid elements\n')
+    fh.write('#-{} \n'.format('-'*80))
+    fh.write('#\n')
+
+    string_tetra = 'element FourNodeTetrahedron {0} {1} {2} {3} {4} {5} \n' # not finished!
+    # string_cube = 'element Block3D {0} {1} {2} {3} {4} \n' # not finished!
+    for ek in ekeys:
+        nodes = structure.elements[ek].nodes
+        # t = structure.sections[section].geometry['t']
+        mat = structure.materials[material].index + 1
+        # sec = structure.sections[section].index + 1
+        if len(nodes) == 4:
+            i, j, k, l = structure.elements[ek].nodes
+            fh.write(string_tetra.format(ek + 1, i + 1, j + 1, k + 1, l + 1, mat))
+        else:
+            pass
     fh.close()

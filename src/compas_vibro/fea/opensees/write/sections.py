@@ -14,7 +14,7 @@ __all__ = ['write_section']
 
 
 def write_section(structure, path, filename, section, ep_key):
-    ok_sections = ['BoxSection', 'RectangularSection', 'ISection']
+    ok_sections = ['BoxSection', 'RectangularSection', 'ISection','SolidSection']
     sec_type = section.__name__
     if  sec_type == 'ShellSection':
         write_shell_section(structure, path, filename, section, ep_key)
