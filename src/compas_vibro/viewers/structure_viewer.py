@@ -51,6 +51,7 @@ class StructureViewer(object):
 
         self.shell_elements             = []
         self.beam_elements              = []
+        self.solid_elements             = []
         self.mesh                       = None
 
         self.modal_scale                = 4.
@@ -83,7 +84,13 @@ class StructureViewer(object):
                 if el_keys == None:
                     elset = self.structure.element_properties[epk].elset
                     el_keys = self.structure.sets[elset].selection
-                self.shell_elements.extend(el_keys)        
+                self.shell_elements.extend(el_keys)
+            elif sec_name == 'SolidSection':
+                el_keys = self.structure.element_properties[epk].elements
+                if el_keys == None:
+                    elset = self.structure.element_properties[epk].elset
+                    el_keys = self.structure.sets[elset].selection
+                self.solid_elements.extend(el_keys)
 
             elif  sec_name in self.beam_sec_names:
                 el_keys = self.structure.element_properties[epk].elements
@@ -817,7 +824,8 @@ if __name__ == '__main__':
     # file = 'shell_beams_modal.obj'
     # file = 'shell_beams_harmonic.obj'
     # file = 'shell_boxbeams_modal.obj'
-    file = 'flat_web.obj'
+    # file = 'flat_web.obj'
+    file = 'volmesh.obj'
     fp = os.path.join(compas_vibro.DATA, 'structures', file)
     # fp = os.path.join(compas_vibro.TEMP, file)
     s = Structure.from_obj(fp)
@@ -825,6 +833,5 @@ if __name__ == '__main__':
     v = StructureViewer(s)
     v.modal_scale = 100
     # v.show_beam_sections = False
-    v.show('modal')
-
+    v.show()
     

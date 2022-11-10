@@ -24,7 +24,7 @@ nodes = list(vmesh.vertices_where({'z': (1, 100)}))
 load = PointLoad(name='pload', nodes=nodes, x=0, y=0, z=1000, xx=0, yy=0, zz=0)
 s.add(load)
 
-d = FixedDisplacement('boundary', vmesh.vertices_where({'z':(-1, 0.001)}))
+d = FixedDisplacement('boundary', list(vmesh.vertices_where({'z':(-1, 0.001)})))
 s.add(d)
 
 section = SolidSection('solid_sec')
@@ -39,6 +39,7 @@ el_prop = ElementProperties('concrete_tetra',
                             section='solid_sec',
                             elset='tetra')
 s.add(el_prop)
+
 
 s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
 

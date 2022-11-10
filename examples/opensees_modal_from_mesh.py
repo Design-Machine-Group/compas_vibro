@@ -56,7 +56,7 @@ exe = '/Applications/OpenSees3.3.0/bin/OpenSees'
 s.analyze_modal(backend='opensees', fields=['f', 'u', 'm'], num_modes=12, exe=exe)
 # s.analyze_modal(backend='opensees', fields=['m'], num_modes=12)
 
-# s.to_obj()
+s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
 v = StructureViewer(s)
 v.modal_scale = 40
 v.show('modal')
