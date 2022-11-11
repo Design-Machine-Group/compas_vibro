@@ -20,7 +20,7 @@ def write_command_file_static(structure, fields):
     path = structure.path
     filename = structure.name + '.tcl'
 
-    write_heading(path, filename)
+    write_heading(structure, path, filename)
     write_nodes(structure, path, filename)
     write_displacements(structure, path, filename)
 
@@ -53,14 +53,18 @@ def write_static_loads(structure, path, filename):
             if type(nodes) == int:
                 nodes = [nodes]
             for vk in nodes:
+                vk_ = int(vk) + 1
                 x = l.components['x']
                 y = l.components['y']
                 z = l.components['z']
-                xx = l.components['xx']
-                yy = l.components['yy']
-                zz = l.components['zz']
-                vk_ = int(vk) + 1
-                fh.write('load {0} {1} {2} {3} {4} {5} {6}\n'.format(vk_, x, y, z, xx, yy, zz))
+                if structure.num_dof == 6:
+                    xx = l.components['xx']
+                    yy = l.components['yy']
+                    zz = l.components['zz']
+                    
+                    fh.write('load {0} {1} {2} {3} {4} {5} {6}\n'.format(vk_, x, y, z, xx, yy, zz))
+                else:
+                    fh.write('load {0} {1} {2} {3}\n'.format(vk_, x, y, z))
     fh.write('}\n')
     fh.write('#\n')
     fh.close()

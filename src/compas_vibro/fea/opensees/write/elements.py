@@ -136,7 +136,7 @@ def write_solids(structure, path, filename, ekeys, section, material):
     fh.write('#\n')
 
     string_tetra = 'element FourNodeTetrahedron {0} {1} {2} {3} {4} {5} \n' # not finished!
-    # string_cube = 'element Block3D {0} {1} {2} {3} {4} \n' # not finished!
+    # string_cube = 'element stdBrick {0} {1} {2} {3} {4} \n' # not finished!
     for ek in ekeys:
         nodes = structure.elements[ek].nodes
         # t = structure.sections[section].geometry['t']

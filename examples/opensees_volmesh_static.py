@@ -18,6 +18,7 @@ vmesh = VolMesh.from_json(fp)
 
 path = compas_vibro.TEMP
 s = Structure(path, 'volmesh')
+s.num_dof = 3
 s.add_nodes_elements_from_volmesh(vmesh, elset='tetra')
 
 nodes = list(vmesh.vertices_where({'z': (1, 100)}))
@@ -41,9 +42,9 @@ el_prop = ElementProperties('concrete_tetra',
 s.add(el_prop)
 
 
-s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
+# s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
 
-# exe = '/Applications/OpenSees3.3.0/bin/OpenSees'
-# s.analyze_static(backend='opensees', fields=['u'], exe=exe)
+exe = '/Applications/OpenSees3.3.0/bin/OpenSees'
+s.analyze_static(backend='opensees', fields=['u'], exe=exe)
 
-# print(s.results['static'][0].reactions.keys())
+print(s.results['static'][0].reactions.keys())

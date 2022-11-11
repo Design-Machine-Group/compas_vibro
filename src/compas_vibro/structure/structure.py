@@ -92,6 +92,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
                                        ]
         self.inc_mesh               = None
         self.nl_geom                = False
+        self.num_dof                = 6
 
     def __str__(self):
         string = ''
