@@ -79,19 +79,12 @@ class StructureViewer(object):
         for epk in self.structure.element_properties:
             section = self.structure.element_properties[epk].section
             sec_name = self.structure.sections[section].__name__
-            if  sec_name == 'ShellSection':
+            if  sec_name == 'ShellSection' or sec_name == 'SolidSection':
                 el_keys = self.structure.element_properties[epk].elements
                 if el_keys == None:
                     elset = self.structure.element_properties[epk].elset
                     el_keys = self.structure.sets[elset].selection
                 self.shell_elements.extend(el_keys)
-            elif sec_name == 'SolidSection':
-                el_keys = self.structure.element_properties[epk].elements
-                if el_keys == None:
-                    elset = self.structure.element_properties[epk].elset
-                    el_keys = self.structure.sets[elset].selection
-                self.solid_elements.extend(el_keys)
-
             elif  sec_name in self.beam_sec_names:
                 el_keys = self.structure.element_properties[epk].elements
                 if el_keys == None:
@@ -579,7 +572,10 @@ class StructureViewer(object):
                     elif att == 'material':
                         val = ep.material
                     elif att == 'thickess':
-                        val = self.structure.sections[ep.section].geometry['t']
+                        if 't' in self.structure.sections:
+                            val = self.structure.sections[ep.section].geometry['t']
+                        else:
+                            val = ''
                     string += '{}: {}<br>'.format(att, val)
                 text.append(string)
                 if len(self.structure.elements[ek].nodes) == 4:
@@ -805,6 +801,7 @@ class StructureViewer(object):
         self.make_layout()
 
         if result == None:
+            self.bar_mode = 'properties'
             self.show_structure()
         elif result == 'modal' or result == 'Modal':
             self.show_modal()
@@ -831,7 +828,8 @@ if __name__ == '__main__':
     s = Structure.from_obj(fp)
 
     v = StructureViewer(s)
-    v.modal_scale = 100
+    # v.modal_scale = 100
     # v.show_beam_sections = False
+    v.show_node_labels = True
     v.show()
     
