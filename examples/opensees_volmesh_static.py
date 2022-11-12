@@ -8,6 +8,7 @@ from compas_vibro.structure import SolidSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 
+from compas_vibro.viewers import StructureViewer
 
 from compas.datastructures import VolMesh
 
@@ -21,7 +22,7 @@ s = Structure(path, 'volmesh')
 s.num_dof = 3
 s.add_nodes_elements_from_volmesh(vmesh, elset='tetra')
 
-nodes = list(vmesh.vertices_where({'z': (1, 100)}))
+nodes = list(vmesh.vertices_where({'z': (5.9, 100)}))
 load = PointLoad(name='pload', nodes=nodes, x=0, y=0, z=1000, xx=0, yy=0, zz=0)
 s.add(load)
 
@@ -42,9 +43,14 @@ el_prop = ElementProperties('concrete_tetra',
 s.add(el_prop)
 
 
-# s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
+s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
 
 exe = '/Applications/OpenSees3.3.0/bin/OpenSees'
 s.analyze_static(backend='opensees', fields=['u'], exe=exe)
 
 print(s.results['static'][0].reactions.keys())
+
+v = StructureViewer(s)
+v.show_node_labels = True
+v.show()
+    
