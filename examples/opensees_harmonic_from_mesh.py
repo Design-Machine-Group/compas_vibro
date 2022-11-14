@@ -15,7 +15,7 @@ from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 
-from compas_vibro.viewers import HarmonicViewer
+from compas_vibro.viewers import StructureViewer
 
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
@@ -31,7 +31,7 @@ path = compas_vibro.TEMP
 geometry = 'flat_mesh_20x20'
 name = 'opensees_{0}_harmonic'.format(geometry)
 
-mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
+mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry)))
 
 # make an instance of the stucture object - - - - - - - - - - - - - - - - - - - 
 s = Structure(path, name) 
@@ -66,9 +66,8 @@ s.add(el_prop)
 freq_list = range(100, 500, 2)
 
 # analyze - - - - 
-s.analyze_harmonic(freq_list, fields=['u'], backend='opensees')
+exe = '/Applications/OpenSees3.3.0/bin/OpenSees'
+s.analyze_harmonic(freq_list, fields=['u'], backend='opensees', exe=exe)
 
-# save results - - - - - - 
-s.to_obj()
-
-#   
+v = StructureViewer(s)
+v.show('harmonic')

@@ -23,7 +23,7 @@ def write_command_file_harmonic(structure, fields):
     path = structure.path
     filename = structure.name + '.tcl'
 
-    write_heading(path, filename)
+    write_heading(structure, path, filename)
     write_nodes(structure, path, filename)
     write_displacements(structure, path, filename)
 

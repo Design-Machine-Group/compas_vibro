@@ -822,7 +822,7 @@ if __name__ == '__main__':
     # file = 'shell_beams_harmonic.obj'
     # file = 'shell_boxbeams_modal.obj'
     # file = 'flat_web.obj'
-    file = 'volmesh.obj'
+    # file = 'volmesh.obj'
     fp = os.path.join(compas_vibro.DATA, 'structures', file)
     # fp = os.path.join(compas_vibro.TEMP, file)
     s = Structure.from_obj(fp)
@@ -830,6 +830,6 @@ if __name__ == '__main__':
     v = StructureViewer(s)
     # v.modal_scale = 100
     # v.show_beam_sections = False
-    v.show_node_labels = True
-    v.show()
+    v.show_node_labels = False
+    v.show('modal')
     
