@@ -57,12 +57,13 @@ class GMSH(object):
             v = self.mesh.face_vertices(fk)
             ek = [self.half_edges[v[-i], v[-i - 1]] for i in range(len(v))]
             a = gmsh.model.geo.add_curve_loop(ek, fk + 1)
-            # print(a)
 
     def gmsh_add_plane_surfaces(self):
         for fk in self.mesh.faces():
-            # gmsh.model.geo.addPlaneSurface([fk + 1], fk + 1)
-            gmsh.model.geo.addSurfaceFilling([fk + 1], fk + 1)
+            if len(self.mesh.face_vertices(fk)) > 4:
+                gmsh.model.geo.addPlaneSurface([fk + 1], fk + 1)
+            else:
+                gmsh.model.geo.addSurfaceFilling([fk + 1], fk + 1)
 
 
 def remesh_mesh(mesh, size):
