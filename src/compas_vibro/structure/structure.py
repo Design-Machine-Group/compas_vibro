@@ -55,6 +55,9 @@ Number of Harmonic Freqs. --- {}
 Number of Rad. Pow. Freqs. -- {}
 """
 
+# TODO: The function that adds beams from lines should be done considering
+#       previous meshes, if lines go by meshes, beams should be divided. 
+
 
 class Structure(NodeMixins, ElementMixins, ObjectMixins):
 
