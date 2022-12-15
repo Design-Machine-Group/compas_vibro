@@ -57,7 +57,7 @@ class StructureViewer(object):
         self.modal_scale                = 4.
         self.harmonic_scale             = 2e7
         self.static_scale               = 2e5
-        self.displacement_colorscale    = 'Portland' # 'Agsunset'
+        self.displacement_colorscale    =  'inferno'  # 'rainbow'  #'Portland' # 'Agsunset'
         self.bar_mode                   = 'displacements'
         self.beam_line_width            = 10
         self.show_legend                = True
@@ -124,17 +124,20 @@ class StructureViewer(object):
                                     xaxis=dict(
                                                gridcolor='rgb(255, 255, 255)',
                                                zerolinecolor='rgb(255, 255, 255)',
-                                               showbackground=True,
+                                               showbackground=False,
+                                               showgrid=False,
                                                backgroundcolor='rgb(230, 230,230)'),
                                     yaxis=dict(
                                                gridcolor='rgb(255, 255, 255)',
                                                zerolinecolor='rgb(255, 255, 255)',
-                                               showbackground=True,
+                                               showbackground=False,
+                                               showgrid=False,
                                                backgroundcolor='rgb(230, 230,230)'),
                                     zaxis=dict(
                                                gridcolor='rgb(255, 255, 255)',
                                                zerolinecolor='rgb(255, 255, 255)',
-                                               showbackground=True,
+                                               showbackground=False,
+                                               showgrid=False,
                                                backgroundcolor='rgb(230, 230,230)')
                                     ),
                           showlegend=True,
@@ -521,14 +524,19 @@ class StructureViewer(object):
         vertices, faces = mesh.to_vertices_and_faces()
         elements = self.shell_elements
 
+        linecolor = 'rgb(100,100,100)'  #'rgb(255,255,255)'
         edges = [[mesh.vertex_coordinates(u), mesh.vertex_coordinates(v)] for u,v in mesh.edges()]
-        line_marker = dict(color='rgb(0,0,0)', width=1.5)
+        line_marker = dict(color=linecolor, width=2)
         lines = []
         x, y, z = [], [],  []
         for u, v in edges:
             x.extend([u[0], v[0], [None]])
             y.extend([u[1], v[1], [None]])
             z.extend([u[2], v[2], [None]])
+
+        # x = []
+        # y = []
+        # z = []
 
         lines = [go.Scatter3d(name='Shell elements',
                               x=x,
@@ -823,12 +831,13 @@ if __name__ == '__main__':
     # file = 'shell_boxbeams_modal.obj'
     # file = 'flat_web.obj'
     # file = 'volmesh.obj'
+    file = 'opensees_flat_mesh_100x100_modal.obj'
     fp = os.path.join(compas_vibro.DATA, 'structures', file)
     # fp = os.path.join(compas_vibro.TEMP, file)
     s = Structure.from_obj(fp)
 
     v = StructureViewer(s)
-    # v.modal_scale = 100
+    v.modal_scale = 40
     # v.show_beam_sections = False
     v.show_node_labels = False
     v.show('modal')

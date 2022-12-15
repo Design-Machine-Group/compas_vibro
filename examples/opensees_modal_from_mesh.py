@@ -27,8 +27,7 @@ __version__ = "0.1.0"
 for i in range(60): print('')
 
 path = compas_vibro.TEMP
-# geometry = 'pringle'
-geometry = 'flat_mesh_20x20'
+geometry = 'flat_mesh_100x100'
 name = 'opensees_{0}_modal'.format(geometry)
 
 mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry)))
@@ -36,7 +35,16 @@ s = Structure(path, name)
 
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
-d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
+for vk in mesh.vertices():
+    d = mesh.vertex_degree(vk)
+    mesh.vertex_attribute(vk, 'degree', d)
+corners = list(mesh.vertices_where({'degree':2}))
+
+
+# # bound = mesh.vertices_on_boundary()
+
+
+d = FixedDisplacement('boundary', corners)
 s.add(d)
 
 section = ShellSection('shell_sec', t=.2)
