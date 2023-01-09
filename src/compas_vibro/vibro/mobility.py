@@ -174,6 +174,61 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     return freqs, rs
 
 
+def compute_mobility_based_r_measured():
+
+    # mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
+    # rad_mats = compute_radiation_matrices(structure)
+    # spec_mats = compute_cross_spectral_matrices(structure)
+    # rad_mesh = structure.radiating_mesh()
+    # rad_nks = structure.radiating_nodes()
+    # inc_mesh = structure.inc_mesh
+    # inc_nks = structure.incident_nodes()
+    
+
+    # gk_dict = {geometric_key(inc_mesh.vertex_coordinates(nk)): nk for nk in inc_mesh.vertices()}
+    # inc_nks_ = [gk_dict[geometric_key(structure.node_xyz(nk))] for nk in inc_nks]
+    # areas_inc = [inc_mesh.vertex_area(nk) for nk in inc_nks_]
+    # dS_inc = make_diagonal_area_matrix(areas_inc)
+    # S_inc = np.trace(dS_inc)
+
+    # areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
+    # dS_rad = make_diagonal_area_matrix(areas_rad)
+    # S_rad = np.trace(dS_rad)
+    
+    # print('area check', S_inc, S_rad)
+
+    # rho = structure.rho
+    # c = structure.c
+
+    freqs = []
+    rs = []
+    # structure.results['mob_radiation'] = {}
+    # for i, fkey in enumerate(structure.results['harmonic']):
+    #     f = structure.results['harmonic'][fkey].frequency
+    #     H = mob_mats[i].transpose()
+    #     H_ = np.conjugate(np.transpose(H))
+    #     Z = rad_mats[i]
+    #     Gd = spec_mats[i]
+
+    #     A = np.matmul(Z, H)
+    #     A1 = np.matmul(A, dS_inc)
+    #     B = np.matmul(A1, Gd)
+    #     C = np.matmul(B, dS_inc)
+    #     D = np.matmul(C, H_)
+    #     E = np.matmul(dS_rad, np.real(D))
+    #     F = ((8 * rho * c ) / S_inc) * np.trace(E)
+    #     R = -10 * np.log10(F)
+    
+    #     freqs.append(f)
+    #     rs.append(R)
+
+    #     structure.results['mob_radiation'][fkey] = compas_vibro.structure.result.Result(f) 
+    #     structure.results['mob_radiation'][fkey].radiated_p = R
+    return freqs, rs
+
+
+
+
 if __name__ == '__main__':
     import os
     import compas_vibro
