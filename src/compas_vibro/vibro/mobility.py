@@ -174,9 +174,31 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     return freqs, rs
 
 
-def compute_mobility_based_r_measured():
+def compute_mobility_based_r_measured(data, folders):
 
-    # mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
+    num_inc = len(data)
+    
+    key_rad = list(data.keys())[0]
+    num_rad  = len(data[key_rad])
+
+    key_freq = list(data[key_rad].keys())[0]
+    num_freq = len(data[key_rad][key_freq]['mobility'])
+
+    print(num_inc, num_rad, num_freq)
+
+    mob_mats = []
+    for fi in range(num_freq):
+        temp = []
+        for inc_i in range(num_inc):
+            temp_ =[]
+            for rad_i in range(num_rad):
+                # f = data[folders[inc_i]][rad_i]['mobility'][fi]['frequency']
+                h = data[folders[inc_i]][rad_i]['mobility'][fi]['mobility']
+                temp_.append(h)
+            temp.append(temp_)
+        mob_mats.append(np.array(temp))
+
+
     # rad_mats = compute_radiation_matrices(structure)
     # spec_mats = compute_cross_spectral_matrices(structure)
     # rad_mesh = structure.radiating_mesh()
@@ -236,33 +258,33 @@ if __name__ == '__main__':
     from compas_vibro.viewers import StructureViewer
     import plotly.graph_objects as go
 
-    g1 = '20x20_structure_t20_inc_mesh'
-    g2 = '20x20_structure_t20_all_inc'
+    # g1 = '6x6_structure_t20_inc_mesh'
+    # g2 = '6x6_structure_t20_all_inc'
 
-    lines_list = []
-    for geometry in [g1, g2]:
-        s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '5x4m_concrete', '{}.obj'.format(geometry)))
+    # lines_list = []
+    # for geometry in [g1]:
+    #     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '5x4m_concrete', '{}.obj'.format(geometry)))
 
-        v = StructureViewer(s)
-        v.show_rad_nodes = True
-        v.show_incident_nodes = True
-        v.show()
+    #     # v = StructureViewer(s)
+    #     # v.show_rad_nodes = True
+    #     # v.show_incident_nodes = True
+    #     # v.show()
 
-        freq_list = list(range(20, 300, 8))
-        damping=.02
-        fx = 0
-        fy = 0
-        fz = 1
-        freqs, rs = compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
+    #     freq_list = list(range(20, 300, 8))
+    #     damping=.02
+    #     fx = 0
+    #     fy = 0
+    #     fz = 1
+    #     freqs, rs = compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
 
-        lines = go.Scatter(x=freqs, y=rs, mode='lines', name='R_{}'.format(geometry))
-        lines_list.append(lines)
+    #     lines = go.Scatter(x=freqs, y=rs, mode='lines', name='R_{}'.format(geometry))
+    #     lines_list.append(lines)
 
-    fig = go.Figure(data=lines_list)
-    fig.update_layout(title_text=geometry)
-    fig.show()
+    # fig = go.Figure(data=lines_list)
+    # fig.update_layout(title_text=geometry)
+    # fig.show()
 
 
-    # path = os.path.join(compas_vibro.DATA, 'structures')
-    # name = '{}_mobility'.format(geometry)
-    # s.to_obj(path=path, name=name)
+    # # path = os.path.join(compas_vibro.DATA, 'structures')
+    # # name = '{}_mobility'.format(geometry)
+    # # s.to_obj(path=path, name=name)
