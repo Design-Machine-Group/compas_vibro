@@ -89,15 +89,8 @@ def compute_cross_spectral_matrices(structure):
 
 
 def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend='ansys', num_modes=20):
+    
     structure.analyze_modal(['u'], backend=backend, num_modes=num_modes)
-
-    #TODO: These areas should be calculated with the incident mesh, not structure (areas will be smaller)
-    #TODO: Write function to make incident mesh
-    #TODO: Figure out if the incident mesh actually matters
-    # TODO: veryfy which S is correct in computing F
-
-    for fk in structure.results['modal']:
-        print(fk, structure.results['modal'][fk].frequency)
 
     mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
     rad_mats = compute_radiation_matrices(structure)
@@ -115,8 +108,6 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
         areas_inc = [inc_mesh.vertex_area(nk) for nk in inc_nks_]
         dS_inc = make_diagonal_area_matrix(areas_inc)
         S_inc = np.trace(dS_inc)
-
-        
 
         areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
         dS_rad = make_diagonal_area_matrix(areas_rad)
@@ -143,7 +134,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
             C = np.matmul(B, dS_inc)
             D = np.matmul(C, H_)
             E = np.matmul(dS_rad, np.real(D))
-            F = ((8 * rho * c ) / S_inc) * np.trace(E)  # this S could be either, inc is lower than rad. 
+            F = ((8 * rho * c ) / S_inc) * np.trace(E)
             R = -10 * np.log10(F)
         
             freqs.append(f)
@@ -180,19 +171,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
             structure.results['mob_radiation'][fkey] = compas_vibro.structure.result.Result(f) 
             structure.results['mob_radiation'][fkey].radiated_p = R
 
-    import plotly.graph_objects as go
-    l1 = go.Scatter(x=freqs, y=rs, mode='lines', name='R')
-    fig = go.Figure(data=[l1])
-    fig.update_layout(title_text=geometry)
-    fig.show()
-
-
-def compute_mobility_based_r_sym(structure, freq_list, damping, fx, fy, fz, backend='ansys', num_modes=20):
-    structure.analyze_modal(['u'], backend=backend, num_modes=num_modes)
-
-    mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
-    rad_mats = compute_radiation_matrices(structure)
-    spec_mats = compute_cross_spectral_matrices(structure)
+    return freqs, rs
 
 
 if __name__ == '__main__':
@@ -200,22 +179,34 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
     from compas_vibro.viewers import StructureViewer
+    import plotly.graph_objects as go
 
-    geometry = '20x20_structure_t20_inc_mesh'
+    g1 = '20x20_structure_t20_inc_mesh'
+    g2 = '20x20_structure_t20_all_inc'
 
-    s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '5x4m_concrete', '{}.obj'.format(geometry)))
+    lines_list = []
+    for geometry in [g1, g2]:
+        s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '5x4m_concrete', '{}.obj'.format(geometry)))
 
-    # v = StructureViewer(s)
-    # v.show_rad_nodes = True
-    # v.show_incident_nodes = True
-    # v.show()
+        v = StructureViewer(s)
+        v.show_rad_nodes = True
+        v.show_incident_nodes = True
+        v.show()
 
-    freq_list = list(range(20, 300, 2))
-    damping=.02
-    fx = 0
-    fy = 0
-    fz = 1
-    compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
+        freq_list = list(range(20, 300, 8))
+        damping=.02
+        fx = 0
+        fy = 0
+        fz = 1
+        freqs, rs = compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
+
+        lines = go.Scatter(x=freqs, y=rs, mode='lines', name='R_{}'.format(geometry))
+        lines_list.append(lines)
+
+    fig = go.Figure(data=lines_list)
+    fig.update_layout(title_text=geometry)
+    fig.show()
+
 
     # path = os.path.join(compas_vibro.DATA, 'structures')
     # name = '{}_mobility'.format(geometry)
