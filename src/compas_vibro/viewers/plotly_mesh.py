@@ -22,10 +22,11 @@ class PlotlyMeshViewer(object):
     """Plotly based viewer for meshes.
     """
     def __init__(self, mesh):
-        self.mesh       = mesh
-        self.data       = []
-        self.layout     = None
-        self.scale      = None
+        self.mesh               = mesh
+        self.data               = []
+        self.layout             = None
+        self.scale              = None
+        self.show_vertex_labels = False
 
     def make_layout(self):
         name = self.mesh.name
@@ -108,6 +109,16 @@ class PlotlyMeshViewer(object):
                 )]
         self.data.extend(lines)
         self.data.extend(faces)
+
+        if self.show_vertex_labels:
+            vertices = list(self.mesh.vertices())
+            x = [self.mesh.vertex_coordinates(nk)[0] for nk in vertices]
+            y = [self.mesh.vertex_coordinates(nk)[1] for nk in vertices]
+            z = [self.mesh.vertex_coordinates(nk)[2] for nk in vertices]
+            text = [nk for nk in vertices]
+            dots = [go.Scatter3d(x=x, y=y, z=z, text=text, mode='markers+text')]
+            self.data.extend(dots)
+
 
     def show(self):
         self.make_layout()
