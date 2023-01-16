@@ -51,19 +51,40 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
 
 
 def compute_radiation_matrices(structure):
-    mesh = structure.radiating_mesh()
+    rad_mesh = structure.radiating_mesh()
     rad_nks = structure.radiating_nodes()
-    areas = [mesh.vertex_area(nk) for nk in rad_nks]
-    S = make_area_matrix(areas)
     node_xyz = [structure.node_xyz(nk) for nk in rad_nks]
-    D = calculate_distance_matrix_np(node_xyz)
     fkeys = structure.results['harmonic']
+
+    areas = [rad_mesh.vertex_area(nk) for nk in rad_nks]
+    S = make_area_matrix(areas)
+    D = calculate_distance_matrix_np(node_xyz)
+    
     rms = []
     for fkey in fkeys:
         f = structure.results['harmonic'][fkey].frequency
         wlen = structure.c / f
         k = (2. * np.pi) / wlen
         Z = calculate_radiation_matrix_np(k, structure.rho, structure.c, S, D)
+        rms.append(Z)
+    return rms
+
+
+def compute_radiation_matrices_measured(rad_mesh, frequencies, c, rho):
+
+    bnks = rad_mesh.vertices_on_boundary()
+    rad_nks = [nk for nk in rad_mesh.vertices() if nk not in bnks]
+    node_xyz = [rad_mesh.vertex_coordinates(nk) for nk in rad_nks]
+
+    areas = [rad_mesh.vertex_area(nk) for nk in rad_nks]
+    S = make_area_matrix(areas)
+    D = calculate_distance_matrix_np(node_xyz)
+
+    rms = []
+    for f in frequencies:
+        wlen = c / f
+        k = (2. * np.pi) / wlen
+        Z = calculate_radiation_matrix_np(k, rho, c, S, D)
         rms.append(Z)
     return rms
 
@@ -81,6 +102,21 @@ def compute_cross_spectral_matrices(structure):
     for fkey in fkeys:
         f = structure.results['harmonic'][fkey].frequency
         wlen = structure.c / f
+        k = (2. * np.pi) / wlen
+        Gd = np.sin(k * np.abs(D)) / k * np.abs(D)
+        np.fill_diagonal(Gd, 1)
+        csm.append(Gd)
+    return csm
+
+
+def compute_cross_spectral_matrices_measured(inc_mesh, frequencies, c):
+    inc_nks = list(inc_mesh.vertices())
+    node_xyz = [inc_mesh.vertex_coordinates(nk) for nk in inc_nks]
+    D = calculate_distance_matrix_np(node_xyz)
+
+    csm = []
+    for f in frequencies:
+        wlen = c / f
         k = (2. * np.pi) / wlen
         Gd = np.sin(k * np.abs(D)) / k * np.abs(D)
         np.fill_diagonal(Gd, 1)
@@ -174,7 +210,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
     return freqs, rs
 
 
-def compute_mobility_based_r_measured(data, folders):
+def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho):
 
     num_inc = len(data)
     
@@ -183,6 +219,7 @@ def compute_mobility_based_r_measured(data, folders):
 
     key_freq = list(data[key_rad].keys())[0]
     num_freq = len(data[key_rad][key_freq]['mobility'])
+    frequencies = [data[key_rad][key_freq]['mobility'][fk]['frequency'] for fk in range(num_freq)]
 
     print(num_inc, num_rad, num_freq)
 
@@ -199,53 +236,45 @@ def compute_mobility_based_r_measured(data, folders):
         mob_mats.append(np.array(temp))
 
 
-    # rad_mats = compute_radiation_matrices(structure)
-    # spec_mats = compute_cross_spectral_matrices(structure)
-    # rad_mesh = structure.radiating_mesh()
-    # rad_nks = structure.radiating_nodes()
-    # inc_mesh = structure.inc_mesh
-    # inc_nks = structure.incident_nodes()
+    rad_mats = compute_radiation_matrices_measured(rad_mesh, frequencies, c, rho)
+    spec_mats = compute_cross_spectral_matrices_measured(inc_mesh, frequencies, c)
+
+    bnks = rad_mesh.vertices_on_boundary()
+    rad_nks = [nk for nk in rad_mesh.vertices() if nk not in bnks]
+    inc_nks = list(inc_mesh.vertices())
+
+    gk_dict = {geometric_key(inc_mesh.vertex_coordinates(nk)): nk for nk in inc_mesh.vertices()}
+    inc_nks_ = [gk_dict[geometric_key(inc_mesh.vertex_coordinates(nk))] for nk in inc_nks]
+    areas_inc = [inc_mesh.vertex_area(nk) for nk in inc_nks_]
+    dS_inc = make_diagonal_area_matrix(areas_inc)
+    S_inc = np.trace(dS_inc)
+
+    areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
+    dS_rad = make_diagonal_area_matrix(areas_rad)
+    S_rad = np.trace(dS_rad)
     
+    print('area check', S_inc, S_rad)
 
-    # gk_dict = {geometric_key(inc_mesh.vertex_coordinates(nk)): nk for nk in inc_mesh.vertices()}
-    # inc_nks_ = [gk_dict[geometric_key(structure.node_xyz(nk))] for nk in inc_nks]
-    # areas_inc = [inc_mesh.vertex_area(nk) for nk in inc_nks_]
-    # dS_inc = make_diagonal_area_matrix(areas_inc)
-    # S_inc = np.trace(dS_inc)
-
-    # areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
-    # dS_rad = make_diagonal_area_matrix(areas_rad)
-    # S_rad = np.trace(dS_rad)
-    
-    # print('area check', S_inc, S_rad)
-
-    # rho = structure.rho
-    # c = structure.c
 
     freqs = []
     rs = []
-    # structure.results['mob_radiation'] = {}
-    # for i, fkey in enumerate(structure.results['harmonic']):
-    #     f = structure.results['harmonic'][fkey].frequency
-    #     H = mob_mats[i].transpose()
-    #     H_ = np.conjugate(np.transpose(H))
-    #     Z = rad_mats[i]
-    #     Gd = spec_mats[i]
+    for i, f in enumerate(frequencies):
+        H = mob_mats[i].transpose()
+        H_ = np.conjugate(np.transpose(H))
+        Z = rad_mats[i]
+        Gd = spec_mats[i]
 
-    #     A = np.matmul(Z, H)
-    #     A1 = np.matmul(A, dS_inc)
-    #     B = np.matmul(A1, Gd)
-    #     C = np.matmul(B, dS_inc)
-    #     D = np.matmul(C, H_)
-    #     E = np.matmul(dS_rad, np.real(D))
-    #     F = ((8 * rho * c ) / S_inc) * np.trace(E)
-    #     R = -10 * np.log10(F)
+        A = np.matmul(Z, H)
+        A1 = np.matmul(A, dS_inc)
+        B = np.matmul(A1, Gd)
+        C = np.matmul(B, dS_inc)
+        D = np.matmul(C, H_)
+        E = np.matmul(dS_rad, np.real(D))
+        F = ((8 * rho * c ) / S_inc) * np.trace(E)
+        R = -10 * np.log10(F)
     
-    #     freqs.append(f)
-    #     rs.append(R)
-
-    #     structure.results['mob_radiation'][fkey] = compas_vibro.structure.result.Result(f) 
-    #     structure.results['mob_radiation'][fkey].radiated_p = R
+        freqs.append(f)
+        rs.append(R)
     return freqs, rs
 
 
