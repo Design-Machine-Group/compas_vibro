@@ -221,7 +221,7 @@ def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho)
     num_freq = len(data[key_rad][key_freq]['mobility'])
     frequencies = [data[key_rad][key_freq]['mobility'][fk]['frequency'] for fk in range(num_freq)]
 
-    print(num_inc, num_rad, num_freq)
+    # print(num_inc, num_rad, num_freq)
 
     mob_mats = []
     for fi in range(num_freq):
@@ -251,10 +251,7 @@ def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho)
 
     areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
     dS_rad = make_diagonal_area_matrix(areas_rad)
-    S_rad = np.trace(dS_rad)
-    
-    print('area check', S_inc, S_rad)
-
+    # S_rad = np.trace(dS_rad)
 
     freqs = []
     rs = []
