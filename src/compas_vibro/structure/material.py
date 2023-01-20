@@ -13,6 +13,7 @@ __email__      = 'tmendeze@uw.edu'
 __all__ = [
     'Material',
     'ElasticIsotropic',
+    'ElasticOrthotropic',
 ]
 
 
@@ -92,3 +93,53 @@ class ElasticIsotropic(Material):
         self.tension     = tension
         self.compression = compression
         self.attr_list.extend(['E', 'v', 'G', 'p', 'tension', 'compression'])
+
+
+
+class ElasticOrthotropic(Material):
+
+    """ Elastic orthotropic material.
+
+    Parameters
+    ----------
+    name : str
+        Material name.
+    Ex : float
+        Young's modulus E in the X direction [Pa].
+    Ey : float
+        Young's modulus E in the Y direction [Pa].
+    Ez : float
+        Young's modulus E in the Z direction [Pa].
+    vxy : float
+        Poisson's ratio v in the XY plane [-].
+    vyz : float
+        Poisson's ratio v in the YZ plane [-].
+    vxz : float
+        Poisson's ratio v in the XZ plane [-].
+    p : float
+        Density [kg/m3].
+    tension : bool
+        Can take tension.
+    compression : bool
+        Can take compression.
+
+    """
+
+    def __init__(self, name, Ex, Ey, Ez, vxy, vyz, vxz, p, tension=True, compression=True):
+        Material.__init__(self, name=name)
+
+        self.__name__    = 'ElasticOrthotropic'
+        self.index       = None
+        self.name        = name
+        self.E           = {'Ex': Ex, 'Ey': Ey, 'Ez': Ez,}
+        self.v           = {'vxy': vxy, 'vyz': vyz, 'vxz': vxz}
+        self.G           = {'Gx': 0.5 * Ex / (1 + vxy),
+                            'Gy': 0.5 * Ey / (1 + vyz),
+                            'Gz': 0.5 * Ez / (1 + vxz)}
+        self.p           = p
+        self.tension     = tension
+        self.compression = compression
+        self.attr_list.extend(['Ex', 'Ey', 'Ez',
+                               'vxy', 'vyz', 'vxz',
+                               'Gx', 'Gy', 'Gz',
+                               'p', 'tension', 'compression'])

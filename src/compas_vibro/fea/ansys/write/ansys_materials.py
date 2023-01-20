@@ -10,6 +10,8 @@ def write_materials(structure, output_path, filename):
         material = materials[key]
         if material.__name__ == 'ElasticIsotropic':
             write_elastic_material(material, index, output_path, filename)
+        elif material.__name__ == 'ElasticOrthotropic':
+            write_elastic_ortho_material(material, index, output_path, filename)
         elif material.__name__ == 'ConcreteMicroplane':
             write_concrete_microplane_material(material, index, output_path, filename)
         elif material.__name__ in ['ElasticPlastic', 'Steel']:
@@ -47,6 +49,40 @@ def write_elastic_material(material, index, output_path, filename):
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
+
+
+def write_elastic_ortho_material(material, index, output_path, filename):
+    Ex, Ey, Ez = material.E['Ex'], material.E['Ey'], material.E['Ez']
+    vxy, vyz, vxz = material.v['vxy'], material.v['vyz'], material.v['vxz']
+    material_index = index + 1
+    density = material.p
+
+    therm_exp = None  # material['therm_exp']
+    ref_temp = None  # material['ref_temp']
+
+    fh = open(os.path.join(output_path, filename), 'a')
+    fh.write('MPTEMP,,,,,,,, \n')
+    fh.write('MPTEMP,1,0  \n')
+    fh.write('MPDATA,EX,{},,{}\n'.format(material_index, Ex))
+    fh.write('MPDATA,EY,{},,{}\n'.format(material_index, Ex))
+    fh.write('MPDATA,EZ,{},,{}\n'.format(material_index, Ez))
+    fh.write('MPDATA,PRXY,{},,{}\n'.format(material_index, vxy))
+    fh.write('MPDATA,PRYZ,{},,{}\n'.format(material_index, vyz))
+    fh.write('MPDATA,PRXZ,{},,{}\n'.format(material_index, vxz))
+    string = 'MPDATA,DENS,' + str(material_index) + ',,' + str(density) + '\n'
+    fh.write(string)
+    if therm_exp:
+        fh.write('MPTEMP,,,,,,,, \n')
+        fh.write('MPTEMP,1,0  \n')
+        string = 'MPDATA,ALPX,' + str(material_index) + ',,' + str(therm_exp) + '\n'
+        fh.write(string)
+    if ref_temp:
+        string = 'MP,REFT,' + str(material_index) + ',' + str(ref_temp) + '\n'
+        fh.write(string)
+    fh.write('!\n')
+    fh.write('!\n')
+    fh.close()
+
 
 
 def write_elasticplastic_material(material, index, output_path, filename):

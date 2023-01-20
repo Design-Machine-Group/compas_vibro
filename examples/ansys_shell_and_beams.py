@@ -14,10 +14,10 @@ from compas_vibro.structure import FixedDisplacement
 from compas_vibro.structure import PointLoad
 from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ISection
-from compas_vibro.structure import ElasticIsotropic
+from compas_vibro.structure import ElasticIsotropic, ElasticOrthotropic
 from compas_vibro.structure import ElementProperties
 
-from compas_vibro.viewers import ModalViewer, PlotlyStructureViewer
+from compas_vibro.viewers import StructureViewer
 
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
@@ -34,7 +34,7 @@ name = 'ansys_{0}_modal'.format(geometry)
 
 
 ## Add shell geometry from mesh-----------------------------------------------------------
-mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
+mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry)))
 s = Structure(path, name)
 
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
@@ -66,7 +66,14 @@ s.add(beam_section)
 
 ## Add materials -------------------------------------------------------------------------
 
-shell_material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
+shell_material = ElasticIsotropic('CLT', E=30e9, v=.2, p=2400)
+s.add(shell_material)
+
+# shell_material = ElasticOrthotropic('CLT', Ex=7e9, Ey=4e9, Ez=3e9, 
+#                                            vxy=.42, vyz=.32, vxz=.22,
+#                                            p=500)
+
+
 s.add(shell_material)
 
 beam_material = ElasticIsotropic('steel', E=210e9, v=.3, p=7500)
@@ -74,8 +81,8 @@ s.add(beam_material)
 
 ## Add element properties ----------------------------------------------------------------
 
-el_prop_shell = ElementProperties('concrete_shell',
-                                  material='concrete',
+el_prop_shell = ElementProperties('CLT_shell',
+                                  material='CLT',
                                   section='shell_sec',
                                   elset='shell',
                                   is_rad=True)
@@ -90,8 +97,8 @@ s.add(el_prop_beams)
 
 ## Visualize structure--------------------------------------------------------------------
 
-v = PlotlyStructureViewer(s)
-v.show()
+# v = StructureViewer(s)
+# v.show()
 
 # Analyze model -------------------------------------------------------------------------
 
@@ -113,7 +120,5 @@ for mode in modes:
     print('{:2d} | {:7.3F} | {:7.3F} | {:8.3F} | {:8.3F} | {:8.3F}'.format(mode, f, pf, em, emr, cemr))
 
 
-# v = ModalViewer(s)
-# v.show()
-
-# TODO: Modal viewer with beams, how to display beam orientation?
+v = StructureViewer(s)
+v.show('modal')
