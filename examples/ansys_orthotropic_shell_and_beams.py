@@ -66,12 +66,12 @@ s.add(beam_section)
 
 ## Add materials -------------------------------------------------------------------------
 
-shell_material = ElasticIsotropic('CLT', E=30e9, v=.2, p=2400)
-s.add(shell_material)
+# shell_material = ElasticIsotropic('CLT', E=30e9, v=.2, p=2400)
+# s.add(shell_material)
 
-# shell_material = ElasticOrthotropic('CLT', Ex=7e9, Ey=4e9, Ez=3e9, 
-#                                            vxy=.42, vyz=.32, vxz=.22,
-#                                            p=500)
+shell_material = ElasticOrthotropic('CLT', Ex=7e9, Ey=4e9, Ez=3e9, 
+                                           vxy=.42, vyz=.32, vxz=.22,
+                                           p=500)
 
 
 s.add(shell_material)
