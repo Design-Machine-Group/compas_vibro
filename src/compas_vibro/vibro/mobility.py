@@ -9,6 +9,7 @@ try:
 except:
     pass
 
+import compas_vibro
 from compas_vibro.structure.load import PointLoad
 from compas_vibro.vibro.rayleigh import calculate_radiation_matrix_np
 from compas_vibro.vibro.utilities import calculate_distance_matrix_np

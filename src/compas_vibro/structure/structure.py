@@ -196,9 +196,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             self.loads[vk] = load
 
     def add_incident_elements_from_mesh(self, mesh):
-        
         self.inc_mesh = mesh
-        
         eps = {}
         for fk in mesh.faces():
             cpt = mesh.face_centroid(fk)
@@ -208,6 +206,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
                 eps[ep].append(ek)
             else:
                 eps[ep] = [ek]
+            # print(fk, ek, ep)
 
         for epk in eps:
             mat = self.element_properties[epk].material
