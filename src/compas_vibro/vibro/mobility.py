@@ -20,8 +20,11 @@ from compas_vibro.vibro.utilities import make_diagonal_area_matrix
 from compas.geometry import length_vector
 from compas.utilities import geometric_key
 
-def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, backend='ansys', write_files=False):
 
+#TODO: Should this function output the velocities for all nodes or just rad nodes?
+
+def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, backend='ansys', write_files=False):
+    #TODO: SHould this function output the velocities for all nodes or just rad nodes?
     rad_nks = structure.radiating_nodes()
     inc_nks = structure.incident_nodes()
 
@@ -51,16 +54,20 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
         mob_mats.append(np.array(a))
 
     if write_files:
-        write_mob_mat_files(freq_list, mob_mats, write_files)
+        write_mob_mat_files(structure, freq_list, mob_mats, write_files)
 
     return mob_mats
 
 
-def write_mob_mat_files(freq_list, mob_mats, files_path):
+def write_mob_mat_files(structure, freq_list, mob_mats, files_path):
+    #TODO: SHould this function output the velocities for all nodes or just rad nodes?
     if not os.path.isdir(files_path):
         os.makedirs(files_path)
 
     num_inks, num_v = mob_mats[0].shape
+    rad_nks = structure.radiating_nodes()
+
+    print(rad_nks)
 
     for ink in range(num_inks):
         ink_path = os.path.join(files_path, 'pt{}'.format(ink + 1))
@@ -68,19 +75,19 @@ def write_mob_mat_files(freq_list, mob_mats, files_path):
             os.makedirs(ink_path)
 
         for vk in range(num_v):
-            fh = open(os.path.join(ink_path, 'FEA_pt{}__{}.txt'.format(ink + 1, vk + 1)), 'w')
-            fh.write('Inc point:	{}\n'.format(ink + 1))
-            fh.write('Point Index:	{}	[x = 0	y = 0	z = 0]\n'.format(vk + 1))
-            fh.write('Signal:	Mobility\n'.format())
-            fh.write('\n')
-            fh.write('Frequency	Magnitude\n')
-            fh.write('[ Hz ]	[ m/s / N ]\n')
-            for fk, freq in enumerate(freq_list):
-                fh.write('{}\t{}\n'.format(freq, mob_mats[fk][ink][vk].real))
-                # print(mob_mats[fk][ink][vk].real)
-                # print('')
-            fh.close()
-
+            if vk in rad_nks:
+                fh = open(os.path.join(ink_path, 'FEA_pt{}__{}.txt'.format(ink + 1, vk + 1)), 'w')
+                fh.write('Inc point:	{}\n'.format(ink + 1))
+                fh.write('Point Index:	{}	[x = 0	y = 0	z = 0]\n'.format(vk + 1))
+                fh.write('Signal:	Mobility\n'.format())
+                fh.write('\n')
+                fh.write('Frequency	Magnitude\n')
+                fh.write('[ Hz ]	[ m/s / N ]\n')
+                for fk, freq in enumerate(freq_list):
+                    fh.write('{}\t{}\n'.format(freq, mob_mats[fk][ink][vk].real))
+                    # print(mob_mats[fk][ink][vk].real)
+                    # print('')
+                fh.close()
 
 
 def compute_radiation_matrices(structure):
@@ -256,7 +263,7 @@ def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho)
     num_freq = len(data[key_rad][key_freq]['mobility'])
     frequencies = [data[key_rad][key_freq]['mobility'][fk]['frequency'] for fk in range(num_freq)]
 
-    # print(num_inc, num_rad, num_freq)
+    print(num_inc, num_rad, num_freq)
 
     mob_mats = []
     for fi in range(num_freq):
