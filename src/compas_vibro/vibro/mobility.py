@@ -9,6 +9,7 @@ try:
 except:
     pass
 
+import os
 import compas_vibro
 from compas_vibro.structure.load import PointLoad
 from compas_vibro.vibro.rayleigh import calculate_radiation_matrix_np
@@ -19,7 +20,7 @@ from compas_vibro.vibro.utilities import make_diagonal_area_matrix
 from compas.geometry import length_vector
 from compas.utilities import geometric_key
 
-def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, backend='ansys'):
+def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, backend='ansys', write_files=False):
 
     rad_nks = structure.radiating_nodes()
     inc_nks = structure.incident_nodes()
@@ -41,14 +42,45 @@ def compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=.02, bac
             structure.results['harmonic'][fkey].compute_node_velocities()
             vr = [structure.results['harmonic'][fkey].velocities[nkey].real for nkey in rad_nks]
             vi = [structure.results['harmonic'][fkey].velocities[nkey].imag for nkey in rad_nks]
-            v = [complex(vr[i], vi[i]) for i in range(len(vr))]
+            v = [complex(vr[j], vi[j]) for j in range(len(vr))]
             v = [vi / fvl for vi in v]
             mm[fkey].append(v)
 
     mob_mats = []
     for a in mm:
         mob_mats.append(np.array(a))
+
+    if write_files:
+        write_mob_mat_files(freq_list, mob_mats, write_files)
+
     return mob_mats
+
+
+def write_mob_mat_files(freq_list, mob_mats, files_path):
+    if not os.path.isdir(files_path):
+        os.makedirs(files_path)
+
+    num_inks, num_v = mob_mats[0].shape
+
+    for ink in range(num_inks):
+        ink_path = os.path.join(files_path, 'pt{}'.format(ink + 1))
+        if not os.path.isdir(ink_path):
+            os.makedirs(ink_path)
+
+        for vk in range(num_v):
+            fh = open(os.path.join(ink_path, 'FEA_pt{}__{}.txt'.format(ink + 1, vk + 1)), 'w')
+            fh.write('Inc point:	{}\n'.format(ink + 1))
+            fh.write('Point Index:	{}	[x = 0	y = 0	z = 0]\n'.format(vk + 1))
+            fh.write('Signal:	Mobility\n'.format())
+            fh.write('\n')
+            fh.write('Frequency	Magnitude\n')
+            fh.write('[ Hz ]	[ m/s / N ]\n')
+            for fk, freq in enumerate(freq_list):
+                fh.write('{}\t{}\n'.format(freq, mob_mats[fk][ink][vk].real))
+                # print(mob_mats[fk][ink][vk].real)
+                # print('')
+            fh.close()
+
 
 
 def compute_radiation_matrices(structure):
@@ -125,11 +157,13 @@ def compute_cross_spectral_matrices_measured(inc_mesh, frequencies, c):
     return csm
 
 
-def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend='ansys', num_modes=20):
+def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend='ansys', 
+                             num_modes=20, write_files=False):
     
     structure.analyze_modal(['u'], backend=backend, num_modes=num_modes)
 
-    mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz, damping=damping)
+    mob_mats = compute_mobility_matrices(structure, freq_list, fx, fy, fz,
+                                         damping=damping, write_files=write_files)
     rad_mats = compute_radiation_matrices(structure)
     spec_mats = compute_cross_spectral_matrices(structure)
     rad_mesh = structure.radiating_mesh()
@@ -150,7 +184,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
         dS_rad = make_diagonal_area_matrix(areas_rad)
         S_rad = np.trace(dS_rad)
         
-        print('area check', S_inc, S_rad)
+        # print('area check', S_inc, S_rad)
 
         rho = structure.rho
         c = structure.c
@@ -277,7 +311,6 @@ def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho)
 
 
 
-
 if __name__ == '__main__':
     import os
     import compas_vibro
@@ -285,33 +318,41 @@ if __name__ == '__main__':
     from compas_vibro.viewers import StructureViewer
     import plotly.graph_objects as go
 
-    # g1 = '6x6_structure_t20_inc_mesh'
-    # g2 = '6x6_structure_t20_all_inc'
+    g1 = '6x6_structure_t20_inc_mesh'
+    g2 = '6x6_structure_t20_all_inc'
 
-    # lines_list = []
-    # for geometry in [g1]:
-    #     s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '5x4m_concrete', '{}.obj'.format(geometry)))
 
-    #     # v = StructureViewer(s)
-    #     # v.show_rad_nodes = True
-    #     # v.show_incident_nodes = True
-    #     # v.show()
 
-    #     freq_list = list(range(20, 300, 8))
-    #     damping=.02
-    #     fx = 0
-    #     fy = 0
-    #     fz = 1
-    #     freqs, rs = compute_mobility_based_r(s, freq_list, damping, fx, fy, fz)
+    lines_list = []
+    for geometry in [g1]:
+        s = Structure.from_obj(os.path.join(compas_vibro.DATA, 'structures', '5x4m_concrete', '{}.obj'.format(geometry)))
 
-    #     lines = go.Scatter(x=freqs, y=rs, mode='lines', name='R_{}'.format(geometry))
-    #     lines_list.append(lines)
+        # v = StructureViewer(s)
+        # v.show_rad_nodes = True
+        # v.show_incident_nodes = True
+        # v.show()
+
+        freq_list = list(range(20, 300, 30))
+
+        print('number of frequencies', len(freq_list))
+
+        damping=.02
+        fx = 0
+        fy = 0
+        fz = 1
+        
+        files_path = os.path.join(compas_vibro.TEMP, '{}_mob_mats'.format(geometry))
+
+        freqs, rs = compute_mobility_based_r(s, freq_list, damping, fx, fy, fz, write_files=files_path)
+
+        lines = go.Scatter(x=freqs, y=rs, mode='lines', name='R_{}'.format(geometry))
+        lines_list.append(lines)
 
     # fig = go.Figure(data=lines_list)
     # fig.update_layout(title_text=geometry)
     # fig.show()
 
 
-    # # path = os.path.join(compas_vibro.DATA, 'structures')
-    # # name = '{}_mobility'.format(geometry)
-    # # s.to_obj(path=path, name=name)
+    # path = os.path.join(compas_vibro.DATA, 'structures')
+    # name = '{}_mobility'.format(geometry)
+    # s.to_obj(path=path, name=name)
