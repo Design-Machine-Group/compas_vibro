@@ -47,7 +47,7 @@ __all__ = ['ansys_static',
            'ansys_harmonic_field']
 
 
-def ansys_static(structure, fields, license='introductory'):
+def ansys_static(structure, fields, license='default'):
 
     # add modal step -----------------------------------------------------------
     step = StaticStep(name=structure.name + '_modal', 
@@ -64,7 +64,7 @@ def ansys_static(structure, fields, license='introductory'):
     return structure
 
 
-def ansys_modal(structure, fields, num_modes, license='introductory'):
+def ansys_modal(structure, fields, num_modes, license='default'):
 
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
@@ -79,7 +79,7 @@ def ansys_modal(structure, fields, num_modes, license='introductory'):
     return structure
 
 
-def ansys_modal_prestressed(structure, fields, num_modes, license='introductory'):
+def ansys_modal_prestressed(structure, fields, num_modes, license='default'):
 
     # add static step -----------------------------------------------------------
     step = StaticStep(name=structure.name + '_modal', 
@@ -259,7 +259,7 @@ def extract_data(structure, fields, results_type):
     return structure
 
 
-def ansys_launch_process(structure, cpus=2, license='introductory', delete=True):
+def ansys_launch_process(structure, cpus=2, license='default', delete=True):
     """ Launches an analysis using Ansys.
 
     Parameters:
@@ -294,8 +294,10 @@ def ansys_launch_process(structure, cpus=2, license='introductory', delete=True)
         lic_str = 'aa_t_a'
     elif license == 'introductory':
         lic_str = 'aa_t_i'
+    elif license == 'default':
+        lic_str = 'ansys'
     else:
-        lic_str = 'aa_t_i'  # temporary default.
+        lic_str = 'ansys'
 
     launch_string = '\"' + ansys_path + '\" -g -p ' + lic_str + ' -np ' + str(cpus)
     launch_string += ' -dir \"' + work_dir
