@@ -54,6 +54,7 @@ def write_elastic_material(material, index, output_path, filename):
 def write_elastic_ortho_material(material, index, output_path, filename):
     Ex, Ey, Ez = material.E['Ex'], material.E['Ey'], material.E['Ez']
     vxy, vyz, vxz = material.v['vxy'], material.v['vyz'], material.v['vxz']
+    gx, gy, gx = material.G['Gx'], material.G['Gy'], material.G['Gz']
     material_index = index + 1
     density = material.p
 
@@ -69,6 +70,10 @@ def write_elastic_ortho_material(material, index, output_path, filename):
     fh.write('MPDATA,PRXY,{},,{}\n'.format(material_index, vxy))
     fh.write('MPDATA,PRYZ,{},,{}\n'.format(material_index, vyz))
     fh.write('MPDATA,PRXZ,{},,{}\n'.format(material_index, vxz))
+    fh.write('MPDATA,GXY,{},,{}\n'.format(material_index, gx)) 
+    fh.write('MPDATA,GYZ,{},,{}\n'.format(material_index, gy)) 
+    fh.write('MPDATA,GXZ,{},,{}\n'.format(material_index, gx)) 
+
     string = 'MPDATA,DENS,' + str(material_index) + ',,' + str(density) + '\n'
     fh.write(string)
     if therm_exp:
