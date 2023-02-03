@@ -27,7 +27,7 @@ __version__ = "0.1.0"
 for i in range(60): print('')
 
 path = compas_vibro.TEMP
-geometry = 'flat_mesh_100x100'
+geometry = 'flat_mesh_20x20'
 name = 'opensees_{0}_modal'.format(geometry)
 
 mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry)))

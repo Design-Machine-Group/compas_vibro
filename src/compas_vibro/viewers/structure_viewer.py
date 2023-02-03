@@ -518,7 +518,7 @@ class StructureViewer(object):
                               )]
         self.data.extend(lines)
 
-    def plot_shell_shape(self, mode=None):
+    def plot_shell_shape(self, mode=None, visualization_type='modal'):
 
         mesh = self.mesh
         vertices, faces = mesh.to_vertices_and_faces()
@@ -601,9 +601,9 @@ class StructureViewer(object):
             # for nk in self.structure.nodes:
             for nk in mesh.vertex:
                 normal = mesh.vertex_normal(nk)
-                dx = self.structure.results['modal'][mode].displacements['ux'][nk]
-                dy = self.structure.results['modal'][mode].displacements['uy'][nk]
-                dz = self.structure.results['modal'][mode].displacements['uz'][nk]
+                dx = self.structure.results[visualization_type][mode].displacements['ux'][nk]
+                dy = self.structure.results[visualization_type][mode].displacements['uy'][nk]
+                dz = self.structure.results[visualization_type][mode].displacements['uz'][nk]
                 vsign = copysign(1, dot_vectors([dx, dy, dz], normal))
                 lv = length_vector([dx, dy, dz]) * vsign
                 intensity_.append(lv)
@@ -732,7 +732,7 @@ class StructureViewer(object):
         self.make_shell_mesh(load_step=0)
             
         if self.shell_elements:
-            self.plot_shell_shape()
+            self.plot_shell_shape(visualization_type='static')
 
         if self.beam_elements and self.show_beams:
             if self.show_beam_sections:
