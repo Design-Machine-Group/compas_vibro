@@ -16,9 +16,9 @@ from compas.geometry import length_vector
 import plotly.graph_objects as go
 import plotly.io as pio
 
-all = ['PlotlyMeshViewer']
+all = ['MeshViewer']
 
-class PlotlyMeshViewer(object):
+class MeshViewer(object):
     """Plotly based viewer for meshes.
     """
     def __init__(self, mesh):
@@ -136,8 +136,8 @@ if __name__ == '__main__':
     # name = 'clt_1_remeshed'
     # filepath = os.path.join(timber_vibro.DATA, 'other', '{}.json'.format(name))
     
-    filepath = os.path.join(compas_vibro.DATA, 'flat_mesh_20x20.json')
+    filepath = os.path.join(compas_vibro.DATA, 'meshes', 'pattern1_fins.json')
     mesh = Mesh.from_json(filepath)
-    pl = PlotlyMeshViewer(mesh)
+    pl = MeshViewer(mesh)
     pl.show()
 
