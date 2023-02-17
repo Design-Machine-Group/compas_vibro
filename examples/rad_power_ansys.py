@@ -13,6 +13,7 @@ from compas_vibro.structure import PointLoad
 from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
+from compas_vibro.viewers import StructureViewer
 
 
 __author__ = ["Tomas Mendez Echenagucia"]
@@ -24,7 +25,7 @@ __version__ = "0.1.0"
 
 path = compas_vibro.TEMP
 geometry = 'flat_mesh_20x20'
-name = '{0}_rad_opt'.format(geometry)
+name = '{0}_rad_opt3'.format(geometry)
 
 mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry)))
 
@@ -39,7 +40,7 @@ d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
 s.add(d)
 
 # add loads - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-load = PointLoad(name='pload', nodes=[100], x=0, y=0, z=1, xx=0, yy=0, zz=0)
+load = PointLoad(name='pload', nodes=[225], x=0, y=0, z=1, xx=0, yy=0, zz=0)
 s.add(load)
 
 
@@ -66,7 +67,8 @@ num_modes = 25
 # analyze - - - - 
 s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
 s.compute_rad_power()
-s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
+# s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
 
-print(s.results.keys())
 
+# v = StructureViewer(s)
+# v.show()

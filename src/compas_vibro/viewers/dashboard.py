@@ -179,7 +179,7 @@ class Dashboard(object):
                                     )
 
         fig.update_yaxes(
-                        #  type='log',
+                         type='log',
                          secondary_y=True)
         fig.update_yaxes(title_text='Effective mass (kg)',secondary_y=True)
         fig.update_layout(showlegend=False)
@@ -557,15 +557,22 @@ if __name__ == '__main__':
     from compas_vibro.structure import Structure
     for i in range(50): print('')
 
-    filepath = os.path.join(compas_vibro.DATA, 'structures', 'ansys_flat_mesh_20x20_hs_cpt.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_rad_cpt.obj')
     s1 = Structure.from_obj(filepath)
     s1.name = 'center_pt'
 
-    filepath = os.path.join(compas_vibro.DATA, 'structures', 'ansys_flat_mesh_20x20_hs_opt.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_rad_opt.obj')
     s2 = Structure.from_obj(filepath)
-    s2.name = 'offcenter_pt'
+    s2.name = 'offcenter_pt1'
 
-    print(s1.results.keys())
+    filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_rad_opt2.obj')
+    s3 = Structure.from_obj(filepath)
+    s3.name = 'offcenter_pt2'
 
-    # db = Dashboard([s1, s2])
-    # db.show()
+    filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_rad_opt3.obj')
+    s4 = Structure.from_obj(filepath)
+    s4.name = 'offcenter_pt3'
+
+
+    db = Dashboard([s1, s2, s3, s4])
+    db.show()
