@@ -556,34 +556,16 @@ if __name__ == '__main__':
     import compas_vibro
     from compas_vibro.structure import Structure
     for i in range(50): print('')
-    
-    # filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_radiation_t10.obj')
-    # s1 = Structure.from_obj(filepath)
-    # s1.name = 't10'
 
-    # filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_radiation_t20.obj')
-    # s2 = Structure.from_obj(filepath)
-    # s2.name = 't20'
-
-    # filepath = os.path.join(compas_vibro.DATA, 'structures', 'flat_mesh_20x20_radiation_t30.obj')
-    # s3 = Structure.from_obj(filepath)
-    # s3.name = 't30'
-
-    # db = Dashboard([s1, s2, s3])
-    # db.show()
-
-
-    filepath = os.path.join(compas_vibro.DATA, 'structures', 'glass_5x5_mobility.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'structures', 'ansys_flat_mesh_20x20_hs_cpt.obj')
     s1 = Structure.from_obj(filepath)
-    s1.name = '5x5'
+    s1.name = 'center_pt'
 
-    filepath = os.path.join(compas_vibro.DATA, 'structures', 'glass_10x10_mobility.obj')
+    filepath = os.path.join(compas_vibro.DATA, 'structures', 'ansys_flat_mesh_20x20_hs_opt.obj')
     s2 = Structure.from_obj(filepath)
-    s2.name = '10x10'
+    s2.name = 'offcenter_pt'
 
-    # filepath = os.path.join(compas_vibro.DATA, 'structures', 'glass_20x20_mobility.obj')
-    # s3 = Structure.from_obj(filepath)
-    # s3.name = '20x20'
+    print(s1.results.keys())
 
-    db = Dashboard([s1, s2])
-    db.show()
+    # db = Dashboard([s1, s2])
+    # db.show()

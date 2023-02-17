@@ -30,7 +30,7 @@ for i in range(60):
 
 path = compas_vibro.TEMP
 geometry = 'flat_mesh_20x20'
-name = 'ansys_{0}_harmonic'.format(geometry)
+name = 'ansys_{0}_h'.format(geometry)
 
 mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry)))
 
@@ -67,15 +67,16 @@ s.add(el_prop)
 freq_list = range(20, 200, 2)
 
 # v = StructureViewer(s)
+# v.show_node_labels = True
 # v.show()
 
 num_modes = 20
 
 # analyze - - - - 
-s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
+s.analyze_harmonic(freq_list, fields=['u'], backend='ansys')
 
 # save results - - - - - - 
-s.to_obj()
+s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
 
 v = StructureViewer(s)
 v.show('harmonic')
