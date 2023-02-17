@@ -16,7 +16,7 @@ from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
 
-from compas_vibro.viewers import HarmonicViewer
+from compas_vibro.viewers import StructureViewer
 
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
@@ -32,7 +32,7 @@ path = compas_vibro.TEMP
 geometry = 'flat_mesh_20x20'
 name = 'ansys_{0}_harmonic'.format(geometry)
 
-mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
+mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry)))
 
 # make an instance of the stucture object - - - - - - - - - - - - - - - - - - - 
 s = Structure(path, name) 
@@ -66,12 +66,16 @@ s.add(el_prop)
 # add analysis frequencies - - - - - - - -
 freq_list = range(20, 200, 2)
 
+# v = StructureViewer(s)
+# v.show()
+
+num_modes = 20
+
 # analyze - - - - 
-s.analyze_harmonic(freq_list, fields=['u'], backend='ansys')
+s.analyze_harmonic_super(num_modes, freq_list, fields=['u'], backend='ansys')
 
 # save results - - - - - - 
 s.to_obj()
 
-v = HarmonicViewer(s)
-v.scale = 1e8
-v.show()
+v = StructureViewer(s)
+v.show('harmonic')
