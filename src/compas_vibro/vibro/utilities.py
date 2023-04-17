@@ -88,6 +88,7 @@ def make_area_matrix(face_areas):
     S = s * np.ones((n, n))
     return S
 
+
 def make_diagonal_area_matrix(face_areas):
     S = np.diag(face_areas)
     return S

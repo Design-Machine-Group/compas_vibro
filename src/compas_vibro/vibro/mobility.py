@@ -316,6 +316,86 @@ def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho)
         rs.append(R)
     return freqs, rs
 
+def compute_mobility_based_r_measured_fea(data, folders, rad_mesh, inc_mesh, c, rho):
+    """This function pretends FEA data is measured data
+    """
+    num_inc = len(data)
+    
+    key_rad = list(data.keys())[0]
+    # num_rad  = len(data[key_rad])
+    rad_keys =  data[key_rad].keys()
+
+    bnks = rad_mesh.vertices_on_boundary()
+    rad_keys = [nk for nk in rad_mesh.vertices() if nk not in bnks]
+
+    # print(sorted(rad_keys))
+    # print('len(data[key_rad])', len(data[key_rad]))
+
+
+    key_freq = list(data[key_rad].keys())[0]
+    num_freq = len(data[key_rad][key_freq]['mobility'])
+    frequencies = [data[key_rad][key_freq]['mobility'][fk]['frequency'] for fk in range(num_freq)]
+
+    mob_mats = []
+    for fi in range(num_freq):
+        temp = []
+        for inc_i in range(num_inc):
+            temp_ =[]
+            for rad_i in rad_keys:
+                # f = data[folders[inc_i]][rad_i]['mobility'][fi]['frequency']
+                h = data[folders[inc_i]][rad_i]['mobility'][fi]['mobility']
+                temp_.append(h)
+            temp.append(temp_)
+        mob_mats.append(np.array(temp))
+
+
+    rad_mats = compute_radiation_matrices_measured(rad_mesh, frequencies, c, rho)
+    spec_mats = compute_cross_spectral_matrices_measured(inc_mesh, frequencies, c)
+
+    print('num freq', num_freq)
+    print('num rad vertices', rad_mesh.number_of_vertices())
+    print('rad verts on boundary', len(rad_mesh.vertices_on_boundary()))
+    print('num inc_mesh vertices', inc_mesh.number_of_vertices())
+    print(len(mob_mats[0]))
+    print(len(rad_mats[0]))
+
+
+    bnks = rad_mesh.vertices_on_boundary()
+    rad_nks = [nk for nk in rad_mesh.vertices() if nk not in bnks]
+    # rad_nks = [nk for nk in rad_mesh.vertices()]
+    inc_nks = list(inc_mesh.vertices())
+
+    gk_dict = {geometric_key(inc_mesh.vertex_coordinates(nk)): nk for nk in inc_mesh.vertices()}
+    inc_nks_ = [gk_dict[geometric_key(inc_mesh.vertex_coordinates(nk))] for nk in inc_nks]
+    areas_inc = [inc_mesh.vertex_area(nk) for nk in inc_nks_]
+    dS_inc = make_diagonal_area_matrix(areas_inc)
+    S_inc = np.trace(dS_inc)
+
+    areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
+    dS_rad = make_diagonal_area_matrix(areas_rad)
+    # S_rad = np.trace(dS_rad)
+
+    freqs = []
+    rs = []
+    for i, f in enumerate(frequencies):
+        H = mob_mats[i].transpose()
+        H_ = np.conjugate(np.transpose(H))
+        Z = rad_mats[i]
+        Gd = spec_mats[i]
+
+        A = np.matmul(Z, H)
+        A1 = np.matmul(A, dS_inc)
+        B = np.matmul(A1, Gd)
+        C = np.matmul(B, dS_inc)
+        D = np.matmul(C, H_)
+        E = np.matmul(dS_rad, np.real(D))
+        F = ((8 * rho * c ) / S_inc) * np.trace(E)
+        R = -10 * np.log10(F)
+    
+        freqs.append(f)
+        rs.append(R)
+    return freqs, rs
+
 
 
 if __name__ == '__main__':
