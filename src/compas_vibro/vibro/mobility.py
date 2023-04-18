@@ -67,8 +67,6 @@ def write_mob_mat_files(structure, freq_list, mob_mats, files_path):
     num_inks, num_v = mob_mats[0].shape
     rad_nks = structure.radiating_nodes()
 
-    print(rad_nks)
-
     for ink in range(num_inks):
         ink_path = os.path.join(files_path, 'pt{}'.format(ink + 1))
         if not os.path.isdir(ink_path):
