@@ -263,7 +263,7 @@ def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho)
     num_freq = len(data[key_rad][key_freq]['mobility'])
     frequencies = [data[key_rad][key_freq]['mobility'][fk]['frequency'] for fk in range(num_freq)]
 
-    print(num_inc, num_rad, num_freq)
+    # print(num_inc, num_rad, num_freq)
 
     mob_mats = []
     for fi in range(num_freq):
@@ -316,6 +316,7 @@ def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho)
         rs.append(R)
     return freqs, rs
 
+
 def compute_mobility_based_r_measured_fea(data, folders, rad_mesh, inc_mesh, c, rho):
     """This function pretends FEA data is measured data
     """
@@ -352,12 +353,12 @@ def compute_mobility_based_r_measured_fea(data, folders, rad_mesh, inc_mesh, c, 
     rad_mats = compute_radiation_matrices_measured(rad_mesh, frequencies, c, rho)
     spec_mats = compute_cross_spectral_matrices_measured(inc_mesh, frequencies, c)
 
-    print('num freq', num_freq)
-    print('num rad vertices', rad_mesh.number_of_vertices())
-    print('rad verts on boundary', len(rad_mesh.vertices_on_boundary()))
-    print('num inc_mesh vertices', inc_mesh.number_of_vertices())
-    print(len(mob_mats[0]))
-    print(len(rad_mats[0]))
+    # print('num freq', num_freq)
+    # print('num rad vertices', rad_mesh.number_of_vertices())
+    # print('rad verts on boundary', len(rad_mesh.vertices_on_boundary()))
+    # print('num inc_mesh vertices', inc_mesh.number_of_vertices())
+    # print(len(mob_mats[0]))
+    # print(len(rad_mats[0]))
 
 
     bnks = rad_mesh.vertices_on_boundary()
@@ -369,19 +370,25 @@ def compute_mobility_based_r_measured_fea(data, folders, rad_mesh, inc_mesh, c, 
     inc_nks_ = [gk_dict[geometric_key(inc_mesh.vertex_coordinates(nk))] for nk in inc_nks]
     areas_inc = [inc_mesh.vertex_area(nk) for nk in inc_nks_]
     dS_inc = make_diagonal_area_matrix(areas_inc)
+    dS_inc *= 1.5
     S_inc = np.trace(dS_inc)
 
     areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
     dS_rad = make_diagonal_area_matrix(areas_rad)
+    dS_rad *= 1.5
     # S_rad = np.trace(dS_rad)
 
     freqs = []
     rs = []
     for i, f in enumerate(frequencies):
         H = mob_mats[i].transpose()
+        # H *= 2.
         H_ = np.conjugate(np.transpose(H))
         Z = rad_mats[i]
+        # Z *= 2.5
         Gd = spec_mats[i]
+        # Gd *= .01
+
 
         A = np.matmul(Z, H)
         A1 = np.matmul(A, dS_inc)
@@ -395,7 +402,6 @@ def compute_mobility_based_r_measured_fea(data, folders, rad_mesh, inc_mesh, c, 
         freqs.append(f)
         rs.append(R)
     return freqs, rs
-
 
 
 if __name__ == '__main__':
