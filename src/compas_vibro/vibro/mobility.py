@@ -187,7 +187,7 @@ def compute_mobility_based_r(structure, freq_list, damping, fx, fy, fz, backend=
 
         areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
         dS_rad = make_diagonal_area_matrix(areas_rad)
-        S_rad = np.trace(dS_rad)
+        # S_rad = np.trace(dS_rad)
         
         # print('area check', S_inc, S_rad)
 
@@ -291,7 +291,7 @@ def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho)
 
     areas_rad = [rad_mesh.vertex_area(nk) for nk in rad_nks]
     dS_rad = make_diagonal_area_matrix(areas_rad)
-    # S_rad = np.trace(dS_rad)
+    S_rad = np.trace(dS_rad)
 
     freqs = []
     rs = []
@@ -307,7 +307,8 @@ def compute_mobility_based_r_measured(data, folders, rad_mesh, inc_mesh, c, rho)
         C = np.matmul(B, dS_inc)
         D = np.matmul(C, H_)
         E = np.matmul(dS_rad, np.real(D))
-        F = ((8 * rho * c ) / S_inc) * np.trace(E)
+        # F = ((8 * rho * c ) / S_inc) * np.trace(E)
+        F = ((8 * rho * c ) / S_rad) * np.trace(E)
         R = -10 * np.log10(F)
     
         freqs.append(f)
