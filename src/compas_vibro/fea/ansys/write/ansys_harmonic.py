@@ -27,7 +27,7 @@ __email__      = 'tmendeze@uw.edu'
 __all__ = ['write_command_file_harmonic']
 
 
-def write_command_file_harmonic(structure, fields):
+def write_command_file_harmonic(structure, fields, selected_nodes):
     path = structure.path
     filename = structure.name + '.txt'
     
@@ -40,7 +40,7 @@ def write_command_file_harmonic(structure, fields):
     write_loads(structure, 'harmonic', path, filename)
     write_loadstep(structure, path, filename)
     write_solve_step(structure, path, filename)
-    write_harmonic_results(structure, fields, path, filename)
+    write_harmonic_results(structure, fields, path, filename, selected_nodes)
 
 
 def write_harmonic_solve(structure, path, filename):
@@ -75,13 +75,13 @@ def write_harmonic_solve(structure, path, filename):
     cFile.close()
 
 
-def write_harmonic_results(structure, fields, path, filename):
+def write_harmonic_results(structure, fields, path, filename, selected_nodes):
 
     if type(fields) == str:
         fields = [fields]
 
     if 'u' in fields or 'all' in fields:
-            write_freq_displacements(structure, path, filename)
+            write_freq_displacements(structure, path, filename, selected_nodes)
 
 
 def write_harmonic_post_process(path, name):
@@ -94,12 +94,33 @@ def write_harmonic_post_process(path, name):
     cFile.close()
 
 
-def write_freq_displacements(structure, path, filename):
+def write_freq_displacements(structure, path, filename, selected_nodes):
     
     freq_list = structure.step['harmonic'].freq_list
     out_path = os.path.join(path, structure.name + '_output')
 
     cFile = open(os.path.join(path, filename), 'a')
+
+    #TODO: Implement this sype of loop for selected nodes (perhaps for all nodes too)
+    
+    """
+    nTime = 5
+    *dim,timesArr,array,nTime
+    timesArr(1) = 1.0,2.0,3.0,4.0,5.0
+    *do,i,1,nTime  !loop over number of time variables
+    /MKDIR,D:\temp\model_%i%  ! D:\temp must exist
+    /CWD,D:\temp\model_%i%    ! Change working directory 
+    !---------------------------------------! 
+    !       your input file goes here
+    !---------------------------------------! 
+    /solu ! Set time variable in /solu
+    time,timesArr(i)
+    !---------------------------------------! 
+    !   boundaries and postprocessing here
+    !---------------------------------------! 
+    save,model_%i%,db
+    *enddo
+    """
 
     cFile.write('/POST1 \n')
     cFile.write('SET, 1, \n')

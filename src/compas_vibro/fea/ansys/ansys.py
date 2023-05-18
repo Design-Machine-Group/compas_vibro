@@ -102,7 +102,7 @@ def ansys_modal_prestressed(structure, fields, num_modes, license='default'):
     return structure
 
 
-def ansys_harmonic(structure, freq_list, fields='all', damping=0.02):
+def ansys_harmonic(structure, freq_list, fields='all', damping=0.02, selected_nodes=None):
 
     # # add harmonic step --------------------------------------------------------
     loads = [structure.loads[lk].name for lk in structure.loads]
@@ -115,7 +115,7 @@ def ansys_harmonic(structure, freq_list, fields='all', damping=0.02):
     structure.steps_order = [structure.name + '_harmonic']
 
     # analyse and extraxt results ----------------------------------------------
-    write_command_file_harmonic(structure, fields)
+    write_command_file_harmonic(structure, fields, selected_nodes)
     ansys_launch_process(structure, cpus=4, license=license, delete=True)
     extract_data(structure, fields, 'harmonic')
     return structure
