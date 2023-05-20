@@ -99,71 +99,69 @@ def write_freq_displacements(structure, path, filename, selected_nodes):
     freq_list = structure.step['harmonic'].freq_list
     out_path = os.path.join(path, structure.name + '_output')
 
-    cFile = open(os.path.join(path, filename), 'a')
+    fh = open(os.path.join(path, filename), 'a')
 
     #TODO: Implement this sype of loop for selected nodes (perhaps for all nodes too)
     
-    """
-    nTime = 5
-    *dim,timesArr,array,nTime
-    timesArr(1) = 1.0,2.0,3.0,4.0,5.0
-    *do,i,1,nTime  !loop over number of time variables
-    /MKDIR,D:\temp\model_%i%  ! D:\temp must exist
-    /CWD,D:\temp\model_%i%    ! Change working directory 
-    !---------------------------------------! 
-    !       your input file goes here
-    !---------------------------------------! 
-    /solu ! Set time variable in /solu
-    time,timesArr(i)
-    !---------------------------------------! 
-    !   boundaries and postprocessing here
-    !---------------------------------------! 
-    save,model_%i%,db
-    *enddo
-    """
 
-    cFile.write('/POST1 \n')
-    cFile.write('SET, 1, \n')
-    cFile.write('*get,num_n,NODE,0,COUNT ! get number of nodes \n')
-    cFile.write('*get,n_min,NODE,0,NUM,MIN ! get min node number \n')
 
-    cFile.write('/POST26 \n')
-    cFile.write('PRCPLX, 0 \n')
-    cFile.write('!\n')
-    cFile.write('!\n')
+    fh.write('/POST1 \n')
+    fh.write('SET, 1, \n')
+    fh.write('*get,num_n,NODE,0,COUNT ! get number of nodes \n')
+    fh.write('*get,n_min,NODE,0,NUM,MIN ! get min node number \n')
 
-    cFile.write('*do,i,1,num_n,1   ! output to ascii by looping over nodes \n')
-    cFile.write('curr_n=n_min \n')
-    cFile.write('nsol,2,curr_n,u,x ! output UX \n')
-    cFile.write('nsol,3,curr_n,u,y ! output UY \n')
-    cFile.write('nsol,4,curr_n,u,z ! output UZ \n')
+    fh.write('/POST26 \n')
+    fh.write('PRCPLX, 0 \n')
+    fh.write('!\n')
+    fh.write('!\n')
 
-    cFile.write('*dim,N%curr_n%_output,array,' + str(len(freq_list)) + ',7 \n')
+    if selected_nodes:
+        fh.write('nSelNodes = {}\n'.format(len(selected_nodes)))
+        fh.write('*dim,nodesArr,array,nSelNodes\n')
+        string =  'nodesArr(1) = '
+        for nk in selected_nodes:
+            string += '{},'.format(nk + 1) 
+        fh.write('{}\n'.format(string))
+        fh.write('*do,i,1,nSelNodes  !loop over selected nodes\n')
+        fh.write('curr_n = nodesArr(i)\n')
+    else:
+        fh.write('*do,i,1,num_n,1   ! output to ascii by looping over nodes \n')
+        fh.write('curr_n=n_min \n')
 
-    cFile.write('vget,N%curr_n%_output(1,1),1 ! put time in array \n')
-    cFile.write('vget,N%curr_n%_output(1,2),2,,0 ! put UX in array \n')
-    cFile.write('vget,N%curr_n%_output(1,3),3,,0 ! put UY in array \n')
-    cFile.write('vget,N%curr_n%_output(1,4),4,,0 ! put UZ in array \n')
+    fh.write('nsol,2,curr_n,u,x ! output UX \n')
+    fh.write('nsol,3,curr_n,u,y ! output UY \n')
+    fh.write('nsol,4,curr_n,u,z ! output UZ \n')
 
-    cFile.write('vget,N%curr_n%_output(1,5),2,,1 ! put UX in array \n')
-    cFile.write('vget,N%curr_n%_output(1,6),3,,1 ! put UY in array \n')
-    cFile.write('vget,N%curr_n%_output(1,7),4,,1 ! put UZ in array \n')
+    fh.write('*dim,N%curr_n%_output,array,' + str(len(freq_list)) + ',7 \n')
 
-    cFile.write('*cfopen,' + out_path + '/node_real_%curr_n%,txt \n')
-    cFile.write('*vwrite,N%curr_n%_output(1,1),\',\' ,N%curr_n%_output(1,2),\',\' ,')
-    cFile.write('N%curr_n%_output(1,3),\',\' ,N%curr_n%_output(1,4) \n')
-    cFile.write('(F8.0, A, E12.5, A, E12.5, A, E12.5, A, E12.5)  \n')
-    cFile.write('*cfclose\n')
+    fh.write('vget,N%curr_n%_output(1,1),1 ! put time in array \n')
+    fh.write('vget,N%curr_n%_output(1,2),2,,0 ! put UX in array \n')
+    fh.write('vget,N%curr_n%_output(1,3),3,,0 ! put UY in array \n')
+    fh.write('vget,N%curr_n%_output(1,4),4,,0 ! put UZ in array \n')
 
-    cFile.write('*cfopen,' + out_path + '/node_imag_%curr_n%,txt \n')
-    cFile.write('*vwrite,N%curr_n%_output(1,1),\',\' ,N%curr_n%_output(1,5),\',\' ')
-    cFile.write(' ,N%curr_n%_output(1,6),\',\' ,N%curr_n%_output(1,7)\n')
-    cFile.write('(F8.0, A, E12.5, A, E12.5, A, E12.5, A, E12.5)  \n')
-    cFile.write('*cfclose\n')
+    fh.write('vget,N%curr_n%_output(1,5),2,,1 ! put UX in array \n')
+    fh.write('vget,N%curr_n%_output(1,6),3,,1 ! put UY in array \n')
+    fh.write('vget,N%curr_n%_output(1,7),4,,1 ! put UZ in array \n')
 
-    cFile.write('*get,n_min,NODE,curr_n,NXTH \n')
-    cFile.write('*enddo \n')
-    cFile.write('!\n')
-    cFile.write('!\n')
-    cFile.close()
+    fh.write('*cfopen,' + out_path + '/node_real_%curr_n%,txt \n')
+    fh.write('*vwrite,N%curr_n%_output(1,1),\',\' ,N%curr_n%_output(1,2),\',\' ,')
+    fh.write('N%curr_n%_output(1,3),\',\' ,N%curr_n%_output(1,4) \n')
+    fh.write('(F8.0, A, E12.5, A, E12.5, A, E12.5, A, E12.5)  \n')
+    fh.write('*cfclose\n')
+
+    fh.write('*cfopen,' + out_path + '/node_imag_%curr_n%,txt \n')
+    fh.write('*vwrite,N%curr_n%_output(1,1),\',\' ,N%curr_n%_output(1,5),\',\' ')
+    fh.write(' ,N%curr_n%_output(1,6),\',\' ,N%curr_n%_output(1,7)\n')
+    fh.write('(F8.0, A, E12.5, A, E12.5, A, E12.5, A, E12.5)  \n')
+    fh.write('*cfclose\n')
+
+    if selected_nodes:
+        pass
+    else:
+        fh.write('*get,n_min,NODE,curr_n,NXTH \n')
+
+    fh.write('*enddo \n')
+    fh.write('!\n')
+    fh.write('!\n')
+    fh.close()
 

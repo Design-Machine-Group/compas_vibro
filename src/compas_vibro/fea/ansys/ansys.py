@@ -117,7 +117,7 @@ def ansys_harmonic(structure, freq_list, fields='all', damping=0.02, selected_no
     # analyse and extraxt results ----------------------------------------------
     write_command_file_harmonic(structure, fields, selected_nodes)
     ansys_launch_process(structure, cpus=4, license=license, delete=True)
-    extract_data(structure, fields, 'harmonic')
+    extract_data(structure, fields, 'harmonic', selected_nodes=selected_nodes)
     return structure
 
 
@@ -175,7 +175,7 @@ def ansys_harmonic_field(structure, num_modes, freq_list, fields='all', damping=
     return structure
 
 
-def extract_data(structure, fields, results_type):
+def extract_data(structure, fields, results_type, selected_nodes=None):
     path = structure.path
     name = structure.name
     out_path = os.path.join(path, name + '_output')
@@ -214,7 +214,7 @@ def extract_data(structure, fields, results_type):
 
         if 'u' in fields or 'all' in fields:
             # this is still not great, frequencies are from structure, not files...
-            hd = read_harmonic_displacements(structure, out_path, freq_list)
+            hd = read_harmonic_displacements(structure, out_path, freq_list, selected_nodes=selected_nodes)
             # structure.tomas = hd
             for fkey in hd:
                 structure.results['harmonic'][fkey].displacements = hd[fkey]

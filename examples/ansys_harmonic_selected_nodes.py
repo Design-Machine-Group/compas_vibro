@@ -66,17 +66,23 @@ s.add(el_prop)
 # add analysis frequencies - - - - - - - -
 freq_list = range(20, 200, 2)
 
-v = StructureViewer(s)
-v.show_node_labels = True
-v.show()
+# v = StructureViewer(s)
+# v.show_node_labels = True
+# v.show()
 
 num_modes = 20
 
+selected_nodes = [200, 220, 240]
+# selected_nodes = None
+
 # analyze - - - - 
-s.analyze_harmonic(freq_list, fields=['u'], backend='ansys', selected_nodes=[200, 220, 240])
+s.analyze_harmonic(freq_list, fields=['u'], backend='ansys', selected_nodes=selected_nodes)
 
-# # save results - - - - - - 
-# s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
+# save results - - - - - - 
+s.to_obj(path=os.path.join(compas_vibro.DATA, 'structures'))
 
-# v = StructureViewer(s)
-# v.show('harmonic')
+for nk in selected_nodes:
+    for freq in s.results['harmonic']:
+        disp = s.results['harmonic'][freq].displacements[nk]['real']
+        print(nk, freq, disp['x'], disp['y'], disp['z'])
+    print('')
