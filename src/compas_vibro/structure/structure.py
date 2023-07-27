@@ -189,11 +189,14 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         return ekeys
         
     def add_gravity_from_mesh(self, mesh, thickness, density):
+        num_loads = len(self.loads)
         for vk in mesh.vertices():
             area = mesh.vertex_area(vk)
             l = area * thickness * density
-            load = PointLoad(vk, vk, z=-l)
-            self.loads[vk] = load
+            nk = self.check_node_exists(mesh.vertex_coordinates(vk))
+            load = PointLoad('gravity_{}'.format(nk), [vk], z=-l)
+            self.loads[num_loads] = load
+            num_loads += 1
 
     def add_incident_elements_from_mesh(self, mesh):
         self.inc_mesh = mesh

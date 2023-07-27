@@ -47,6 +47,8 @@ class StructureViewer(object):
         self.show_rad_nodes             = False
         self.show_incident_nodes        = False
         self.contains_supports          = False
+        self.show_maximum_stresses      = False
+
         self.beam_sec_names             = structure.beam_sections
 
         self.shell_elements             = []
@@ -57,10 +59,14 @@ class StructureViewer(object):
         self.modal_scale                = 4.
         self.harmonic_scale             = 2e7
         self.static_scale               = 2e5
-        self.displacement_colorscale    =  'inferno'  # 'rainbow'  #'Portland' # 'Agsunset'
+        self.displacement_colorscale    = 'jet' #'blackbody_r' #  'RdBu'  # 'rainbow'  #'Portland' # 'Agsunset' # 'inferno'
+        self.stresses_colorscale        = 'RdBu'
         self.bar_mode                   = 'displacements'
         self.beam_line_width            = 10
         self.show_legend                = True
+        self.cmin                       = None
+        self.cmax                       = None
+
 
     @property
     def num_traces(self):
@@ -600,14 +606,56 @@ class StructureViewer(object):
                 mode = 0
             # for nk in self.structure.nodes:
             for nk in mesh.vertex:
-                normal = mesh.vertex_normal(nk)
                 dx = self.structure.results[visualization_type][mode].displacements['ux'][nk]
                 dy = self.structure.results[visualization_type][mode].displacements['uy'][nk]
                 dz = self.structure.results[visualization_type][mode].displacements['uz'][nk]
-                vsign = copysign(1, dot_vectors([dx, dy, dz], normal))
-                lv = length_vector([dx, dy, dz]) * vsign
+                # normal = mesh.vertex_normal(nk)
+                # vsign = copysign(1, dot_vectors([dx, dy, dz], normal))
+                # lv = length_vector([dx, dy, dz]) * vsign
+                lv = length_vector([dx, dy, dz])# * vsign
                 intensity_.append(lv)
                 text.append(lv)
+
+
+        elif self.bar_mode == 'principal_stresses':
+            # pskey_top = 'ps{}t'.format(self.principal_stress_order)
+            # pskey_bot = 'ps{}b'.format(self.principal_stress_order)
+            showscale = True
+            intensitymode = None
+            colorscale = self.stresses_colorscale
+            intensity_ = []
+            text = []
+            if mode == None:
+                mode = 0
+            for nk in mesh.vertex:
+                ps1t = self.structure.results[visualization_type][mode].principal_stresses['ps1t'][nk] / 1e6
+                ps1b = self.structure.results[visualization_type][mode].principal_stresses['ps1b'][nk] / 1e6
+                ps3t = self.structure.results[visualization_type][mode].principal_stresses['ps3t'][nk] / 1e6
+                ps3b = self.structure.results[visualization_type][mode].principal_stresses['ps3b'][nk] / 1e6
+
+                if abs(ps1t) > abs(ps1b):
+                    ps1 = ps1t
+                else:
+                    ps1 = ps1b
+
+                if abs(ps3t) > abs(ps3b):
+                    ps3 = ps3t
+                else:
+                    ps3 = ps3b
+
+                if abs(ps1) > abs(ps3):
+                    ps = ps1
+                else:
+                    ps = ps3
+
+                intensity_.append(ps)
+                text.append(ps)
+            if self.cmin==None or self.cmax==None:
+                max_ = max(intensity_)
+                min_ = min(intensity_)
+                abs_max = max([abs(max_), abs(min_)])
+                self.cmax = abs_max
+                self.cmin = - abs_max
 
         faces = [go.Mesh3d(name='Shell elements',
                            x=x,
@@ -617,9 +665,11 @@ class StructureViewer(object):
                            j=j,
                            k=k,
                            opacity=1.,
-                           colorbar_title=self.bar_mode,
+                           colorbar_title='{} (MPa)'.format(self.bar_mode),
                            colorbar_thickness=10,
                            colorscale=colorscale,
+                           cmax = self.cmax,
+                           cmin = self.cmin,
                            intensity=intensity_,
                            intensitymode=intensitymode,
                            text=text,
@@ -699,6 +749,37 @@ class StructureViewer(object):
         dots.append(go.Scatter3d(name='incident_nodes', x=x, y=y, z=z, mode='markers', marker_color=color))
         self.data.extend(dots)
 
+    def plot_maximum_stresses(self):
+        mesh = self.mesh
+        mode = 0
+        max_ps = {'nk': None, 'ps': 0}
+        min_ps = {'nk': None, 'ps': 0}
+        for nk in mesh.vertex:
+            ps1t = self.structure.results['static'][mode].principal_stresses['ps1t'][nk] / 1e6 
+            ps1b = self.structure.results['static'][mode].principal_stresses['ps1b'][nk] / 1e6
+            ps1 = max([ps1t, ps1b])
+            ps3t = self.structure.results['static'][mode].principal_stresses['ps3t'][nk] / 1e6
+            ps3b = self.structure.results['static'][mode].principal_stresses['ps3b'][nk] / 1e6
+            ps3 = min([ps3t, ps3b])
+            if ps1 > max_ps['ps']:
+                max_ps['nk'] = nk
+                max_ps['ps'] = ps1
+            if ps3 < min_ps['ps']:
+                min_ps['nk'] = nk
+                min_ps['ps'] = ps3
+
+        xyz_max = mesh.vertex_coordinates(max_ps['nk'])
+        xyz_min = mesh.vertex_coordinates(min_ps['nk'])
+        text_max = 'max_stress_{}(MPa)'.format(round(max_ps['ps'], 3))
+        text_min = 'min_stress_{}(MPa)'.format(round(min_ps['ps'], 3))
+        x = [xyz_max[0], xyz_min[0]]
+        y = [xyz_max[1], xyz_min[1]]
+        z = [xyz_max[2], xyz_min[2]]
+        text = [text_max, text_min]
+        dots = [go.Scatter3d(x=x, y=y, z=z, text=text, mode='markers+text')]
+        self.data.extend(dots)
+
+
     def show_structure(self):
         self.make_shell_mesh()
         if self.shell_elements:
@@ -733,6 +814,9 @@ class StructureViewer(object):
             
         if self.shell_elements:
             self.plot_shell_shape(visualization_type='static')
+
+        if self.show_maximum_stresses:
+            self.plot_maximum_stresses()
 
         if self.beam_elements and self.show_beams:
             if self.show_beam_sections:
@@ -821,24 +905,24 @@ class StructureViewer(object):
             raise ValueError('This type of result plot has not been implemented')
         
 if __name__ == '__main__':
+    pass
+    # import os
+    # import compas_vibro
+    # from compas_vibro.structure import Structure
 
-    import os
-    import compas_vibro
-    from compas_vibro.structure import Structure
+    # # file = 'shell_beams_modal.obj'
+    # # file = 'shell_beams_harmonic.obj'
+    # # file = 'shell_boxbeams_modal.obj'
+    # # file = 'flat_web.obj'
+    # # file = 'volmesh.obj'
+    # file = 'opensees_flat_mesh_100x100_modal.obj'
+    # fp = os.path.join(compas_vibro.DATA, 'structures', file)
+    # # fp = os.path.join(compas_vibro.TEMP, file)
+    # s = Structure.from_obj(fp)
 
-    # file = 'shell_beams_modal.obj'
-    # file = 'shell_beams_harmonic.obj'
-    # file = 'shell_boxbeams_modal.obj'
-    # file = 'flat_web.obj'
-    # file = 'volmesh.obj'
-    file = 'opensees_flat_mesh_100x100_modal.obj'
-    fp = os.path.join(compas_vibro.DATA, 'structures', file)
-    # fp = os.path.join(compas_vibro.TEMP, file)
-    s = Structure.from_obj(fp)
-
-    v = StructureViewer(s)
-    v.modal_scale = 40
-    # v.show_beam_sections = False
-    v.show_node_labels = False
-    v.show('modal')
+    # v = StructureViewer(s)
+    # v.modal_scale = 40
+    # # v.show_beam_sections = False
+    # v.show_node_labels = False
+    # v.show('modal')
     

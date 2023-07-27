@@ -13,6 +13,7 @@ __all__ = ['Load',
            'PointLoad',
            'HarmonicPointLoad',
            'HarmonicPressureFieldsLoad',
+           'GravityLoad',
            'Prestress',
            ]
 
@@ -157,6 +158,36 @@ class HarmonicPressureFieldsLoad(FieldsLoad):
 
         self.__name__   = 'HarmonicPressureFieldsLoad'
         self.fields      = fields
+
+
+class GravityLoad(Load):
+
+    """ Gravity load [units:N/m3] applied to element(s).
+
+    Parameters
+    ----------
+    name : str
+        Name of the GravityLoad object.
+    elements : str, list
+        Element set or element keys the load is applied to.
+    g : float
+        Value of gravitational acceleration.
+    x : float
+        Factor to apply to x direction.
+    y : float
+        Factor to apply to y direction.
+    z : float
+        Factor to apply to z direction.
+
+    """
+
+    def __init__(self, name, elements, g=-9.81, x=0., y=0., z=1.):
+        Load.__init__(self, name=name, elements=elements, axes='global')
+
+        self.__name__ = 'GravityLoad'
+        self.g = g
+        self.components = {'x': x, 'y': y, 'z': z}
+        self.attr_list.append('g')
 
 
 class Prestress(Load):

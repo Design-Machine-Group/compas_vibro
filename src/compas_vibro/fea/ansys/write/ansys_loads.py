@@ -48,6 +48,8 @@ def write_loads(structure, step_type, output_path, filename):
                 fload =  write_fields_loads(structure, load, output_path, filename)
             elif load.__name__ == 'Prestress':
                 continue
+            elif load.__name__ == 'GravityLoad':
+                gload = write_gravity_loading(structure, output_path, filename, load)
             else:
                 raise ValueError(load.__name__ + ' Type of load is not yet implemented for Ansys')
         if pload:
@@ -141,10 +143,12 @@ def write_apply_nodal_load(structure, output_path, filename, lkey, factor):
     cFile.close()
 
 
-def write_gravity_loading(structure, output_path, filename, gravity, factor):
+def write_gravity_loading(structure, output_path, filename, gload):
+    x = gload.components['x']
+    y = gload.components['y']
+    z = gload.components['z']
     cFile = open(os.path.join(output_path, filename), 'a')
-    gravity = abs(gravity) * factor
-    cFile.write('ACEL,0,0,' + str(gravity) + ',\n')
+    cFile.write('ACEL,{},{},{},\n'.format(x, y, z))
     cFile.write('!\n')
     cFile.write('!\n')
     cFile.close()
