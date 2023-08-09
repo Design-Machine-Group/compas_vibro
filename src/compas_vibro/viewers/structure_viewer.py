@@ -705,14 +705,15 @@ class StructureViewer(object):
             n = load.__name__
             if load.__name__ == 'PointLoad':
                 nodes = load.nodes
-                x = [self.structure.nodes[nk].x for nk in nodes]
-                y = [self.structure.nodes[nk].y for nk in nodes]
-                z = [self.structure.nodes[nk].z for nk in nodes]
-                px = [load.components['x'] for _ in range(len(x))]
-                py = [load.components['y'] for _ in range(len(x))]
-                pz = [load.components['z'] for _ in range(len(x))]
-                dots.append(go.Cone(name=n, x=x, y=y, z=z, u=px, v=py, w=pz, showscale=False, sizemode='scaled', sizeref=.12))
-                # dots.append(go.Scatter3d(name=n, x=x, y=y, z=z, mode='markers',marker_color=color))
+                x = [self.mesh.vertex_coordinates(nk)[0] for nk in nodes]
+                y = [self.mesh.vertex_coordinates(nk)[1] for nk in nodes]
+                z = [self.mesh.vertex_coordinates(nk)[2] for nk in nodes]
+                px = load.components['x']
+                py = load.components['y']
+                pz = load.components['z']
+                text = ['x{}, y{}, z{}'.format(px, py, pz) for _ in range(len(x))]
+                # dots.append(go.Cone(name=n, x=x, y=y, z=z, u=px, v=py, w=pz, showscale=False, sizemode=None, sizeref=.0001))
+                dots.append(go.Scatter3d(name=n, x=x, y=y, z=z, text=text, mode='markers+text',marker_color=color))
         self.data.extend(dots)
 
     def plot_node_labels(self):
@@ -776,7 +777,7 @@ class StructureViewer(object):
         y = [xyz_max[1], xyz_min[1]]
         z = [xyz_max[2], xyz_min[2]]
         text = [text_max, text_min]
-        dots = [go.Scatter3d(x=x, y=y, z=z, text=text, mode='markers+text')]
+        dots = [go.Scatter3d(x=x, y=y, z=z, text=text, mode='markers+text', name='Max-Min stresses')]
         self.data.extend(dots)
 
 
@@ -823,6 +824,9 @@ class StructureViewer(object):
                 self.plot_3d_beams(load_step=0)
             else:
                 self.plot_beam_lines(load_step=0)  
+
+        if self.show_point_loads:
+            self.plot_point_loads()
 
         if self.show_supports:
             self.plot_supports()
