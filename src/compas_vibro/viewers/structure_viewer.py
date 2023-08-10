@@ -571,6 +571,7 @@ class StructureViewer(object):
             intensitymode = 'cell'
             colorscale = 'Emrld_r'
             attrs = ['elset', 'is_rad', 'material', 'thickess']
+            colorbar_title='{}'.format(self.bar_mode)
             intensity_ = []
             text = []
             for ek in elements:
@@ -600,6 +601,7 @@ class StructureViewer(object):
             showscale = True
             intensitymode = None
             colorscale = self.displacement_colorscale
+            colorbar_title='{} (m)'.format(self.bar_mode)
             intensity_ = []
             text = []
             if mode == None:
@@ -623,6 +625,7 @@ class StructureViewer(object):
             showscale = True
             intensitymode = None
             colorscale = self.stresses_colorscale
+            colorbar_title='{} (MPa)'.format(self.bar_mode)
             intensity_ = []
             text = []
             if mode == None:
@@ -665,7 +668,7 @@ class StructureViewer(object):
                            j=j,
                            k=k,
                            opacity=1.,
-                           colorbar_title='{} (MPa)'.format(self.bar_mode),
+                           colorbar_title=colorbar_title,
                            colorbar_thickness=10,
                            colorscale=colorscale,
                            cmax = self.cmax,
@@ -779,7 +782,6 @@ class StructureViewer(object):
         text = [text_max, text_min]
         dots = [go.Scatter3d(x=x, y=y, z=z, text=text, mode='markers+text', name='Max-Min stresses')]
         self.data.extend(dots)
-
 
     def show_structure(self):
         self.make_shell_mesh()
