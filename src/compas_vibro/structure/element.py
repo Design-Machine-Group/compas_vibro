@@ -15,6 +15,7 @@ __all__ = ['ShellElement',
            'TrussElement',
            'MassElement',
            'SolidElement',
+           'SpringElement',
            ]
 
 
@@ -149,10 +150,6 @@ class MassElement(Element):
 
         self.__name__ = 'MassElement'
 
-if __name__ == "__main__":
-    el = MassElement()
-    print(el)
-
 
 class SolidElement(Element):
 
@@ -168,4 +165,28 @@ class SolidElement(Element):
         Element.__init__(self)
 
         self.__name__ = 'SolidElement'
+
+
+class SpringElement(Element):
+
+    """ A 1D spring element.
+
+    Parameters
+    ----------
+    None
+
+    """
+
+    def __init__(self):
+        Element.__init__(self)
+
+        self.__name__ = 'SpringElement'
+
+
+if __name__ == "__main__":
+    el = MassElement()
+    print(el)
+
+
+
 

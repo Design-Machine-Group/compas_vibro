@@ -393,7 +393,6 @@ def write_tie_section(output_path, filename, sec_area, sec_index, axial_force):
     cFile.close()
 
 
-
 def write_circular_section(output_path, filename, radius, sec_index):
     cFile = open(os.path.join(output_path, filename), 'a')
     cFile.write('SECTYPE, ' + str(sec_index + 1) + ', BEAM, CSOLID , 0 \n')
