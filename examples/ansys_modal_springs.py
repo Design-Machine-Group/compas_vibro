@@ -8,13 +8,14 @@ from compas.datastructures import Mesh
 
 import compas_vibro
 
-
 from compas_vibro.structure import Structure
 from compas_vibro.structure import FixedDisplacement
 from compas_vibro.structure import PointLoad
 from compas_vibro.structure import ShellSection
 from compas_vibro.structure import ElasticIsotropic
 from compas_vibro.structure import ElementProperties
+from compas_vibro.structure import SpringElement
+from compas_vibro.structure import SpringSection
 
 from compas_vibro.viewers import StructureViewer
 
@@ -36,6 +37,36 @@ s = Structure(path, name)
 
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
+# add springs - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+nkeys = [220]
+for nkey in nkeys:
+    s.add_nodal_element(nkey, 'SpringElement', virtual_node=True)
+
+
+"""
+kn = klist[0]
+kt = klist[1]
+kz = klist[2]
+kr = klist[3]
+kdicts = [{'x':kt, 'y':kn, 'z':kz, 'xx':kr},
+            {'x':kn, 'y':kt, 'z':kz, 'yy':kr},
+            {'x':kt, 'y':kn, 'z':kz, 'xx':kr}]
+
+for i, pts in enumerate(pts_list):
+    spring_keys = []
+    for pt in pts:
+        nkey = s.check_node_exists(pt)
+        spring_keys.append(s.add_nodal_element(nkey, 'SpringElement', virtual_node=True))
+    s.add_set('springs_'+str(i), 'element', spring_keys)
+    spring_section = SpringSection('spring_section_'+str(i), stiffness=kdicts[i])
+    prop = ElementProperties(name='springs_' + str(i), material=None,section=spring_section, elsets=['springs_'+str(i)])
+    s.add_element_properties(prop)
+"""
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
 d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
 s.add(d)
 
@@ -45,17 +76,21 @@ s.add(section)
 material = ElasticIsotropic('concrete', E=30e9, v=.2, p=2400)
 s.add(material)
 
-
 el_prop = ElementProperties('concrete_shell',
                             material='concrete',
                             section='shell_sec',
                             elset='shell')
 s.add(el_prop)
 
-s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
-s.to_obj()
 v = StructureViewer(s)
-v.show('modal')
+# v.show_node_labels = True
+v.show()
+
+
+# s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
+# s.to_obj()
+# v = StructureViewer(s)
+# v.show('modal')
 
 # modes = s.results['modal'].keys()
 # for mode in modes:
@@ -64,6 +99,8 @@ v.show('modal')
 #     em = s.results['modal'][mode].efmass['z']
 #     print(mode, f, pf, em)
 
-# TODO: Add spring elements, figure out how many are needed
+# TODO: Do I need all this nodal elemenmt crap? virtual node/element? why?
+        # TODO: How do I create a second node for the "nodal" spring element? why? do I need zero length?
+# TODO: Add spring elements/sections, figure out how many types are needed
 # TODO: Visualize spring elements in structure viewer (probably as dots?)
 # TODO: Fix overlap in modal viewer, by getting rid of color bar
