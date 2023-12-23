@@ -101,6 +101,10 @@ v.show()
 
 # TODO: Do I need all this nodal elemenmt crap? virtual node/element? why?
         # TODO: How do I create a second node for the "nodal" spring element? why? do I need zero length?
+        # The second node is the virtual node
+        # The second node is virtual, aparently because it has the same coordinates as the first...
+        # Having a second node on the same coordinates makes the spring zero length, does this work?
+            # Just try and see what happens!
 # TODO: Add spring elements/sections, figure out how many types are needed
 # TODO: Visualize spring elements in structure viewer (probably as dots?)
 # TODO: Fix overlap in modal viewer, by getting rid of color bar
