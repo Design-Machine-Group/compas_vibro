@@ -54,6 +54,7 @@ class StructureViewer(object):
         self.shell_elements             = []
         self.beam_elements              = []
         self.solid_elements             = []
+        self.spring_elements            = []
         self.mesh                       = None
 
         self.modal_scale                = 4.
@@ -97,6 +98,13 @@ class StructureViewer(object):
                     elset = self.structure.element_properties[epk].elset
                     el_keys = self.structure.sets[elset].selection
                 self.beam_elements.extend(el_keys)
+            elif sec_name == 'SpringSection':
+                el_keys = self.structure.element_properties[epk].elements
+                if el_keys == None:
+                    elset = self.structure.element_properties[epk].elset
+                    el_keys = self.structure.sets[elset].selection
+                self.spring_elements.extend(el_keys)
+
 
     def make_shell_mesh(self, mode=None, frequency=None, load_step=None):
 
@@ -683,6 +691,10 @@ class StructureViewer(object):
         self.data.extend(lines)
         self.data.extend(faces)
 
+    def plot_springs(self):
+        print('something needs to be dsone here')
+        pass
+
     def plot_supports(self):
         dots = []
         red = 'rgb(255, 0, 0)'
@@ -808,6 +820,9 @@ class StructureViewer(object):
 
         if self.show_incident_nodes:
             self.plot_incident_nodes()
+
+        if self.spring_elements:
+            self.plot_springs()
         
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()

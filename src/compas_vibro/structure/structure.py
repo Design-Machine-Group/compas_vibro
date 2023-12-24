@@ -81,6 +81,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.nodes                  = {}
         self.node_index             = {}
         self.virtual_node_index     = {}
+        self.virtual_nodes         = {}
         self.path                   = path
         self.results                = {}
         self.sections               = {}

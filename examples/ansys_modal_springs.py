@@ -40,8 +40,26 @@ s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 # add springs - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 nkeys = [220]
+skeys = []
 for nkey in nkeys:
-    s.add_nodal_element(nkey, 'SpringElement', virtual_node=True)
+    skey = s.add_nodal_element(nkey, 'SpringElement', virtual_node=True)
+    skeys.append(skey)
+s.add_set('springs', 'element', skeys)
+
+kx = 1e10
+ky = 1e10
+kz = 1e10
+kxx = 1e10
+stiffness = {'x':kx, 'y':ky, 'z':kz, 'xx':kxx}
+spring_section = SpringSection('spring_section', stiffness=stiffness)
+s.add(spring_section)
+
+prop = ElementProperties(name='springs', 
+                         material=None,
+                         section='spring_section',
+                         elset='springs')
+s.add(prop)
+
 
 
 """
@@ -81,6 +99,9 @@ el_prop = ElementProperties('concrete_shell',
                             section='shell_sec',
                             elset='shell')
 s.add(el_prop)
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 v = StructureViewer(s)
 # v.show_node_labels = True
