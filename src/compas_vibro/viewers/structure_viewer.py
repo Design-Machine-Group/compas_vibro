@@ -105,7 +105,6 @@ class StructureViewer(object):
                     el_keys = self.structure.sets[elset].selection
                 self.spring_elements.extend(el_keys)
 
-
     def make_shell_mesh(self, mode=None, frequency=None, load_step=None):
 
         elements = self.shell_elements
@@ -692,8 +691,34 @@ class StructureViewer(object):
         self.data.extend(faces)
 
     def plot_springs(self):
-        print('something needs to be dsone here')
-        pass
+        dots = []
+        color = 'rgb(100, 0, 100)'
+        for ek in self.spring_elements:
+            ep = self.structure.elements[ek].element_property
+            ep = self.structure.element_properties[ep]
+            section = ep.section
+            kdict = self.structure.sections[section].stiffness
+            nodes = [self.structure.elements[ek].nodes[0]]
+            x = [self.structure.nodes[nk].x for nk in nodes]
+            y = [self.structure.nodes[nk].y for nk in nodes]
+            z = [self.structure.nodes[nk].z for nk in nodes]
+            n = self.structure.elements[ek].__name__
+            text  = '{}: {}<br>'.format('x', x)
+            text += '{}: {}<br>'.format('y', y)
+            text += '{}: {}<br>'.format('z', z)
+            text += '{}: {}<br>'.format('section', section)
+            for kkey in kdict:
+                text += '{}: {}<br>'.format('k{}'.format(kkey), kdict[kkey])
+            dots.append(go.Scatter3d(name=n,
+                                     x=x,
+                                     y=y,
+                                     z=z,
+                                     mode='markers',
+                                     marker_color=color,
+                                     text=text,
+                                     hoverinfo='text',
+                                     ))
+        self.data.extend(dots)
 
     def plot_supports(self):
         dots = []
