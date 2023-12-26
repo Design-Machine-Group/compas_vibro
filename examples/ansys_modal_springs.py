@@ -30,7 +30,7 @@ for i in range(60): print('')
 
 path = compas_vibro.TEMP
 geometry = 'flat_mesh_20x20'
-name = 'ansys_{0}_modal'.format(geometry)
+name = '{0}_modal_springs'.format(geometry)
 
 mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry)))
 s = Structure(path, name)
@@ -46,10 +46,10 @@ for nkey in nkeys:
     skeys.append(skey)
 s.add_set('springs', 'element', skeys)
 
-kx = 1e10
-ky = 1e10
-kz = 1e10
-kxx = 1e10
+kx  = 1e30
+ky  = 1e30
+kz  = 1e30
+kxx = 1e30
 stiffness = {'x':kx, 'y':ky, 'z':kz, 'xx':kxx}
 spring_section = SpringSection('spring_section', stiffness=stiffness)
 s.add(spring_section)
@@ -80,15 +80,15 @@ s.add(el_prop)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-v = StructureViewer(s)
-# v.show_node_labels = True
-v.show()
-
-
-# s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
-# s.to_obj()
 # v = StructureViewer(s)
-# v.show('modal')
+# # v.show_node_labels = True
+# v.show()
+
+
+s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
+s.to_obj()
+v = StructureViewer(s)
+v.show('modal')
 
 # modes = s.results['modal'].keys()
 # for mode in modes:

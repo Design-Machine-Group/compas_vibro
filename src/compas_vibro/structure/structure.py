@@ -81,7 +81,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.nodes                  = {}
         self.node_index             = {}
         self.virtual_node_index     = {}
-        self.virtual_nodes         = {}
+        self.virtual_nodes          = {}
         self.path                   = path
         self.results                = {}
         self.sections               = {}
@@ -332,6 +332,8 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             mass = area * length * density
         elif self.sections[section].__name__ == 'MassSection':
             mass = self.sections[section].geometry['M']
+        elif self.sections[section].__name__ == 'SpringSection':
+            mass = 0
         return mass
 
     def compute_rad_power(self):

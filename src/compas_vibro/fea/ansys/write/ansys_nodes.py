@@ -6,15 +6,27 @@ import os
 
 def write_nodes(structure, output_path, filename):
     cFile = open(os.path.join(output_path, filename), 'a')
-    nodes = structure.nodes
+    
+    nodes = {}
+    nodes.update(structure.nodes)
+
     for i in range(len(nodes)):
         node = nodes[i]
         string = 'N,' + str(i + 1) + ',' + str(node.x) + ',' + str(node.y) + ',' + str(node.z) + ',0,0,0 \n'
         cFile.write(string)
     cFile.write('!\n')
     cFile.write('!\n')
-    cFile.close()
+    # cFile.close()
 
+    vnodes = structure.virtual_nodes
+    for vnkey in vnodes:
+        node = structure.nodes[vnkey]
+        nkey = structure.virtual_nodes[vnkey]
+        string = 'N,' + str(nkey + 1) + ',' + str(node.x) + ',' + str(node.y) + ',' + str(node.z) + ',0,0,0 \n'
+        cFile.write(string)
+    cFile.write('!\n')
+    cFile.write('!\n')
+    cFile.close()
 
 def write_constraints(structure, step_type, output_path, filename):
 
