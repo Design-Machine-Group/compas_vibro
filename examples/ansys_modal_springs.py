@@ -37,19 +37,40 @@ s = Structure(path, name)
 
 s.add_nodes_elements_from_mesh(mesh, 'ShellElement', elset='shell')
 
+
+
 # add springs - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-nkeys = [220]
-skeys = []
-for nkey in nkeys:
-    skey = s.add_nodal_element(nkey, 'SpringElement', virtual_node=True)
-    skeys.append(skey)
-s.add_set('springs', 'element', skeys)
+# add a line spring connecting shell boundary to supports
 
-kx  = 1e30
-ky  = 1e30
-kz  = 1e30
-kxx = 1e30
+# d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
+# s.add(d)
+
+vks = mesh.vertices_on_boundary()
+lines = []
+supports = []
+h = .01
+for vk in vks:
+    vk = s.check_node_exists(mesh.vertex_coordinates(vk))
+    x, y, z = s.node_xyz(vk)
+    xyz_ = [x, y , z - h]
+    sk = s.add_node(xyz_)
+    supports.append(sk)
+    lines.append([vk, sk])
+
+d = FixedDisplacement('boundary', supports)
+s.add(d)
+
+springs = []
+for nodes in lines:
+    ek = s.add_element(nodes, 'SpringElement', axes={}, check=True)
+    springs.append(ek)
+s.add_set('springs', 'element', springs)
+
+kx  = 1e50
+ky  = 1e50
+kz  = 1e5
+kxx = 1e50
 stiffness = {'x':kx, 'y':ky, 'z':kz, 'xx':kxx}
 spring_section = SpringSection('spring_section', stiffness=stiffness)
 s.add(spring_section)
@@ -60,10 +81,32 @@ prop = ElementProperties(name='springs',
                          elset='springs')
 s.add(prop)
 
+
+# add a nodal spring - - - - - - - 
+# nkeys = [220]
+# skeys = []
+# for nkey in nkeys:
+#     skey = s.add_nodal_element(nkey, 'SpringElement', virtual_node=True)
+#     skeys.append(skey)
+# s.add_set('springs', 'element', skeys)
+
+# kx  = 1e30
+# ky  = 1e30
+# kz  = 1e30
+# kxx = 1e30
+# stiffness = {'x':kx, 'y':ky, 'z':kz, 'xx':kxx}
+# spring_section = SpringSection('spring_section', stiffness=stiffness)
+# s.add(spring_section)
+
+# prop = ElementProperties(name='springs', 
+#                          material=None,
+#                          section='spring_section',
+#                          elset='springs')
+# s.add(prop)
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-d = FixedDisplacement('boundary', mesh.vertices_on_boundary())
-s.add(d)
+
 
 section = ShellSection('shell_sec', t=.1)
 s.add(section)
@@ -88,6 +131,7 @@ s.add(el_prop)
 s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
 s.to_obj()
 v = StructureViewer(s)
+v.modal_scale = 1e1
 v.show('modal')
 
 # modes = s.results['modal'].keys()
