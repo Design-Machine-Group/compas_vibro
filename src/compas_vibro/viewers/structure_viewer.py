@@ -99,6 +99,7 @@ class StructureViewer(object):
                     el_keys = self.structure.sets[elset].selection
                 self.beam_elements.extend(el_keys)
             elif sec_name == 'SpringSection':
+                
                 el_keys = self.structure.element_properties[epk].elements
                 if el_keys == None:
                     elset = self.structure.element_properties[epk].elset
@@ -690,7 +691,8 @@ class StructureViewer(object):
         self.data.extend(lines)
         self.data.extend(faces)
 
-    def plot_springs(self):
+    def plot_springs(self, mode=None, visualization_type='modal'):
+
         dots = []
         color = 'rgb(100, 0, 100)'
         for ek in self.spring_elements:
@@ -702,6 +704,14 @@ class StructureViewer(object):
             x = [self.structure.nodes[nk].x for nk in nodes]
             y = [self.structure.nodes[nk].y for nk in nodes]
             z = [self.structure.nodes[nk].z for nk in nodes]
+            # if mode != None:
+            #     dx = [self.structure.results[visualization_type][mode].displacements['ux'][nk] for nk in nodes]
+            #     dy = [self.structure.results[visualization_type][mode].displacements['uy'][nk] for nk in nodes]
+            #     dz = [self.structure.results[visualization_type][mode].displacements['uz'][nk] for nk in nodes]
+            #     x = [x[i] + dx[i] for i in range(len(x))]
+            #     y = [y[i] + dy[i] for i in range(len(y))]
+            #     z = [z[i] + dz[i] for i in range(len(z))]
+
             n = self.structure.elements[ek].__name__
             text  = '{}: {}<br>'.format('x', x)
             text += '{}: {}<br>'.format('y', y)
@@ -893,6 +903,8 @@ class StructureViewer(object):
                     self.plot_3d_beams(mode=mode)
                 else:
                     self.plot_beam_lines()  
+            # if self.spring_elements:
+            #     self.plot_springs(mode=mode)
 
         if self.show_supports:
             self.plot_supports()
@@ -905,6 +917,16 @@ class StructureViewer(object):
 
         fig.update_layout(sliders=self.sliders)
         fig.update_layout(showlegend=self.show_legend)
+
+
+        fig.update_layout(legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ))
+
         fig.show()
 
     def show_harmonic(self):

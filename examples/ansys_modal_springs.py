@@ -67,11 +67,13 @@ for nodes in lines:
     springs.append(ek)
 s.add_set('springs', 'element', springs)
 
-kx  = 1e50
-ky  = 1e50
-kz  = 1e5
-kxx = 1e50
-stiffness = {'x':kx, 'y':ky, 'z':kz, 'xx':kxx}
+kx  = 1e1
+ky  = 1e1
+kz  = 1e1
+kxx = 1e1
+kyy = 1e1
+kzz = 1e1
+stiffness = {'x':kx, 'y':ky, 'z':kz, 'xx':kxx, 'yy': kyy, 'zz': kzz}
 spring_section = SpringSection('spring_section', stiffness=stiffness)
 s.add(spring_section)
 
@@ -82,27 +84,27 @@ prop = ElementProperties(name='springs',
 s.add(prop)
 
 
-# add a nodal spring - - - - - - - 
-# nkeys = [220]
-# skeys = []
-# for nkey in nkeys:
-#     skey = s.add_nodal_element(nkey, 'SpringElement', virtual_node=True)
-#     skeys.append(skey)
-# s.add_set('springs', 'element', skeys)
+# # add a nodal spring - - - - - - - 
+nkeys = [220]
+skeys = []
+for nkey in nkeys:
+    skey = s.add_nodal_element(nkey, 'SpringElement', virtual_node=True)
+    skeys.append(skey)
+s.add_set('nodal_springs', 'element', skeys)
 
-# kx  = 1e30
-# ky  = 1e30
-# kz  = 1e30
-# kxx = 1e30
-# stiffness = {'x':kx, 'y':ky, 'z':kz, 'xx':kxx}
-# spring_section = SpringSection('spring_section', stiffness=stiffness)
-# s.add(spring_section)
+kx  = 1e5
+ky  = 1e5
+kz  = 1e5
+kxx = 1e5
+stiffness = {'x':kx, 'y':ky, 'z':kz, 'xx':kxx}
+spring_section = SpringSection('spring_section_2', stiffness=stiffness)
+s.add(spring_section)
 
-# prop = ElementProperties(name='springs', 
-#                          material=None,
-#                          section='spring_section',
-#                          elset='springs')
-# s.add(prop)
+prop = ElementProperties(name='nodal_springs', 
+                         material=None,
+                         section='spring_section_2',
+                         elset='nodal_springs')
+s.add(prop)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -129,9 +131,10 @@ s.add(el_prop)
 
 
 s.analyze_modal(backend='ansys', fields=['f', 'u'], num_modes=20)
-s.to_obj()
+# s.to_obj()
 v = StructureViewer(s)
 v.modal_scale = 1e1
+# v.show_legend = False
 v.show('modal')
 
 # modes = s.results['modal'].keys()
@@ -142,4 +145,5 @@ v.show('modal')
 #     print(mode, f, pf, em)
 
 # TODO: Add spring elements/sections, figure out how many types are needed
-# TODO: Fix overlap in modal viewer, by getting rid of color bar
+# TODO: Add spring elemenmts for modal plots, lines for lines and dots for nodals
+# TODO: make example with discrete elements connected by springs
