@@ -144,6 +144,4 @@ v.show('modal')
 #     em = s.results['modal'][mode].efmass['z']
 #     print(mode, f, pf, em)
 
-# TODO: Add spring elements/sections, figure out how many types are needed
 # TODO: Add spring elemenmts for modal plots, lines for lines and dots for nodals
-# TODO: make example with discrete elements connected by springs

@@ -92,7 +92,7 @@ def remesh_vertices_faces(vertices, faces, size):
     gm.remesh()
     return gm.mesh.to_vertices_and_faces()
 
-def remesh_face_by_face(mesh, size):
+def remesh_face_by_face(mesh, size, weld=True):
     rmeshes = []
     cpt_dict = {}
 
@@ -105,18 +105,21 @@ def remesh_face_by_face(mesh, size):
         d = {geometric_key(rmesh.face_centroid(fk_)): fk for fk_ in rmesh.face}
         cpt_dict.update(d)
 
-    rmesh = meshes_join(rmeshes)
-    rmesh = mesh_weld(rmesh)
+    if weld:
+        rmesh = meshes_join(rmeshes)
+        rmesh = mesh_weld(rmesh)
 
-    for fk in rmesh.face:
-        gk = geometric_key(rmesh.face_centroid(fk))
-        # for att in mesh.face_attributes(cpt_dict[gk]):
-        #     rmesh.face_attribute(fk, att, mesh.face_attribute(cpt_dict[gk],att))
-        rmesh.face_attribute(fk, 'set', cpt_dict[gk])
-        rmesh.face_attribute(fk, 'is_boundary', mesh.face_attribute(cpt_dict[gk],'is_boundary'))
-        rmesh.face_attribute(fk, 'is_fin', mesh.face_attribute(cpt_dict[gk],'is_fin'))
+        for fk in rmesh.face:
+            gk = geometric_key(rmesh.face_centroid(fk))
+            # for att in mesh.face_attributes(cpt_dict[gk]):
+            #     rmesh.face_attribute(fk, att, mesh.face_attribute(cpt_dict[gk],att))
+            rmesh.face_attribute(fk, 'set', cpt_dict[gk])
+            rmesh.face_attribute(fk, 'is_boundary', mesh.face_attribute(cpt_dict[gk],'is_boundary'))
+            rmesh.face_attribute(fk, 'is_fin', mesh.face_attribute(cpt_dict[gk],'is_fin'))
 
-    return rmesh
+        return rmesh
+    else:
+        return rmeshes
 
 
 if __name__ == '__main__':
