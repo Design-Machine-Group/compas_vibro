@@ -20,7 +20,7 @@ __all__ = [
 
 class NodeMixins(object):
 
-    def add_node(self, xyz, virtual=False):
+    def add_node(self, xyz, virtual=False, check=True):
 
         """ Adds a node to structure.nodes at co-ordinates xyz.
 
@@ -41,7 +41,10 @@ class NodeMixins(object):
         """
 
         xyz = [float(i) for i in xyz]
-        key = self.check_node_exists(xyz)
+        if check:
+            key = self.check_node_exists(xyz)
+        else:
+            key = None
 
         if key is None:
             key = self.node_count()
