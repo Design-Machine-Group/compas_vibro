@@ -39,7 +39,7 @@ class StructureViewer(object):
         self.data                       = []
         self.layout                     = None
         self.sliders                    = None
-        self.show_point_loads           = True
+        self.show_point_loads           = False
         self.show_supports              = True
         self.show_beams                 = True
         self.show_beam_sections         = True
