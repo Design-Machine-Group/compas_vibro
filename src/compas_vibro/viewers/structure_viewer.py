@@ -54,6 +54,7 @@ class StructureViewer(object):
         self.shell_elements             = []
         self.beam_elements              = []
         self.solid_elements             = []
+        self.spring_elements            = []
         self.mesh                       = None
 
         self.modal_scale                = 4.
@@ -97,6 +98,13 @@ class StructureViewer(object):
                     elset = self.structure.element_properties[epk].elset
                     el_keys = self.structure.sets[elset].selection
                 self.beam_elements.extend(el_keys)
+            elif sec_name == 'SpringSection':
+                
+                el_keys = self.structure.element_properties[epk].elements
+                if el_keys == None:
+                    elset = self.structure.element_properties[epk].elset
+                    el_keys = self.structure.sets[elset].selection
+                self.spring_elements.extend(el_keys)
 
     def make_shell_mesh(self, mode=None, frequency=None, load_step=None):
 
@@ -683,6 +691,45 @@ class StructureViewer(object):
         self.data.extend(lines)
         self.data.extend(faces)
 
+    def plot_springs(self, mode=None, visualization_type='modal'):
+
+        dots = []
+        color = 'rgb(100, 0, 100)'
+        for ek in self.spring_elements:
+            ep = self.structure.elements[ek].element_property
+            ep = self.structure.element_properties[ep]
+            section = ep.section
+            kdict = self.structure.sections[section].stiffness
+            nodes = [self.structure.elements[ek].nodes[0]]
+            x = [self.structure.nodes[nk].x for nk in nodes]
+            y = [self.structure.nodes[nk].y for nk in nodes]
+            z = [self.structure.nodes[nk].z for nk in nodes]
+            # if mode != None:
+            #     dx = [self.structure.results[visualization_type][mode].displacements['ux'][nk] for nk in nodes]
+            #     dy = [self.structure.results[visualization_type][mode].displacements['uy'][nk] for nk in nodes]
+            #     dz = [self.structure.results[visualization_type][mode].displacements['uz'][nk] for nk in nodes]
+            #     x = [x[i] + dx[i] for i in range(len(x))]
+            #     y = [y[i] + dy[i] for i in range(len(y))]
+            #     z = [z[i] + dz[i] for i in range(len(z))]
+
+            n = self.structure.elements[ek].__name__
+            text  = '{}: {}<br>'.format('x', x)
+            text += '{}: {}<br>'.format('y', y)
+            text += '{}: {}<br>'.format('z', z)
+            text += '{}: {}<br>'.format('section', section)
+            for kkey in kdict:
+                text += '{}: {}<br>'.format('k{}'.format(kkey), kdict[kkey])
+            dots.append(go.Scatter3d(name=n,
+                                     x=x,
+                                     y=y,
+                                     z=z,
+                                     mode='markers',
+                                     marker_color=color,
+                                     text=text,
+                                     hoverinfo='text',
+                                     ))
+        self.data.extend(dots)
+
     def plot_supports(self):
         dots = []
         red = 'rgb(255, 0, 0)'
@@ -808,6 +855,9 @@ class StructureViewer(object):
 
         if self.show_incident_nodes:
             self.plot_incident_nodes()
+
+        if self.spring_elements:
+            self.plot_springs()
         
         fig = go.Figure(data=self.data, layout=self.layout)
         fig.show()
@@ -853,6 +903,8 @@ class StructureViewer(object):
                     self.plot_3d_beams(mode=mode)
                 else:
                     self.plot_beam_lines()  
+            # if self.spring_elements:
+            #     self.plot_springs(mode=mode)
 
         if self.show_supports:
             self.plot_supports()
@@ -865,6 +917,16 @@ class StructureViewer(object):
 
         fig.update_layout(sliders=self.sliders)
         fig.update_layout(showlegend=self.show_legend)
+
+
+        fig.update_layout(legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ))
+
         fig.show()
 
     def show_harmonic(self):

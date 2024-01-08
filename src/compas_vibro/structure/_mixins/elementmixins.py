@@ -13,6 +13,7 @@ from compas_vibro.structure.element import StrutElement
 from compas_vibro.structure.element import TrussElement
 from compas_vibro.structure.element import MassElement
 from compas_vibro.structure.element import SolidElement
+from compas_vibro.structure.element import SpringElement
 
 __author__     = ['Tomas Mendez Echenagucia <tmendeze@uw.edu>']
 __copyright__  = 'Copyright 2020, Design Machine Group - University of Washington'
@@ -30,6 +31,7 @@ func_dict = {'ShellElement': ShellElement,
              'TrussElement': TrussElement,
              'MassElement': MassElement,
              'SolidElement': SolidElement,
+             'SpringElement': SpringElement
              }
 
 
@@ -226,6 +228,56 @@ class ElementMixins(object):
         for element in elements:
             self.elements[element].element_property = element_property.name
 
+    def add_nodal_element(self, node, type, virtual_node=False):
+
+            """ Adds a nodal element to structure.elements with the possibility of
+            adding a coincident virtual node. Virtual nodes are added to a node
+            set called 'virtual_nodes'.
+
+            Parameters
+            ----------
+            node : int
+                Node number the element is connected to.
+            type : str
+                Element type: 'SpringElement'.
+            virtual_node : bool
+                Create a virtual node or not.
+
+            Returns
+            -------
+            int
+                Key of the added element.
+
+            Notes
+            -----
+            - Elements are numbered sequentially starting from 0.
+
+            """
+
+            if virtual_node:
+                xyz = self.node_xyz(node)
+                key = self.virtual_nodes.setdefault(node, self.node_count())
+                # self.nodes[key] = {'x': xyz[0], 'y': xyz[1], 'z': xyz[2],
+                #                 'ex': [1, 0, 0], 'ey': [0, 1, 0], 'ez': [0, 0, 1], 'virtual': True}
+                self.add_node(xyz=xyz, virtual=True)
+                if 'virtual_nodes' in self.sets:
+                    self.sets['virtual_nodes']['selection'].append(key)
+                else:
+                    self.sets['virtual_nodes'] = {'type': 'node', 'selection': [key], 'explode': False}
+                nodes = [node, key]
+            else:
+                nodes = [node]
+
+            func_dict = {
+                'SpringElement': SpringElement,
+            }
+
+            ekey = self.element_count()
+            element = func_dict[type]()
+            element.nodes = nodes
+            element.number = ekey
+            self.elements[ekey] = element
+            return ekey
 
 if __name__ == "__main__":
     pass

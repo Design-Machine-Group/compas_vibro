@@ -393,7 +393,6 @@ def write_tie_section(output_path, filename, sec_area, sec_index, axial_force):
     cFile.close()
 
 
-
 def write_circular_section(output_path, filename, radius, sec_index):
     cFile = open(os.path.join(output_path, filename), 'a')
     cFile.write('SECTYPE, ' + str(sec_index + 1) + ', BEAM, CSOLID , 0 \n')
@@ -734,6 +733,7 @@ def write_request_mesh_volume(structure, output_path, name, size=1, hex=True, di
 
 def write_spring_elements_nodal(structure, out_path, filename, ekeys, section):
     axis_dict = {'x': 1, 'y': 2, 'z': 3, 'xx': 4, 'yy': 5, 'zz': 6}
+    section = structure.sections[section]
     kdict = section.stiffness
     fh = open(os.path.join(out_path, filename), 'a')
     for axis in kdict:

@@ -81,6 +81,7 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         self.nodes                  = {}
         self.node_index             = {}
         self.virtual_node_index     = {}
+        self.virtual_nodes          = {}
         self.path                   = path
         self.results                = {}
         self.sections               = {}
@@ -141,6 +142,38 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
         for fkey in list(mesh.faces()):
             face = [self.check_node_exists(mesh.vertex_coordinates(i)) for i in mesh.face[fkey]]
             ekeys.append(self.add_element(nodes=face, type=element_type))
+        if elset:
+            self.add_set(name=elset, type='element', selection=ekeys)
+
+        return ekeys
+
+    def add_nodes_elements_from_meshes(self, meshes, element_type='ShellElement', elset=None):
+
+        """ Adds the nodes and faces of a list of Meshes to the Structure object. It maintains
+        the shells as discrete elements (does not weld the meshes together). 
+
+        Parameters
+        ----------
+        meshes : list(obj)
+            Mesh datastructure objects.
+        element_type : str
+            Element type: 'ShellElement', 'SolidElement' etc.
+
+        Returns
+        -------
+        list
+            Keys of the created elements.
+
+        """
+        ekeys = []
+        for mesh in meshes:
+            bkeys = mesh.vertices_on_boundary()
+            for key in sorted(list(mesh.vertices()), key=int):
+                self.add_node(mesh.vertex_coordinates(key), check=key not in bkeys)
+
+            for fkey in list(mesh.faces()):
+                face = [self.check_node_exists(mesh.vertex_coordinates(i)) for i in mesh.face[fkey]]
+                ekeys.append(self.add_element(nodes=face, type=element_type))
         if elset:
             self.add_set(name=elset, type='element', selection=ekeys)
 
@@ -331,6 +364,8 @@ class Structure(NodeMixins, ElementMixins, ObjectMixins):
             mass = area * length * density
         elif self.sections[section].__name__ == 'MassSection':
             mass = self.sections[section].geometry['M']
+        elif self.sections[section].__name__ == 'SpringSection':
+            mass = 0
         return mass
 
     def compute_rad_power(self):
