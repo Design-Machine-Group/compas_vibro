@@ -695,40 +695,35 @@ class StructureViewer(object):
 
         dots = []
         color = 'rgb(100, 0, 100)'
-        for ek in self.spring_elements:
-            ep = self.structure.elements[ek].element_property
-            ep = self.structure.element_properties[ep]
-            section = ep.section
-            kdict = self.structure.sections[section].stiffness
-            nodes = [self.structure.elements[ek].nodes[0]]
-            x = [self.structure.nodes[nk].x for nk in nodes]
-            y = [self.structure.nodes[nk].y for nk in nodes]
-            z = [self.structure.nodes[nk].z for nk in nodes]
-            # if mode != None:
-            #     dx = [self.structure.results[visualization_type][mode].displacements['ux'][nk] for nk in nodes]
-            #     dy = [self.structure.results[visualization_type][mode].displacements['uy'][nk] for nk in nodes]
-            #     dz = [self.structure.results[visualization_type][mode].displacements['uz'][nk] for nk in nodes]
-            #     x = [x[i] + dx[i] for i in range(len(x))]
-            #     y = [y[i] + dy[i] for i in range(len(y))]
-            #     z = [z[i] + dz[i] for i in range(len(z))]
+        for epk in self.structure.element_properties:
+            print(epk)
+            ep = self.structure.element_properties[epk]
+            section = self.structure.sections[ep.section]
+            if section.__name__ == 'SpringSection':
+                eks = ep.elements
+                kdict = self.structure.sections[ep.section].stiffness
+                if not eks:
+                    eks = self.structure.sets[ep.elset].selection
+                   
+                nodes = [self.structure.elements[ek].nodes[0] for ek in eks]
+                x = [self.structure.nodes[nk].x for nk in nodes]
+                y = [self.structure.nodes[nk].y for nk in nodes]
+                z = [self.structure.nodes[nk].z for nk in nodes]
 
-            n = self.structure.elements[ek].__name__
-            text  = '{}: {}<br>'.format('x', x)
-            text += '{}: {}<br>'.format('y', y)
-            text += '{}: {}<br>'.format('z', z)
-            text += '{}: {}<br>'.format('section', section)
-            for kkey in kdict:
-                text += '{}: {}<br>'.format('k{}'.format(kkey), kdict[kkey])
-            dots.append(go.Scatter3d(name=n,
-                                     x=x,
-                                     y=y,
-                                     z=z,
-                                     mode='markers',
-                                     marker_color=color,
-                                     text=text,
-                                     hoverinfo='text',
-                                     ))
-        self.data.extend(dots)
+                text = '{}: {}<br>'.format('Elements', epk)
+                text += '{}: {}<br>'.format('section', ep.section)
+                for kkey in kdict:
+                    text += '{}: {}<br>'.format('k{}'.format(kkey), kdict[kkey])
+                dots.append(go.Scatter3d(name=epk,
+                                        x=x,
+                                        y=y,
+                                        z=z,
+                                        mode='markers',
+                                        marker_color=color,
+                                        text=text,
+                                        hoverinfo='text',
+                                        ))
+            self.data.extend(dots)
 
     def plot_supports(self):
         dots = []
