@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import os
+
 from compas.datastructures import Mesh
 
 import compas_vibro
@@ -15,7 +17,7 @@ from compas_vibro.structure import ElementProperties
 
 from compas_vibro.vibro import from_W_to_dB
 
-from compas_vibro.viewers import HarmonicViewer
+from compas_vibro.viewers import StructureViewer
 
 __author__ = ["Tomas Mendez Echenagucia"]
 __copyright__ = "Copyright 2020, Design Machine Group - University of Washington"
@@ -30,7 +32,7 @@ name = '{0}_radiation'.format(geometry)
 
 
 
-mesh = Mesh.from_json(compas_vibro.get('{0}.json'.format(geometry)))
+mesh = Mesh.from_json(os.path.join(compas_vibro.DATA, 'meshes', '{}.json'.format(geometry)))
 
 # make an instance of the stucture object - - - - - - - - - - - - - - - - - - - 
 s = Structure(path, name) 

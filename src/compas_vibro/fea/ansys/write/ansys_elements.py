@@ -31,7 +31,9 @@ def write_elements(structure, output_path, filename):
             count += 1
 
     # write sorted elements ----------------------------------------------------
-    for ekeys in ekey_lists:
+
+
+    for i, ekeys in enumerate(ekey_lists):
         etype = elements[ekeys[0]].__name__
         ep = elements[ekeys[0]].element_property
 
@@ -46,14 +48,14 @@ def write_elements(structure, output_path, filename):
             write_beam_elements(structure, output_path, filename, ekeys, section, material)
         elif etype == 'TieElement' or etype == 'StrutElement' or etype == 'TrussElement':
             write_tie_elements(structure, output_path, filename, ekeys, section, material, etype)
-        elif etype == 'SpringElement':
-            write_spring_elements_nodal(structure, output_path, filename, ekeys, section)
         elif etype == 'FaceElement':
             write_surface_elements(structure, output_path, filename, ekeys)
         elif etype == 'SolidElement':
             write_solid_elements(structure, output_path, filename, ekeys, material)
         elif etype == 'MassElement':
             write_mass_elements(structure, output_path, filename, ekeys, section)
+        elif etype == 'SpringElement':
+            write_spring_elements_nodal(structure, output_path, filename, ekeys, section, i)
         else:
             raise NameError('The {} element type is not implemented in Ansys yet'.format(etype))
 
@@ -731,13 +733,14 @@ def write_request_mesh_volume(structure, output_path, name, size=1, hex=True, di
     cFile.close()
 
 
-def write_spring_elements_nodal(structure, out_path, filename, ekeys, section):
+def write_spring_elements_nodal(structure, out_path, filename, ekeys, section, et_count):
+
     axis_dict = {'x': 1, 'y': 2, 'z': 3, 'xx': 4, 'yy': 5, 'zz': 6}
     section = structure.sections[section]
     kdict = section.stiffness
     fh = open(os.path.join(out_path, filename), 'a')
     for axis in kdict:
-        etkey = structure.et_dict.setdefault('COMBIN14_' + axis, len(structure.et_dict) + 1)
+        etkey = structure.et_dict.setdefault('COMBIN14_{}_{}'.format(axis, et_count), len(structure.et_dict) + 1)
         fh.write('ET, {0}, COMBIN14 \n'.format(etkey))
         fh.write('KEYOPT, {0}, 1, 0 \n'.format(etkey))
         fh.write('KEYOPT, {0}, 2, {1} \n'.format(etkey, axis_dict[axis]))

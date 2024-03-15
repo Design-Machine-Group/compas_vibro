@@ -696,7 +696,6 @@ class StructureViewer(object):
         dots = []
         color = 'rgb(100, 0, 100)'
         for epk in self.structure.element_properties:
-            print(epk)
             ep = self.structure.element_properties[epk]
             section = self.structure.sections[ep.section]
             if section.__name__ == 'SpringSection':
