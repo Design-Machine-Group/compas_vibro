@@ -232,7 +232,7 @@ class Dashboard(object):
                              min=m,
                              max=M,
                              step=s,
-                             value=1,
+                             value=10,
                              marks={i:{'label':'', 'style':{'dots':False}} for i in range(m, M)},
                              included=False,
                              tooltip={'always_visible':False},
@@ -306,7 +306,7 @@ class Dashboard(object):
         vertices = []
         nodes = sorted(s.nodes.keys(), key=int)
         # scale = 1.
-        scale *= 1e8
+        scale *= 1e6
         dm = []
         for vk in nodes:
             x, y, z = s.nodes[vk].xyz()
