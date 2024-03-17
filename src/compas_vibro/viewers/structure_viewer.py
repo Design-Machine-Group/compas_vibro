@@ -694,7 +694,8 @@ class StructureViewer(object):
     def plot_springs(self, mode=None, visualization_type='modal'):
 
         dots = []
-        color = 'rgb(100, 0, 100)'
+        # color = 'rgb(100, 0, 100)'
+        color = None
         for epk in self.structure.element_properties:
             ep = self.structure.element_properties[epk]
             section = self.structure.sections[ep.section]
