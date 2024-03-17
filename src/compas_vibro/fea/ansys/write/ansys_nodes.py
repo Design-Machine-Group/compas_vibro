@@ -31,6 +31,7 @@ def write_nodes(structure, output_path, filename):
 def write_constraints(structure, step_type, output_path, filename):
 
     displacements = structure.step[step_type].displacements
+    # print(displacements)
     cFile = open(os.path.join(output_path, filename), 'a')
 
     cdict = {'x' : 'UX', 'y' : 'UY', 'z' : 'UZ', 'xx' : 'ROTX', 'yy' : 'ROTY', 'zz' : 'ROTZ'}
@@ -39,6 +40,7 @@ def write_constraints(structure, step_type, output_path, filename):
         displacements = [displacements]
 
     for dkey in displacements:
+        # print(dkey)
         components = structure.displacements[dkey].components
         nodes = structure.displacements[dkey].nodes
         if type(nodes) == str:

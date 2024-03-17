@@ -125,14 +125,14 @@ def ansys_harmonic_super(structure, num_modes, freq_list, fields='all', damping=
 
     # add modal step -----------------------------------------------------------
     step = ModalStep(name=structure.name + '_modal', 
-                     displacements=[list(structure.displacements.keys())[0]],
+                     displacements=list(structure.displacements.keys()),
                      modes=num_modes)
     structure.add(step)
 
     # # add harmonic step --------------------------------------------------------
     loads = [structure.loads[lk].name for lk in structure.loads]
     step = HarmonicStep(name=structure.name + '_harmonic',
-                        displacements=[list(structure.displacements.keys())[0]],
+                        displacements=list(structure.displacements.keys()),
                         loads=loads,
                         freq_list=freq_list,
                         damping=damping)
